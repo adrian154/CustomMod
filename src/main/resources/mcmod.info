@@ -1,0 +1,16 @@
+[
+{
+  "modid": "custommod",
+  "name": "Custom Mod",
+  "description": "Custom mod for CaracalCraft.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Adrian Zhang"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
