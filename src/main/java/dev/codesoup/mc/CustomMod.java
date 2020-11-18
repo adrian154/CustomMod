@@ -42,7 +42,7 @@ public class CustomMod
     	event.registerServerCommand(new TogglePVPCommand(this));
     	
     	try {
-    		this.claimsManager = new ClaimsManager(this);
+    		this.claimsManager = new ClaimsManager();
     	} catch(IOException exception) {
     		this.logger.fatal("Exception while initializing claims: " + exception.getMessage());
     	}
