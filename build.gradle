@@ -42,7 +42,6 @@ minecraft {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
-	compile group:'org.xerial', name:'sqlite-jdbc', version:'3.32.3.2'
 }
 
 jar {
