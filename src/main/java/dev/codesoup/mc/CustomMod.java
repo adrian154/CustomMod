@@ -26,7 +26,7 @@ public class CustomMod
     @EventHandler
     public void init(FMLInitializationEvent event) {
     	
-    	this.customEventHandler = new CustomEventHandler();
+    	this.customEventHandler = new CustomEventHandler(this);
     	MinecraftForge.EVENT_BUS.register(this.customEventHandler);
     	
     }

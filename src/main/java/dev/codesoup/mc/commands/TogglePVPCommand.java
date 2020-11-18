@@ -37,4 +37,9 @@ public class TogglePVPCommand extends CommandBase {
 		return "command.pvp.usage";
 	}
 	
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return sender.canUseCommand(2, "");
+	}
+	
 }
