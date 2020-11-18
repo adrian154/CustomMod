@@ -22,6 +22,7 @@ public class CustomMod
 
     private CustomEventHandler customEventHandler;
     private ClaimsManager claimsManager;
+    private AllianceManager allianceManager;
     public Logger logger;
     
     @EventHandler
@@ -39,14 +40,18 @@ public class CustomMod
     
     @EventHandler
     public void init(FMLServerStartingEvent event) {
+    	
     	event.registerServerCommand(new TogglePVPCommand(this));
     	
     	try {
-    		this.claimsManager = new ClaimsManager();
+    		this.claimsManager = new ClaimsManager(this);
+    		this.allianceManager = new AllianceManager();
     	} catch(IOException exception) {
-    		this.logger.fatal("Exception while initializing claims: " + exception.getMessage());
+    		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}
     
+    		
+    	
     }
     
     public CustomEventHandler getEventHandler() {
@@ -55,6 +60,10 @@ public class CustomMod
     
     public ClaimsManager getClaims() {
     	return this.claimsManager;
+    }
+    
+    public AllianceManager getAllianceManager() {
+    	return this.allianceManager;
     }
     
 }

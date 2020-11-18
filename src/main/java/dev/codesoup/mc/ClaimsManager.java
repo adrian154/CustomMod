@@ -18,8 +18,10 @@ public class ClaimsManager {
 	private static final String PATH = "claims.dat";
 	
 	private Map<Pair<Integer, Integer>, UUID> claims;
+	private CustomMod mod;
 	
-	public ClaimsManager() throws IOException {
+	public ClaimsManager(CustomMod mod) throws IOException {
+		this.mod = mod;
 		claims = new HashMap<Pair<Integer, Integer>, UUID>();
 		loadFromFile();
 	}
@@ -47,6 +49,10 @@ public class ClaimsManager {
 		if(claim == null) {
 			return false;
 		} else {
+			
+			if(mod.getAllianceManager().areAllied(claim, uuid)) {
+				
+			}
 			
 		}
 		
