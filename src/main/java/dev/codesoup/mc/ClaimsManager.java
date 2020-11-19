@@ -9,6 +9,9 @@ import java.util.UUID;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 public class ClaimsManager {
 
 	private static final String PATH = "claims.dat";
@@ -42,9 +45,9 @@ public class ClaimsManager {
 		claims.put(pair, uuid);
 	}
 	
-	/*
 	public boolean shouldProtect(World world, BlockPos pos, UUID uuid) {
 		
+		/*
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
 		UUID claim = getClaim(chunk.x, chunk.z);
 		
@@ -57,7 +60,9 @@ public class ClaimsManager {
 			}
 			
 		}
+		*/
+		return true;
 		
-	}*/
+	}
 	
 }

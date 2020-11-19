@@ -14,7 +14,10 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
+import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,21 +54,37 @@ public class CustomEventHandler {
 			event.getEntityPlayer().sendMessage(new TextComponentString(TextFormatting.RED + "PVP is disabled."));
 		}
 	}
-	
-	@SideOnly(Side.SERVER)
+
 	@SubscribeEvent
-	public void breakEvent(BreakEvent event) {
-	
-		/*
-		EntityPlayer player = event.getPlayer();
-		BlockPos pos = event.getPos();
-		Chunk chunk = event.getWorld().getChunkFromBlockCoords(pos);
-		
-		System.out.println(chunk.x + ", " + chunk.z);
-		*/
-		
+	public void interactEvent(PlayerInteractEvent event) {
+		if(!event.getWorld().isRemote)
+			event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), event.getEntityPlayer().getUniqueID()));
 	}
 
+	@SubscribeEvent
+	public void breakEvent(BreakEvent event) {
+		if(!event.getWorld().isRemote)
+			event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer().getUniqueID()));
+	}
+	
+	@SubscribeEvent
+	public void placeEvent(EntityPlaceEvent event) {
+		if(event.getEntity() instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
+			event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
+		}
+	}
+	
+	@SubscribeEvent
+	public void trampleFarmlandEvent(FarmlandTrampleEvent event) {
+		if(!event.getWorld().isRemote) {
+			if(event.getEntity() instanceof EntityPlayerMP) {
+				EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
+				event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
+			}
+		}
+	}
+	
 	@SubscribeEvent
 	public void enteringChunkEvent(EntityEvent.EnteringChunk event) {
 		
