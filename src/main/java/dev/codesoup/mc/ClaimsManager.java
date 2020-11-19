@@ -41,6 +41,7 @@ public class ClaimsManager {
 		return claims.get(pair);
 	}
 	
+	/*
 	public boolean shouldProtect(World world, BlockPos pos, UUID uuid) {
 		
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
@@ -56,6 +57,6 @@ public class ClaimsManager {
 			
 		}
 		
-	}
+	}*/
 	
 }

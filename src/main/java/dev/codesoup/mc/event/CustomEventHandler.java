@@ -10,6 +10,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CustomEventHandler {
 
@@ -30,6 +32,7 @@ public class CustomEventHandler {
 		return this.PVPEnabled;
 	}
 	
+	@SideOnly(Side.SERVER)
 	@SubscribeEvent
 	public void attackEntityEvent(AttackEntityEvent event) {
 		Entity target = event.getTarget();
@@ -39,6 +42,7 @@ public class CustomEventHandler {
 		}
 	}
 	
+	@SideOnly(Side.SERVER)
 	@SubscribeEvent
 	public void breakEvent(BreakEvent event) {
 	
