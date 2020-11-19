@@ -9,10 +9,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-
 public class ClaimsManager {
 
 	private static final String PATH = "claims.dat";
@@ -39,6 +35,11 @@ public class ClaimsManager {
 	public UUID getClaim(int x, int z) {
 		Pair<Integer, Integer> pair = new MutablePair<Integer, Integer>(x, z);
 		return claims.get(pair);
+	}
+	
+	public void setClaim(int x, int z, UUID uuid) {
+		Pair<Integer, Integer> pair = new MutablePair<Integer, Integer>(x, z);
+		claims.put(pair, uuid);
 	}
 	
 	/*

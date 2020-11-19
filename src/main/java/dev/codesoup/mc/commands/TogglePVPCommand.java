@@ -20,9 +20,9 @@ public class TogglePVPCommand extends CommandBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
 		if(mod.getEventHandler().togglePVP()) {
-			server.sendMessage(new TextComponentString(TextFormatting.RED + "PVP is now enabled."));
+			mod.broadcast(TextFormatting.RED + "PVP is now enabled.");
 		} else {
-			server.sendMessage(new TextComponentString(TextFormatting.GREEN + "PVP is now disabled."));
+			mod.broadcast(TextFormatting.GREEN + "PVP is now disabled.");
 		}
 		
 	}
