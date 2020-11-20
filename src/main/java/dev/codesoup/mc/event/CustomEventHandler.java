@@ -98,10 +98,23 @@ public class CustomEventHandler {
 		if(curChunkClaimer != this.occupiedTerritory.get(player)) {
 			
 			if(curChunkClaimer != null) {
-				GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
-				player.sendMessage(new TextComponentString(String.format("You are now on %s's territory.", profile.getName())));
+				
+				if(curChunkClaimer == player.getUniqueID()) {
+					player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
+				} else {
+				
+					GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
+					player.sendMessage(new TextComponentString(String.format(TextFormatting.RED + "You are now on %s's territory.", profile.getName())));
+				
+					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
+					if(claimerPlayer != null) {
+						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", TextFormatting.RED, player.getName())));
+					}
+					
+				}
+				
 			} else {
-				player.sendMessage(new TextComponentString("You are now in the wilderness."));
+				player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
 			}
 			
 			this.occupiedTerritory.put(player, curChunkClaimer);
