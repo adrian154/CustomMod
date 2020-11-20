@@ -9,8 +9,10 @@ import java.util.UUID;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import net.minecraft.item.ItemRecord;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class ClaimsManager {
 
@@ -47,21 +49,14 @@ public class ClaimsManager {
 	
 	public boolean shouldProtect(World world, BlockPos pos, UUID uuid) {
 		
-		/*
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
 		UUID claim = getClaim(chunk.x, chunk.z);
 		
 		if(claim == null) {
 			return false;
 		} else {
-			
-			if(mod.getAllianceManager().areAllied(claim, uuid)) {
-				
-			}
-			
+			return mod.getServer().getPlayerList().getPlayerByUUID(claim) == null;
 		}
-		*/
-		return true;
 		
 	}
 	

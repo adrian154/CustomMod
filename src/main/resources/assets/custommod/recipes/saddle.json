@@ -1,0 +1,16 @@
+{
+	"result": {
+		"item": "minecraft:lead"
+	},
+	"pattern": [
+		"xx ",
+		"xx ",
+		"  x"
+	],
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"x": {
+			"item": "minecraft:string"
+		}
+	}
+}
