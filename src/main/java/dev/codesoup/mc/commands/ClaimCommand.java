@@ -6,6 +6,8 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.chunk.Chunk;
 
 public class ClaimCommand extends CommandBase {
@@ -26,6 +28,7 @@ public class ClaimCommand extends CommandBase {
 		EntityPlayerMP player = (EntityPlayerMP)sender;
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		mod.getClaims().setClaim(chunk.x, chunk.z, player.getUniqueID());
+		player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
 		
 	}
 	

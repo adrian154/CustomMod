@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.gson.Gson;
+
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
@@ -28,12 +30,15 @@ public class CustomMod
     private CustomEventHandler customEventHandler;
     private ClaimsManager claimsManager;
     private AllianceManager allianceManager;
+    private PowerManager powerManager;
     
     public Logger logger;
+    public Gson gson;
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
     	this.logger = event.getModLog();
+    	this.gson = new Gson();
     }
 
     @EventHandler
@@ -73,12 +78,21 @@ public class CustomMod
     	return this.allianceManager;
     }
     
+    public PowerManager getPowerManager() {
+    	return this.powerManager;
+    }
+    
     public void broadcast(String message) { 
     	this.server.getPlayerList().sendMessage(new TextComponentString(message));
     }
     
     public MinecraftServer getServer() {
     	return this.server;
+    }
+ 
+    public void saveAll() {
+    	logger.debug(this.gson.toJson(this.claimsManager));
+    	logger.debug(this.gson.toJson(this.allianceManager));
     }
     
 }

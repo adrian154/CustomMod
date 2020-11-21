@@ -15,6 +15,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
@@ -121,6 +122,11 @@ public class CustomEventHandler {
 			
 		}
 		
+	}
+	
+	@SubscribeEvent
+	public void saveEvent(WorldEvent.Save event) {
+		this.mod.saveAll();
 	}
 	
 }

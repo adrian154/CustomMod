@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 public class AllianceManager {
 	
 	private List<Alliance> alliances;
-	private Map<UUID, Alliance> playerAlliances;
+	private transient Map<UUID, Alliance> playerAlliances;
 	
 	public AllianceManager() {
 		
@@ -26,6 +26,10 @@ public class AllianceManager {
 	
 	public Alliance getAlliance(UUID uuid) {
 		return playerAlliances.get(uuid);
+	}
+	
+	public Alliance getAlliance(String name) {
+		return alliances.stream().filter(alliance -> alliance.getName().equals(name)).findFirst().orElse(null);
 	}
 	
 	public boolean areAllied(EntityPlayer A, EntityPlayer B) {
