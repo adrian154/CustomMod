@@ -9,32 +9,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 public class ClaimsManager extends Manager {
-
-	public static class Pair {
-		
-		public int A, B;
-		
-		public Pair(int A, int B) {
-			this.A = A; 
-			this.B = B;
-		}
-		
-		@Override
-		public int hashCode() {
-			return A * 256 + B;
-		}
-		
-		@Override
-		public boolean equals(Object other) {
-			if(other instanceof Pair) {
-				Pair otherPair = (Pair)other;
-				return otherPair.A == A && otherPair.B == B;
-			} else {
-				return false;
-			}
-		}
-		
-	}
 	
 	private Map<Pair, UUID> claims;
 	

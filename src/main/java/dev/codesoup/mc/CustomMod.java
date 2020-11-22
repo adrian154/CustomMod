@@ -53,6 +53,7 @@ public class CustomMod
     	this.logger = event.getModLog();
     	
     	GsonBuilder gsonBuilder = new GsonBuilder();
+    	gsonBuilder.enableComplexMapKeySerialization();
     	gsonBuilder.registerTypeAdapter(AllianceManager.class, new ManagerCreator<AllianceManager>(this, AllianceManager.class));
     	gsonBuilder.registerTypeAdapter(ClaimsManager.class, new ManagerCreator<ClaimsManager>(this, ClaimsManager.class));
     	gsonBuilder.registerTypeAdapter(PowerManager.class, new ManagerCreator<PowerManager>(this, PowerManager.class));
