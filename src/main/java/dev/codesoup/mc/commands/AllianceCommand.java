@@ -151,12 +151,10 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
-			
-			/*
 			if(alliance.getMembers().contains(toInvite.getId())) {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite is already part of this alliance!"));
 				return;
-			}*/
+			}
 			
 			alliance.invite(toInvite.getId());
 			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the alliance.");
