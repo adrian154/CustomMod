@@ -15,9 +15,9 @@ public class AllianceCommand extends CommandBase {
 
 	private CustomMod mod;
 	private AllianceManager allianceManager;
-	private static final String USAGE_CREATE = "/alliance create <name>";
-	private static final String USAGE_RENAME = "/alliance rename <name>";
-	private static final String USAGE_LEAVE = "/alliance leave";
+	private static final String USAGE_CREATE = TextFormatting.RED + "/alliance create <name>";
+	private static final String USAGE_RENAME = TextFormatting.RED + "/alliance rename <name>";
+	private static final String USAGE_LEAVE = TextFormatting.RED + "/alliance leave";
 	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE;
 	
 	public AllianceCommand(CustomMod mod) {
@@ -92,14 +92,14 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
-			if(params[1].length() < 3 || params[1].length() > 16) {
+			if(params[1].length() < 3 || params[1].length() > 24) {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "Your alliance's name must be between 3 and 16 characters long!"));
 				return;
 			}
 			
 			alliance.setName(params[1]);
 			this.allianceManager.refreshNames(alliance);
-			this.allianceManager.broadcastTo(alliance, TextFormatting.GRAY + "Your alliance was renamed to " + TextFormatting.YELLOW + params[1]);
+			this.allianceManager.broadcastTo(alliance, TextFormatting.GRAY + "Your alliance was renamed to " + TextFormatting.YELLOW + params[1] + TextFormatting.GRAY + ".");
 			
 		} else if(params[0].equals("leave")) {
 			
@@ -111,9 +111,12 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			allianceManager.removePlayer(alliance, player.getUniqueID());
+			player.refreshDisplayName();
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You left your alliance."));
 			this.allianceManager.broadcastTo(alliance, TextFormatting.GRAY + player.getName() + " left the alliance.");
 			
+		} else {
+			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));
 		}
 		
 	}

@@ -1,11 +1,9 @@
 package dev.codesoup.mc;
 
-public class PowerManager {
+public class PowerManager extends Manager {
 
-	private transient CustomMod mod;
-	
 	public PowerManager(CustomMod mod) {
-		this.mod = mod;
+		super(mod);
 	}
 	
 }

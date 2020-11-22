@@ -1,5 +1,6 @@
 package dev.codesoup.mc.commands;
 
+import dev.codesoup.mc.ClaimsManager;
 import dev.codesoup.mc.CustomMod;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -13,10 +14,12 @@ import net.minecraft.world.chunk.Chunk;
 public class ClaimCommand extends CommandBase {
 
 	private CustomMod mod;
+	private ClaimsManager claims;
 	private final static String USAGE = "/claim";
 	
 	public ClaimCommand(CustomMod mod) {
 		this.mod = mod;
+		this.claims = mod.getClaims();
 	}
 	
 	@Override
@@ -28,8 +31,14 @@ public class ClaimCommand extends CommandBase {
 		
 		EntityPlayerMP player = (EntityPlayerMP)sender;
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
-		mod.getClaims().setClaim(chunk.x, chunk.z, player.getUniqueID());
-		player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
+		
+		
+		if(claims.getClaim(chunk.x, chunk.z) == null) {
+			claims.setClaim(chunk.x, chunk.z, player.getUniqueID());
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
+		} else {
+			player.sendMessage(new TextComponentString(TextFormatting.RED + "That chunk is already claimed!"));
+		}
 		
 	}
 	

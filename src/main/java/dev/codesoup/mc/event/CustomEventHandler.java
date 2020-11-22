@@ -22,6 +22,8 @@ import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -89,6 +91,20 @@ public class CustomEventHandler {
 	}
 	
 	@SubscribeEvent
+	public void attackEvent(AttackEntityEvent event) {
+		
+		if(!(event.getEntityPlayer() instanceof EntityPlayerMP)) {
+			return;
+		}
+		
+		EntityPlayerMP player = (EntityPlayerMP)event.getEntityPlayer();
+		if(mod.getClaims().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
+			event.setCanceled(true);
+		}
+		
+	}
+	
+	@SubscribeEvent
 	public void enteringChunkEvent(EntityEvent.EnteringChunk event) {
 		
 		if(!(event.getEntity() instanceof EntityPlayerMP) || event.getEntity().world.isRemote) {
@@ -113,7 +129,7 @@ public class CustomEventHandler {
 					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
 				
 					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
-					if(claimerPlayer != null) {
+					if(claimerPlayer != null && curChunkClaimer != player.getUniqueID()) {
 						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 					}
 					
@@ -130,16 +146,28 @@ public class CustomEventHandler {
 	}
 	
 	@SubscribeEvent
-	public void nameFormatEvent(NameFormat event) {
-		
-		EntityPlayer player = event.getEntityPlayer();
-		event.setDisplayname(this.mod.getAllianceManager().getName(player));
+	public void playerLoggedInEvent(PlayerLoggedInEvent event) {
 		
 	}
 	
 	@SubscribeEvent
+	public void playerLoggedOutEvent(PlayerLoggedOutEvent event) {
+		
+	}
+	
+	@SubscribeEvent
+	public void nameFormatEvent(NameFormat event) {
+		
+		EntityPlayer player = event.getEntityPlayer();
+		String name = this.mod.getAllianceManager().getName(player);
+		event.setDisplayname(name);
+		player.setCustomNameTag(name);
+
+	}
+	
+	@SubscribeEvent
 	public void chatEvent(ServerChatEvent event) {
-		event.setComponent(new TextComponentString(event.getPlayer().getName() + ": " + event.getMessage()));
+		event.setComponent(new TextComponentString(event.getPlayer().getDisplayNameString() + ": " + event.getMessage()));
 	}
 	
 	@SubscribeEvent

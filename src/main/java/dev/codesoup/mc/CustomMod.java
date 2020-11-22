@@ -1,10 +1,13 @@
 package dev.codesoup.mc;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.InstanceCreator;
 
 import dev.codesoup.mc.commands.AllianceCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
@@ -58,6 +61,7 @@ public class CustomMod
     	try {
     		this.claimsManager = new ClaimsManager(this);
     		this.allianceManager = new AllianceManager(this);
+    		this.powerManager = new PowerManager(this);
     	} catch(IOException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}	
@@ -101,6 +105,26 @@ public class CustomMod
     	logger.debug(this.gson.toJson(this.claimsManager));
     	logger.debug(this.gson.toJson(this.allianceManager));
     	logger.debug(this.gson.toJson(this.powerManager));
+    }
+    
+    private class ManagerCreator<T extends Manager> implements InstanceCreator<T> {
+    
+    	private CustomMod mod;
+    	private Class<T> clazz;
+    	
+    	public ManagerCreator(CustomMod mod, Class<T> clazz) {
+    		this.mod = mod;
+    		this.clazz = clazz;
+    	}
+    	
+    	public T createInstance(Type type) {
+    		try {
+    			return clazz.getDeclaredConstructor(CustomMod.class).newInstance(mod);
+    		} catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException exception) {
+    			return null;
+    		}
+    	}
+    	
     }
     
 }

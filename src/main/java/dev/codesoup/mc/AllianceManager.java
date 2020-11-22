@@ -12,14 +12,13 @@ import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class AllianceManager {
+public class AllianceManager extends Manager {
 	
 	private List<Alliance> alliances;
 	private transient Map<UUID, Alliance> playerAlliances;
-	private transient CustomMod mod;
 	
 	public AllianceManager(CustomMod mod) {
-		this.mod = mod;
+		super(mod);
 		this.alliances = new ArrayList<Alliance>();
 		this.playerAlliances = new HashMap<UUID, Alliance>();
 	}
@@ -41,7 +40,8 @@ public class AllianceManager {
 	}
 	
 	public boolean areAllied(UUID A, UUID B) {
-		return getAlliance(A).getMembers().contains(B);
+		Alliance alliance = getAlliance(A);
+		return alliance == null ? false : alliance.getMembers().contains(B);
 	}
 
 	public void removePlayer(Alliance alliance, UUID uuid) {

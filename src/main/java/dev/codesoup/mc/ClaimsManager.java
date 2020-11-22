@@ -12,13 +12,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class ClaimsManager {
+public class ClaimsManager extends Manager {
 
 	private Map<Pair<Integer, Integer>, UUID> claims;
-	private transient CustomMod mod;
 	
 	public ClaimsManager(CustomMod mod) throws IOException {
-		this.mod = mod;
+		super(mod);
 		claims = new HashMap<Pair<Integer, Integer>, UUID>();
 	}
 	
