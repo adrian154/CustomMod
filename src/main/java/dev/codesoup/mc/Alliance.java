@@ -14,7 +14,8 @@ public class Alliance {
 	private UUID leader;
 	
 	public Alliance() {
-		members = new ArrayList<UUID>();
+		this.members = new ArrayList<UUID>();
+		this.outstandingInvitations = new ArrayList<UUID>();
 	}
 	
 	public String getName() {
@@ -67,6 +68,10 @@ public class Alliance {
 	
 	public boolean hasInvitationFor(EntityPlayer player) {
 		return this.outstandingInvitations.contains(player.getUniqueID());
+	}
+	
+	public List<UUID> getInvitations() {
+		return this.outstandingInvitations;
 	}
 	
 }

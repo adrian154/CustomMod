@@ -24,8 +24,18 @@ public class AllianceCommand extends CommandBase {
 	private static final String USAGE_RENAME = TextFormatting.RED + "/alliance rename <name>";
 	private static final String USAGE_LEAVE = TextFormatting.RED + "/alliance leave";
 	private static final String USAGE_INVITE = TextFormatting.RED + "/alliance invite <player>";
+	private static final String USAGE_UNINVITE = TextFormatting.RED + "/alliance uninvite <player>";
+	private static final String USAGE_INVITE_LIST = TextFormatting.RED + "/alliance invites";
 	private static final String USAGE_MEMBERS = TextFormatting.RED + "/alliance members [alliance name]";
-	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE + "\n" + USAGE_INVITE + "\n" + USAGE_MEMBERS;
+	private static final String USAGE_ACCEPT = TextFormatting.RED + "/alliance accept <alliance name>";
+	private static final String USAGE = USAGE_CREATE + "\n" +
+										USAGE_RENAME + "\n" +
+										USAGE_LEAVE + "\n" +
+										USAGE_INVITE + "\n" +
+										USAGE_UNINVITE + "\n" +
+										USAGE_INVITE_LIST + "\n" +
+										USAGE_MEMBERS + "\n" + 
+										USAGE_ACCEPT;
 	
 	public AllianceCommand(CustomMod mod) {
 		this.mod = mod;
@@ -80,7 +90,7 @@ public class AllianceCommand extends CommandBase {
 			
 			Alliance alliance = this.allianceManager.getAlliance(player);
 			if(alliance == null) {
-				player.sendMessage(new TextComponentString(TextFormatting.RED + "You must be part of an alliance to rename it.\nTo create an alliance, do /alliance create <name>"));
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
 				return;
 			}
 			
@@ -136,8 +146,8 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			GameProfile toInvite = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[1]);
-			if(toInvite == null) {
-				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite seems to have never joined the server before."));
+			if(toInvite.getId() == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite does not exist."));
 				return;
 			}
 			
@@ -147,7 +157,53 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			alliance.invite(toInvite.getId());
-			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + player.getName() + TextFormatting.GRAY + " to the alliance.");
+			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the alliance.");
+			
+		} else if(params[0].equals("uninvite")) {
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
+				return;
+			}
+			
+			if(params.length != 2) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You need to specify who you want to uninvite to the alliance.\nUsage: " + USAGE_UNINVITE));
+				return;
+			}
+			
+			GameProfile toUninvite = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[1]);
+			if(toUninvite.getId() == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite does not exist."));
+				return;
+			}
+			
+			if(!alliance.getInvitations().contains(toUninvite.getId())) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "There are no outstanding invitations for that player. Try /alliance invites to see a list."));
+				return;
+			}
+			
+			alliance.uninvite(toUninvite.getId());
+			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " to the alliance.");
+			
+			
+		} else if(params[0].equals("invites")) {
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
+				return;
+			}
+			
+			if(alliance.getInvitations().size() == 0) {
+				player.sendMessage(new TextComponentString(TextFormatting.GRAY + "There are no outstanding invites."));
+				return;
+			}
+			
+			PlayerProfileCache cache = mod.getServer().getPlayerProfileCache();
+			String list = alliance.getInvitations().stream().map(uuid -> cache.getProfileByUUID(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
+			
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Outstanding invites: " + list));
 			
 		} else if(params[0].equals("members")) {
 			
@@ -172,6 +228,32 @@ public class AllianceCommand extends CommandBase {
 			String list = alliance.getMembers().stream().map(uuid -> cache.getProfileByUUID(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
 			
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Members of " + alliance.getName() + ": " + list));
+			
+		} else if(params[0].equals("accept")) {
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance != null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You must leave your current alliance to join a new one."));
+				return;
+			}
+			
+			if(params.length != 2) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "Not enough parameters.\nUsage: " + USAGE_ACCEPT));
+				return;
+			}
+			
+			alliance = this.allianceManager.getAlliance(params[1]);
+			
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "There's no alliance with that name."));
+				return;
+			}
+			
+			if(alliance.hasInvitationFor(player)) {
+				
+			} else {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "That alliance has not invited you."));
+			}
 			
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));
