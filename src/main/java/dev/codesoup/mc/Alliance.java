@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 public class Alliance {
 
 	private List<UUID> members;
+	private List<UUID> outstandingInvitations;
 	private String name;
 	private UUID leader;
 	
@@ -54,6 +55,18 @@ public class Alliance {
 	
 	public boolean isLeader(EntityPlayer player) {
 		return this.leader.equals(player.getUniqueID());
+	}
+	
+	public void invite(UUID uuid) {
+		this.outstandingInvitations.add(uuid);
+	}
+	
+	public void uninvite(UUID uuid) {
+		this.outstandingInvitations.remove(uuid);
+	}
+	
+	public boolean hasInvitationFor(EntityPlayer player) {
+		return this.outstandingInvitations.contains(player.getUniqueID());
 	}
 	
 }

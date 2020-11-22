@@ -1,5 +1,9 @@
 package dev.codesoup.mc.commands;
 
+import java.util.stream.Collectors;
+
+import com.mojang.authlib.GameProfile;
+
 import dev.codesoup.mc.Alliance;
 import dev.codesoup.mc.AllianceManager;
 import dev.codesoup.mc.CustomMod;
@@ -8,6 +12,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
@@ -18,7 +23,8 @@ public class AllianceCommand extends CommandBase {
 	private static final String USAGE_CREATE = TextFormatting.RED + "/alliance create <name>";
 	private static final String USAGE_RENAME = TextFormatting.RED + "/alliance rename <name>";
 	private static final String USAGE_LEAVE = TextFormatting.RED + "/alliance leave";
-	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE;
+	private static final String USAGE_INVITE = TextFormatting.RED + "/alliance invite <player>";
+	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE + "\n" + USAGE_INVITE;
 	
 	public AllianceCommand(CustomMod mod) {
 		this.mod = mod;
@@ -114,6 +120,52 @@ public class AllianceCommand extends CommandBase {
 			player.refreshDisplayName();
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You left your alliance."));
 			this.allianceManager.broadcastTo(alliance, TextFormatting.GRAY + player.getName() + " left the alliance.");
+			
+		} else if(params[0].equals("invite")) {
+		
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
+				return;
+			}
+			
+			if(params.length != 1) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You need to specify who you want to invite to the alliance.\nUsage: " + USAGE_INVITE));
+				return;
+			}
+			
+			GameProfile toInvite = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[1]);
+			if(toInvite == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite seems to have never joined the server before."));
+				return;
+			}
+			
+			alliance.invite(toInvite.getId());
+			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + player.getName() + TextFormatting.GRAY + " to the alliance.");
+			
+		} else if(params[0].equals("members")) {
+			
+			Alliance alliance;
+			
+			if(params.length == 0) {
+				alliance = this.allianceManager.getAlliance(player);
+				if(alliance == null) {
+					player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
+					return;
+				}
+			} else {
+				alliance = this.allianceManager.getAlliance(params[1]);
+				if(alliance == null) {
+					player.sendMessage(new TextComponentString(TextFormatting.RED + "No alliance exists by that name."));
+					return;
+				}
+			}
+			
+			
+			PlayerProfileCache cache = mod.getServer().getPlayerProfileCache();
+			String list = alliance.getMembers().stream().map(uuid -> cache.getProfileByUUID(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
+			
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Members of " + alliance.getName() + ": " + list));
 			
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));
