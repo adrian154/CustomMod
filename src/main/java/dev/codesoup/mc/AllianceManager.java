@@ -103,8 +103,11 @@ public class AllianceManager extends Manager {
 		}
 		
 		if(invitedTo.size() > 0) {
+			
 			String alliances = invitedTo.stream().map(alliance -> alliance.getName()).collect(Collectors.joining(", "));
-			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You've been invited to: " + TextFormatting.WHITE + alliances + TextFormatting.GRAY + "\nDo /alliance accept <alliance name> to accept an invitation."));
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You've been invited to: " + TextFormatting.WHITE + alliances + "\n" +
+													   TextFormatting.GRAY + "Do " + TextFormatting.WHITE + "/alliance accept <alliance name>" + TextFormatting.GRAY + " to accept an invitation."));
+			
 		} else if(listIfNone) {
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You have not been invited to any alliances."));
 		}

@@ -83,7 +83,7 @@ public class AllianceCommand extends CommandBase {
 			newAlliance.makeLeader(player);
 			this.allianceManager.addAlliance(newAlliance);
 			this.allianceManager.refreshNames(newAlliance);
-			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Your alliance was created.\nAdd people with /alliance add <player>"));
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Your alliance was created.\n" + TextFormatting.GRAY + "Add people with " + TextFormatting.WHITE + "/alliance invite <player>"));
 			
 			
 		} else if(params[0].equals("rename")) {
@@ -253,6 +253,7 @@ public class AllianceCommand extends CommandBase {
 			
 			if(alliance.hasInvitationFor(player)) {
 				this.allianceManager.addPlayer(alliance, player.getUniqueID());
+				player.refreshDisplayName();
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getName() + "!"));
 				this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " joined the alliance.");
 			} else {
