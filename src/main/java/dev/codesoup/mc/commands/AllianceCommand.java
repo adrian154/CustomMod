@@ -24,7 +24,8 @@ public class AllianceCommand extends CommandBase {
 	private static final String USAGE_RENAME = TextFormatting.RED + "/alliance rename <name>";
 	private static final String USAGE_LEAVE = TextFormatting.RED + "/alliance leave";
 	private static final String USAGE_INVITE = TextFormatting.RED + "/alliance invite <player>";
-	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE + "\n" + USAGE_INVITE;
+	private static final String USAGE_MEMBERS = TextFormatting.RED + "/alliance members [alliance name]";
+	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE + "\n" + USAGE_INVITE + "\n" + USAGE_MEMBERS;
 	
 	public AllianceCommand(CustomMod mod) {
 		this.mod = mod;
@@ -129,7 +130,7 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
-			if(params.length != 1) {
+			if(params.length != 2) {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "You need to specify who you want to invite to the alliance.\nUsage: " + USAGE_INVITE));
 				return;
 			}
@@ -140,6 +141,11 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
+			if(alliance.getMembers().contains(toInvite.getId())) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite is already part of this alliance!"));
+				return;
+			}
+			
 			alliance.invite(toInvite.getId());
 			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + player.getName() + TextFormatting.GRAY + " to the alliance.");
 			
@@ -147,7 +153,7 @@ public class AllianceCommand extends CommandBase {
 			
 			Alliance alliance;
 			
-			if(params.length == 0) {
+			if(params.length == 1) {
 				alliance = this.allianceManager.getAlliance(player);
 				if(alliance == null) {
 					player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
