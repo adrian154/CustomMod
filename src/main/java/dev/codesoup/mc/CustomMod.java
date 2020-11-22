@@ -12,6 +12,7 @@ import com.google.gson.InstanceCreator;
 
 import dev.codesoup.mc.commands.AllianceCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
+import dev.codesoup.mc.commands.InvitationsCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
 import net.minecraft.server.MinecraftServer;
@@ -83,6 +84,7 @@ public class CustomMod
     	event.registerServerCommand(new TogglePVPCommand(this));
     	event.registerServerCommand(new ClaimCommand(this));
     	event.registerServerCommand(new AllianceCommand(this));
+    	event.registerServerCommand(new InvitationsCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {

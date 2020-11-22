@@ -151,10 +151,12 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
+			
+			/*
 			if(alliance.getMembers().contains(toInvite.getId())) {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you're trying to invite is already part of this alliance!"));
 				return;
-			}
+			}*/
 			
 			alliance.invite(toInvite.getId());
 			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the alliance.");
@@ -184,7 +186,7 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			alliance.uninvite(toUninvite.getId());
-			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " to the alliance.");
+			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " from the alliance.");
 			
 			
 		} else if(params[0].equals("invites")) {
@@ -203,7 +205,7 @@ public class AllianceCommand extends CommandBase {
 			PlayerProfileCache cache = mod.getServer().getPlayerProfileCache();
 			String list = alliance.getInvitations().stream().map(uuid -> cache.getProfileByUUID(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
 			
-			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Outstanding invites: " + list));
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Outstanding invites: " + TextFormatting.WHITE + list));
 			
 		} else if(params[0].equals("members")) {
 			
@@ -218,7 +220,7 @@ public class AllianceCommand extends CommandBase {
 			} else {
 				alliance = this.allianceManager.getAlliance(params[1]);
 				if(alliance == null) {
-					player.sendMessage(new TextComponentString(TextFormatting.RED + "No alliance exists by that name."));
+					player.sendMessage(new TextComponentString(TextFormatting.RED + "There's no alliance with that name."));
 					return;
 				}
 			}
@@ -250,6 +252,7 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			if(alliance.hasInvitationFor(player)) {
+				this.allianceManager.addPlayer(alliance, player.getUniqueID());
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getName() + "!"));
 				this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " joined the alliance.");
 			} else {

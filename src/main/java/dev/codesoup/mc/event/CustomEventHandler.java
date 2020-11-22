@@ -148,10 +148,17 @@ public class CustomEventHandler {
 	@SubscribeEvent
 	public void playerLoggedInEvent(PlayerLoggedInEvent event) {
 		
+		if(!(event.player instanceof EntityPlayerMP))
+			return;
+		
+		this.mod.getAllianceManager().listInvitations((EntityPlayerMP)event.player, false);
+		
 	}
 	
 	@SubscribeEvent
 	public void playerLoggedOutEvent(PlayerLoggedOutEvent event) {
+		
+		// TODO
 		
 	}
 	

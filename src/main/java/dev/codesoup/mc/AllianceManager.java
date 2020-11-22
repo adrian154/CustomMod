@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -44,6 +45,11 @@ public class AllianceManager extends Manager {
 		return alliance == null ? false : alliance.getMembers().contains(B);
 	}
 
+	public void addPlayer(Alliance alliance, UUID uuid) {
+		alliance.addMember(uuid);
+		this.playerAlliances.put(uuid, alliance);
+	}
+	
 	public void removePlayer(Alliance alliance, UUID uuid) {
 		alliance.removeMember(uuid);
 		this.playerAlliances.remove(uuid);
@@ -85,6 +91,24 @@ public class AllianceManager extends Manager {
 				player.refreshDisplayName();
 			}
 		}
+	}
+	
+	public void listInvitations(EntityPlayerMP player, boolean listIfNone) {
+		
+		List<Alliance> invitedTo = new ArrayList<Alliance>();
+		for(Alliance alliance: this.alliances) {
+			if(alliance.hasInvitationFor(player)) {
+				invitedTo.add(alliance);
+			}
+		}
+		
+		if(invitedTo.size() > 0) {
+			String alliances = invitedTo.stream().map(alliance -> alliance.getName()).collect(Collectors.joining(", "));
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You've been invited to: " + TextFormatting.WHITE + alliances + TextFormatting.GRAY + "\nDo /alliance accept <alliance name> to accept an invitation."));
+		} else if(listIfNone) {
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You have not been invited to any alliances."));
+		}
+		
 	}
 	
 }
