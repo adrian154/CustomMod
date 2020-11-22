@@ -250,7 +250,8 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			if(alliance.hasInvitationFor(player)) {
-				
+				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getName() + "!"));
+				this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " joined the alliance.");
 			} else {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "That alliance has not invited you."));
 			}
