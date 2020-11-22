@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 
 public class AllianceManager {
 	
@@ -42,6 +43,11 @@ public class AllianceManager {
 	public boolean areAllied(UUID A, UUID B) {
 		return getAlliance(A).getMembers().contains(B);
 	}
+
+	public void removePlayer(Alliance alliance, UUID uuid) {
+		alliance.removeMember(uuid);
+		this.playerAlliances.remove(uuid);
+	}
 	
 	public void addAlliance(Alliance alliance) {
 		this.alliances.add(alliance);
@@ -56,6 +62,27 @@ public class AllianceManager {
 			EntityPlayerMP player = playerList.getPlayerByUUID(uuid);
 			if(player != null) {
 				player.sendMessage(new TextComponentString(message));
+			}
+		}
+	}
+	
+	public String getName(EntityPlayer player) {
+		Alliance alliance = this.getAlliance(player);
+		
+		String prefix = "";
+		if(alliance != null) {
+			prefix = String.format("%s[%s]%s ", TextFormatting.YELLOW, alliance.getName(), TextFormatting.RESET);
+		}
+		
+		return String.format("%s%s", prefix, player.getName());
+	}
+	
+	public void refreshNames(Alliance alliance) {
+		PlayerList playerList = mod.getServer().getPlayerList();
+		for(UUID uuid: alliance.getMembers()) {
+			EntityPlayerMP player = playerList.getPlayerByUUID(uuid);
+			if(player != null) {
+				player.refreshDisplayName();
 			}
 		}
 	}

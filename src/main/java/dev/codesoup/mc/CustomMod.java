@@ -55,14 +55,15 @@ public class CustomMod
     	
     	this.server = event.getServer();
     	
-    	registerCommands(event);
-    	
     	try {
     		this.claimsManager = new ClaimsManager(this);
     		this.allianceManager = new AllianceManager(this);
     	} catch(IOException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}	
+    	
+    	registerCommands(event);
+    	
     	
     }
     

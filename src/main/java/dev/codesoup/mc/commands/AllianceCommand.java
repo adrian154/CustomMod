@@ -17,7 +17,8 @@ public class AllianceCommand extends CommandBase {
 	private AllianceManager allianceManager;
 	private static final String USAGE_CREATE = "/alliance create <name>";
 	private static final String USAGE_RENAME = "/alliance rename <name>";
-	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME;
+	private static final String USAGE_LEAVE = "/alliance leave";
+	private static final String USAGE = USAGE_CREATE + "\n" + USAGE_RENAME + "\n" + USAGE_LEAVE;
 	
 	public AllianceCommand(CustomMod mod) {
 		this.mod = mod;
@@ -54,22 +55,35 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
+			if(params[1].length() < 3 || params[1].length() > 16) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "Your alliance's name must be between 3 and 16 characters long!"));
+				return;
+			}
+			
 			Alliance newAlliance = new Alliance();
 			newAlliance.setName(params[1]);
 			newAlliance.addMember(player);
 			newAlliance.makeLeader(player);
 			this.allianceManager.addAlliance(newAlliance);
+			this.allianceManager.refreshNames(newAlliance);
 			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Your alliance was created.\nAdd people with /alliance add <player>"));
 			
-		} else if(params[0].equals("rename")) {
 			
-			if(params.length != 2) {
-				player.sendMessage(new TextComponentString(TextFormatting.RED + "You didn't specify the right number of parameters. Make sure that your alliance name has no spaces!\nUsage: " + USAGE_RENAME));
-			}
+		} else if(params[0].equals("rename")) {
 			
 			Alliance alliance = this.allianceManager.getAlliance(player);
 			if(alliance == null) {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "You must be part of an alliance to rename it.\nTo create an alliance, do /alliance create <name>"));
+				return;
+			}
+			
+			if(!alliance.isLeader(player)) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You must be the leader of your alliance to rename it."));
+				return;
+			}
+			
+			if(params.length != 2) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You didn't specify the right number of parameters. Make sure that your alliance name has no spaces!\nUsage: " + USAGE_RENAME));
 				return;
 			}
 			
@@ -78,8 +92,27 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
-			mod.getAllianceManager().getAlliance(player).setName(params[1]);
-			this.allianceManager.broadcastTo(alliance, TextFormatting.GOLD + "Your alliance was renamed to " + params[1]);
+			if(params[1].length() < 3 || params[1].length() > 16) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "Your alliance's name must be between 3 and 16 characters long!"));
+				return;
+			}
+			
+			alliance.setName(params[1]);
+			this.allianceManager.refreshNames(alliance);
+			this.allianceManager.broadcastTo(alliance, TextFormatting.GRAY + "Your alliance was renamed to " + TextFormatting.YELLOW + params[1]);
+			
+		} else if(params[0].equals("leave")) {
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You are not currently in an alliance."));
+				return;
+			}
+			
+			allianceManager.removePlayer(alliance, player.getUniqueID());
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You left your alliance."));
+			this.allianceManager.broadcastTo(alliance, TextFormatting.GRAY + player.getName() + " left the alliance.");
 			
 		}
 		

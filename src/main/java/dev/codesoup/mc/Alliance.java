@@ -36,6 +36,10 @@ public class Alliance {
 		this.addMember(player.getUniqueID());
 	}
 	
+	public void removeMember(UUID uuid) {
+		this.members.remove(uuid);
+	}
+	
 	public void makeLeader(UUID newLeader) {
 		this.leader = newLeader;
 	}

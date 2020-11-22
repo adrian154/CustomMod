@@ -12,13 +12,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -125,6 +127,19 @@ public class CustomEventHandler {
 			
 		}
 		
+	}
+	
+	@SubscribeEvent
+	public void nameFormatEvent(NameFormat event) {
+		
+		EntityPlayer player = event.getEntityPlayer();
+		event.setDisplayname(this.mod.getAllianceManager().getName(player));
+		
+	}
+	
+	@SubscribeEvent
+	public void chatEvent(ServerChatEvent event) {
+		event.setComponent(new TextComponentString(event.getPlayer().getName() + ": " + event.getMessage()));
 	}
 	
 	@SubscribeEvent
