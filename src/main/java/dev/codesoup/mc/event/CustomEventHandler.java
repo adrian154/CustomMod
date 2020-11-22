@@ -104,12 +104,15 @@ public class CustomEventHandler {
 					player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
 				} else {
 				
+					boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), curChunkClaimer);
+					String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
+					
 					GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
-					player.sendMessage(new TextComponentString(String.format(TextFormatting.RED + "You are now on %s's territory.", profile.getName())));
+					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
 				
 					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
 					if(claimerPlayer != null) {
-						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", TextFormatting.RED, player.getName())));
+						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 					}
 					
 				}

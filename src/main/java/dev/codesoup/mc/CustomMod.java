@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 
+import dev.codesoup.mc.commands.AllianceCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
