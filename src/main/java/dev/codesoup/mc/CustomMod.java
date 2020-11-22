@@ -3,6 +3,10 @@ package dev.codesoup.mc;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.logging.log4j.Logger;
 
@@ -68,9 +72,12 @@ public class CustomMod
     	this.server = event.getServer();
     	
     	try {
+    		/*
     		this.claimsManager = new ClaimsManager(this);
     		this.allianceManager = new AllianceManager(this);
     		this.powerManager = new PowerManager(this);
+    		*/
+    		this.loadAll();
     	} catch(IOException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}	
@@ -109,6 +116,27 @@ public class CustomMod
     
     public MinecraftServer getServer() {
     	return this.server;
+    }
+    
+    private String readConfigFile(String pathStr) throws IOException {
+    	Path path = Paths.get(pathStr);
+    	if(Files.exists(path)) {
+    		return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+    	} else {
+    		return null;
+    	}
+    }
+    
+    private void loadAll() throws IOException {
+    
+    	String claimsData = readConfigFile("claims.dat");
+    	String alliancesData = readConfigFile("alliances.dat");
+    	String powerData = readConfigFile("power.dat");
+    
+    	this.claimsManager = claimsData != null ? this.gson.fromJson(claimsData, ClaimsManager.class) : new ClaimsManager(this);
+    	this.allianceManager = alliancesData != null ? this.gson.fromJson(alliancesData, AllianceManager.class) : new AllianceManager(this);
+    	this.powerManager = powerData != null ? this.gson.fromJson(powerData, PowerManager.class) : new PowerManager(this);
+    	
     }
  
     public void saveAll() {

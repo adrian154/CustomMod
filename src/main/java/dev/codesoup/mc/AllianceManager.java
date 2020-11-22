@@ -24,6 +24,14 @@ public class AllianceManager extends Manager {
 		this.playerAlliances = new HashMap<UUID, Alliance>();
 	}
 	
+	public void initPlayerAlliances() {
+		for(Alliance alliance: alliances) {
+			for(UUID uuid: alliance.getMembers()) {
+				playerAlliances.put(uuid, alliance);
+			}
+		}
+	}
+	
 	public Alliance getAlliance(EntityPlayer player) {
 		return playerAlliances.get(player.getUniqueID());
 	}

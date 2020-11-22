@@ -1,6 +1,5 @@
 package dev.codesoup.mc;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,7 +15,7 @@ public class ClaimsManager extends Manager {
 
 	private Map<Pair<Integer, Integer>, UUID> claims;
 	
-	public ClaimsManager(CustomMod mod) throws IOException {
+	public ClaimsManager(CustomMod mod) {
 		super(mod);
 		claims = new HashMap<Pair<Integer, Integer>, UUID>();
 	}
