@@ -13,6 +13,7 @@ import net.minecraft.world.chunk.Chunk;
 public class ClaimCommand extends CommandBase {
 
 	private CustomMod mod;
+	private final static String USAGE = "/claim";
 	
 	public ClaimCommand(CustomMod mod) {
 		this.mod = mod;
@@ -39,7 +40,7 @@ public class ClaimCommand extends CommandBase {
 	
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "command.claim.usage";
+		return USAGE;
 	}
 	
 }

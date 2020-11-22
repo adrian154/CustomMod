@@ -54,16 +54,21 @@ public class CustomMod
     	
     	this.server = event.getServer();
     	
-    	event.registerServerCommand(new TogglePVPCommand(this));
-    	event.registerServerCommand(new ClaimCommand(this));
+    	registerCommands(event);
     	
     	try {
     		this.claimsManager = new ClaimsManager(this);
-    		this.allianceManager = new AllianceManager();
+    		this.allianceManager = new AllianceManager(this);
     	} catch(IOException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}	
     	
+    }
+    
+    private void registerCommands(FMLServerStartingEvent event) {
+    	event.registerServerCommand(new TogglePVPCommand(this));
+    	event.registerServerCommand(new ClaimCommand(this));
+    	event.registerServerCommand(new AllianceCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {
@@ -93,6 +98,7 @@ public class CustomMod
     public void saveAll() {
     	logger.debug(this.gson.toJson(this.claimsManager));
     	logger.debug(this.gson.toJson(this.allianceManager));
+    	logger.debug(this.gson.toJson(this.powerManager));
     }
     
 }

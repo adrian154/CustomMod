@@ -5,12 +5,12 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
 public class TogglePVPCommand extends CommandBase {
 
 	private CustomMod mod;
+	private final static String USAGE = "/pvp";
 	
 	public TogglePVPCommand(CustomMod mod) {
 		this.mod = mod;
@@ -34,7 +34,7 @@ public class TogglePVPCommand extends CommandBase {
 	
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "command.pvp.usage";
+		return USAGE;
 	}
 	
 	@Override

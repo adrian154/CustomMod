@@ -7,17 +7,20 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.text.TextComponentString;
 
 public class AllianceManager {
 	
 	private List<Alliance> alliances;
 	private transient Map<UUID, Alliance> playerAlliances;
+	private transient CustomMod mod;
 	
-	public AllianceManager() {
-		
-		alliances = new ArrayList<Alliance>();
-		playerAlliances = new HashMap<UUID, Alliance>();
-		
+	public AllianceManager(CustomMod mod) {
+		this.mod = mod;
+		this.alliances = new ArrayList<Alliance>();
+		this.playerAlliances = new HashMap<UUID, Alliance>();
 	}
 	
 	public Alliance getAlliance(EntityPlayer player) {
@@ -44,6 +47,16 @@ public class AllianceManager {
 		this.alliances.add(alliance);
 		for(UUID uuid: alliance.getMembers()) {
 			playerAlliances.put(uuid, alliance);
+		}
+	}
+
+	public void broadcastTo(Alliance alliance, String message) {
+		PlayerList playerList = mod.getServer().getPlayerList();
+		for(UUID uuid: alliance.getMembers()) {
+			EntityPlayerMP player = playerList.getPlayerByUUID(uuid);
+			if(player != null) {
+				player.sendMessage(new TextComponentString(message));
+			}
 		}
 	}
 	
