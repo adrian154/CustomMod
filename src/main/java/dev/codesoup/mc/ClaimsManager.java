@@ -4,31 +4,34 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 public class ClaimsManager extends Manager {
 
-	private Map<Pair<Integer, Integer>, UUID> claims;
+	private class Pair {
+		public int A, B;
+		public Pair(int A, int B) {
+			this.A = A; 
+			this.B = B;
+		}
+	}
+	
+	private Map<Pair, UUID> claims;
 	
 	public ClaimsManager(CustomMod mod) {
 		super(mod);
-		claims = new HashMap<Pair<Integer, Integer>, UUID>();
+		claims = new HashMap<Pair, UUID>();
 	}
 	
 	// x and z are chunk coordinates
 	public UUID getClaim(int x, int z) {
-		Pair<Integer, Integer> pair = new MutablePair<Integer, Integer>(x, z);
-		return claims.get(pair);
+		return claims.get(new Pair(x, z));
 	}
 	
 	public void setClaim(int x, int z, UUID uuid) {
-		Pair<Integer, Integer> pair = new MutablePair<Integer, Integer>(x, z);
-		claims.put(pair, uuid);
+		claims.put(new Pair(x, z), uuid);
 	}
 	
 	public boolean shouldProtect(World world, BlockPos pos, UUID uuid) {

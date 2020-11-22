@@ -125,6 +125,7 @@ public class CustomMod
     	if(Files.exists(path)) {
     		return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
     	} else {
+    		Files.createFile(path);
     		return null;
     	}
     }

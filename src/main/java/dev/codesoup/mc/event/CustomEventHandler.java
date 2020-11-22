@@ -1,5 +1,6 @@
 package dev.codesoup.mc.event;
 
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -24,8 +25,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CustomEventHandler {
 
@@ -49,15 +48,24 @@ public class CustomEventHandler {
 		this.PVPEnabled = !this.PVPEnabled;
 		return this.PVPEnabled;
 	}
-	
-	@SideOnly(Side.SERVER)
+
 	@SubscribeEvent
 	public void attackEntityEvent(AttackEntityEvent event) {
+
+		if(event.getEntity().getEntityWorld().isRemote)
+			return;
+		
 		Entity target = event.getTarget();
 		if(target instanceof EntityPlayer && !this.PVPEnabled) {
 			event.setCanceled(true);
 			event.getEntityPlayer().sendMessage(new TextComponentString(TextFormatting.RED + "PVP is disabled."));
 		}
+		
+		EntityPlayerMP player = (EntityPlayerMP)event.getEntityPlayer();
+		if(mod.getClaims().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
+			event.setCanceled(true);
+		}
+		
 	}
 
 	@SubscribeEvent
@@ -88,20 +96,6 @@ public class CustomEventHandler {
 				event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
 			}
 		}
-	}
-	
-	@SubscribeEvent
-	public void attackEvent(AttackEntityEvent event) {
-		
-		if(!(event.getEntityPlayer() instanceof EntityPlayerMP)) {
-			return;
-		}
-		
-		EntityPlayerMP player = (EntityPlayerMP)event.getEntityPlayer();
-		if(mod.getClaims().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
-			event.setCanceled(true);
-		}
-		
 	}
 	
 	@SubscribeEvent
@@ -179,7 +173,11 @@ public class CustomEventHandler {
 	
 	@SubscribeEvent
 	public void saveEvent(WorldEvent.Save event) {
-		this.mod.saveAll();
+		try {
+			this.mod.saveAll();
+		} catch(FileNotFoundException exception) {
+			mod.logger.error("FAILED TO SAVE CONFIGS, THIS IS REALLY REALLY BAD!");
+		}
 	}
 	
 }
