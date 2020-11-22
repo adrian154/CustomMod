@@ -1,6 +1,8 @@
 package dev.codesoup.mc;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -127,6 +129,12 @@ public class CustomMod
     	}
     }
     
+    private void saveConfig(String path, String contents) throws FileNotFoundException {
+    	PrintWriter out = new PrintWriter(path);
+    	out.println(contents);
+    	out.close();
+    }
+    
     private void loadAll() throws IOException {
     
     	String claimsData = readConfigFile("claims.dat");
@@ -139,10 +147,10 @@ public class CustomMod
     	
     }
  
-    public void saveAll() {
-    	logger.debug(this.gson.toJson(this.claimsManager));
-    	logger.debug(this.gson.toJson(this.allianceManager));
-    	logger.debug(this.gson.toJson(this.powerManager));
+    public void saveAll() throws FileNotFoundException {
+    	saveConfig("claims.dat", gson.toJson(this.claimsManager));
+    	saveConfig("alliances.dat", gson.toJson(this.allianceManager));
+    	saveConfig("power.dat", gson.toJson(this.powerManager));
     }
     
     private class ManagerCreator<T extends Manager> implements InstanceCreator<T> {
