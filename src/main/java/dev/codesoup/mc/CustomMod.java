@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 
 import dev.codesoup.mc.commands.AllianceCommand;
@@ -41,8 +42,15 @@ public class CustomMod
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+    
     	this.logger = event.getModLog();
-    	this.gson = new Gson();
+    	
+    	GsonBuilder gsonBuilder = new GsonBuilder();
+    	gsonBuilder.registerTypeAdapter(AllianceManager.class, new ManagerCreator<AllianceManager>(this, AllianceManager.class));
+    	gsonBuilder.registerTypeAdapter(ClaimsManager.class, new ManagerCreator<ClaimsManager>(this, ClaimsManager.class));
+    	gsonBuilder.registerTypeAdapter(PowerManager.class, new ManagerCreator<PowerManager>(this, PowerManager.class));
+        this.gson = gsonBuilder.create();
+        
     }
 
     @EventHandler
