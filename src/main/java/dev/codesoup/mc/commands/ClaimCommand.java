@@ -34,8 +34,12 @@ public class ClaimCommand extends CommandBase {
 		
 		
 		if(claims.getClaim(chunk.x, chunk.z) == null) {
-			claims.setClaim(chunk.x, chunk.z, player.getUniqueID());
-			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
+			if(mod.getPowerManager().getFreePower(player) > 0) {
+				claims.setClaim(chunk.x, chunk.z, player.getUniqueID());
+				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
+			} else {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "Not enough power!"));
+			}
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "That chunk is already claimed!"));
 		}

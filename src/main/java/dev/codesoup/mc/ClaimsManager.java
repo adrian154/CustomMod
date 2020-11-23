@@ -1,5 +1,6 @@
 package dev.codesoup.mc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,9 @@ public class ClaimsManager extends Manager {
 	public void setClaim(int x, int z, UUID uuid) {
 		Pair pair = new Pair(x, z);
 		claims.put(pair, uuid);
+		
+		if(playerClaims.get(uuid) == null)
+			playerClaims.put(uuid, new ArrayList<Pair>());
 		playerClaims.get(uuid).add(pair);
 	}
 	
@@ -50,7 +54,15 @@ public class ClaimsManager extends Manager {
 	}
 	
 	public List<Pair> getClaims(UUID uuid) {
+		if(playerClaims.get(uuid) == null)
+			playerClaims.put(uuid, new ArrayList<Pair>());
 		return playerClaims.get(uuid);
+	}
+	
+	public int getNumClaims(UUID uuid) {
+		if(playerClaims.get(uuid) == null)
+			playerClaims.put(uuid, new ArrayList<Pair>());
+		return playerClaims.get(uuid).size();
 	}
 	
 	public Pair unclaimLast(UUID uuid) {

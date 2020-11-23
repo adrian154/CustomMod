@@ -26,19 +26,37 @@ public class PowerManager extends Manager {
 		return getTotalPower(player.getUniqueID());
 	}
 	
+	public int getFreePower(EntityPlayer player) {
+		return getTotalPower(player.getUniqueID());
+	}
+	
 	public void addPower(UUID uuid, int power) {
+		
+		EntityPlayerMP player;
+		if((player = mod.getServer().getPlayerList().getPlayerByUUID(uuid)) != null) {
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC + TextFormatting.GREEN.toString() + "+" + power + " power"));
+		}
+		
 		totalPower.replace(uuid, totalPower.get(uuid) + power);
 	}
 	
 	public void removePower(EntityPlayerMP player) {
 		
 		UUID uuid = player.getUniqueID();
-		if(mod.getClaims().getClaims(uuid).size() > getTotalPower(uuid) - 1) {
+		
+		int actualAmt = getTotalPower(player) > 0 ? 1 : 0;
+		if(actualAmt == 1) {
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC + TextFormatting.RED.toString() + "-1 power"));
+		} else {
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC + TextFormatting.GRAY.toString() + "-0 power"));
+		}
+		
+		if(mod.getClaims().getNumClaims(uuid) > getTotalPower(uuid) - 1) {
 			Pair unclaimed = mod.getClaims().unclaimLast(uuid);
 			player.sendMessage(new TextComponentString(String.format("%sWARNING: Your claim at (%d, %d) was unclaimed since you have lost too much power!", TextFormatting.RED, unclaimed.A * 16, unclaimed.B * 16)));
 		}
 		
-		totalPower.replace(uuid, getTotalPower(uuid) - 1);
+		totalPower.replace(uuid, getTotalPower(uuid) - actualAmt);
 		
 	}
 	
