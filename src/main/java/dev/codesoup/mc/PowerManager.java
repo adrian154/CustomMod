@@ -47,6 +47,7 @@ public class PowerManager extends Manager {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't have enough power!"));
 			return false;
 		} else {
+			totalPower.replace(uuid, getTotalPower(uuid) - 1);
 			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.RED.toString() + "-1 power"));
 			return true;
 		}

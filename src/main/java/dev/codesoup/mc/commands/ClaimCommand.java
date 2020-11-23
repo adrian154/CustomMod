@@ -35,7 +35,6 @@ public class ClaimCommand extends CommandBase {
 		if(claims.getClaim(chunk.x, chunk.z) == null) {
 			if(mod.getPowerManager().removeFreePower(player)) {
 				claims.setClaim(chunk.x, chunk.z, player.getUniqueID());
-				mod.getPowerManager().removePower(player);
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
 			}
 		} else {
