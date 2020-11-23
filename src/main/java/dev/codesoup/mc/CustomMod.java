@@ -21,6 +21,7 @@ import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
 import dev.codesoup.mc.commands.PowerCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
+import dev.codesoup.mc.commands.UnclaimCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
@@ -76,11 +77,6 @@ public class CustomMod
     	this.server = event.getServer();
     	
     	try {
-    		/*
-    		this.claimsManager = new ClaimsManager(this);
-    		this.allianceManager = new AllianceManager(this);
-    		this.powerManager = new PowerManager(this);
-    		*/
     		this.loadAll();
     	} catch(IOException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
@@ -97,6 +93,7 @@ public class CustomMod
     	event.registerServerCommand(new AllianceCommand(this));
     	event.registerServerCommand(new InvitationsCommand(this));
     	event.registerServerCommand(new PowerCommand(this));
+    	event.registerServerCommand(new UnclaimCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {

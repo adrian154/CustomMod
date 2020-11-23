@@ -157,6 +157,11 @@ public class AllianceCommand extends CommandBase {
 			}
 			
 			alliance.invite(toInvite.getId());
+			EntityPlayerMP toInvitePlayer = mod.getServer().getPlayerList().getPlayerByUUID(toInvite.getId());
+			if(player != null) {
+				toInvitePlayer.sendMessage(new TextComponentString(TextFormatting.GRAY + "You were invited to" + TextFormatting.WHITE + alliance.getName() + TextFormatting.GRAY + "."));
+			}
+				
 			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the alliance.");
 			
 		} else if(params[0].equals("uninvite")) {
@@ -254,6 +259,8 @@ public class AllianceCommand extends CommandBase {
 				player.refreshDisplayName();
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getName() + "!"));
 				this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " joined the alliance.");
+				alliance.uninvite(player.getUniqueID());
+				
 			} else {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "That alliance has not invited you."));
 			}
