@@ -37,7 +37,7 @@ public class PowerCommand extends CommandBase {
 				return;
 			}
 		} else {
-			GameProfile target = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[1]);
+			GameProfile target = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[0]);
 			uuid = target.getId();
 			name = target.getName();
 		}
@@ -58,7 +58,7 @@ public class PowerCommand extends CommandBase {
 	
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return sender.canUseCommand(2, "");
+		return true;
 	}
 	
 }

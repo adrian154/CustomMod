@@ -55,7 +55,6 @@ public class UnclaimCommand extends CommandBase {
 	
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return sender.canUseCommand(2, "");
+		return true;
 	}
-	
 }

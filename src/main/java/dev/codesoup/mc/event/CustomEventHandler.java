@@ -7,7 +7,9 @@ import java.util.WeakHashMap;
 
 import com.mojang.authlib.GameProfile;
 
+import dev.codesoup.mc.Alliance;
 import dev.codesoup.mc.CustomMod;
+import dev.codesoup.mc.PowerManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -188,11 +190,26 @@ public class CustomEventHandler {
 			return;
 		
 		Entity source = event.getSource().getTrueSource();
+		PowerManager pm = mod.getPowerManager();
 		if(source instanceof EntityPlayer) {
 			
 			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-			mod.getPowerManager().removePower(player);
-			mod.getPowerManager().addPower(((EntityPlayer)source).getUniqueID(), 1);
+			EntityPlayerMP killer = (EntityPlayerMP)event.getSource().getTrueSource();
+			
+			// remove power from killed
+			pm.removePower(player);
+			
+			// give power to killer
+			int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
+			int power = (int)Math.max(Math.sqrt(powerDiff), 0) + 5;
+			pm.addPower(killer.getUniqueID(), power);
+			
+			// distribute power to members of alliance
+			Alliance alliance = mod.getAllianceManager().getAlliance(killer);
+			int distPower = Math.max(powerDiff / 4, 1);
+			for(UUID uuid: alliance.getMembers()) {
+				pm.addPower(uuid, distPower);
+			}
 			
 		}
 		

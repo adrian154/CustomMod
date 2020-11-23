@@ -20,7 +20,7 @@ public class PowerManager extends Manager {
 	
 	public int getTotalPower(UUID uuid) {
 		if(!totalPower.containsKey(uuid))
-			totalPower.put(uuid, 5);
+			totalPower.put(uuid, 12);
 		return totalPower.get(uuid);
 	}
 	

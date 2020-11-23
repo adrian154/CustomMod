@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.logging.log4j.Logger;
 
@@ -23,6 +25,7 @@ import dev.codesoup.mc.commands.PowerCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.commands.UnclaimCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
@@ -83,7 +86,21 @@ public class CustomMod
     	}	
     	
     	registerCommands(event);
+    	startPassivePowerTask();
     	
+    }
+    
+    private void startPassivePowerTask() {
+    	
+    	Timer timer = new Timer();
+    	CustomMod mod = this;
+    	timer.schedule(new TimerTask() {
+    		public void run() {
+    			for(EntityPlayerMP player: mod.getServer().getPlayerList().getPlayers()) {
+    				mod.getPowerManager().addPower(player.getUniqueID(), 1);
+    			}
+    		}
+    	}, 0, 60 * 5 * 1000);
     	
     }
     
