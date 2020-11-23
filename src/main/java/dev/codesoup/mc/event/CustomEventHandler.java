@@ -15,6 +15,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -178,6 +179,23 @@ public class CustomEventHandler {
 		} catch(FileNotFoundException exception) {
 			mod.logger.error("FAILED TO SAVE CONFIGS, THIS IS REALLY REALLY BAD!");
 		}
+	}
+	
+	@SubscribeEvent
+	public void livingDeathEvent(LivingDeathEvent event) {
+		
+		if(!(event.getEntity() instanceof EntityPlayerMP) || event.getEntity().getEntityWorld().isRemote) 
+			return;
+		
+		Entity source = event.getSource().getTrueSource();
+		if(source instanceof EntityPlayer) {
+			
+			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
+			mod.getPowerManager().removePower(player);
+			mod.getPowerManager().addPower(((EntityPlayer)source).getUniqueID(), 1);
+			
+		}
+		
 	}
 	
 }
