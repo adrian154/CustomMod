@@ -32,13 +32,11 @@ public class ClaimCommand extends CommandBase {
 		EntityPlayerMP player = (EntityPlayerMP)sender;
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
-		
 		if(claims.getClaim(chunk.x, chunk.z) == null) {
-			if(mod.getPowerManager().getFreePower(player) > 0) {
+			if(mod.getPowerManager().removeFreePower(player)) {
 				claims.setClaim(chunk.x, chunk.z, player.getUniqueID());
+				mod.getPowerManager().removePower(player);
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
-			} else {
-				player.sendMessage(new TextComponentString(TextFormatting.RED + "Not enough power!"));
 			}
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "That chunk is already claimed!"));

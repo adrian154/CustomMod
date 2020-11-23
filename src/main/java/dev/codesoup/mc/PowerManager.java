@@ -19,6 +19,8 @@ public class PowerManager extends Manager {
 	}
 	
 	public int getTotalPower(UUID uuid) {
+		if(!totalPower.containsKey(uuid))
+			totalPower.put(uuid, 16);
 		return totalPower.get(uuid);
 	}
 	
@@ -34,10 +36,20 @@ public class PowerManager extends Manager {
 		
 		EntityPlayerMP player;
 		if((player = mod.getServer().getPlayerList().getPlayerByUUID(uuid)) != null) {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC + TextFormatting.GREEN.toString() + "+" + power + " power"));
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.GREEN.toString() + "+" + power + " power"));
 		}
 		
 		totalPower.replace(uuid, totalPower.get(uuid) + power);
+	}
+	
+	public boolean removeFreePower(EntityPlayerMP player) {
+		if(mod.getClaims().getNumClaims(player.getUniqueID()) >= getTotalPower(player)) {
+			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't have enough power!"));
+			return false;
+		} else {
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.RED.toString() + "-1 power"));
+			return true;
+		}
 	}
 	
 	public void removePower(EntityPlayerMP player) {
@@ -46,9 +58,9 @@ public class PowerManager extends Manager {
 		
 		int actualAmt = getTotalPower(player) > 0 ? 1 : 0;
 		if(actualAmt == 1) {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC + TextFormatting.RED.toString() + "-1 power"));
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.RED.toString() + "-1 power"));
 		} else {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC + TextFormatting.GRAY.toString() + "-0 power"));
+			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.GRAY.toString() + "-0 power"));
 		}
 		
 		if(mod.getClaims().getNumClaims(uuid) > getTotalPower(uuid) - 1) {

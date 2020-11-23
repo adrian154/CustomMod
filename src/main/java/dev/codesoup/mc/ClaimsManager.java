@@ -18,6 +18,7 @@ public class ClaimsManager extends Manager {
 	public ClaimsManager(CustomMod mod) {
 		super(mod);
 		claims = new HashMap<Pair, UUID>();
+		playerClaims = new HashMap<UUID, List<Pair>>();
 	}
 	
 	// x and z are chunk coordinates
