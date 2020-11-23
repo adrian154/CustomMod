@@ -42,7 +42,7 @@ public class PowerCommand extends CommandBase {
 			name = target.getName();
 		}
 		
-		sender.sendMessage(new TextComponentString(String.format("%s%s%s has %s%d%s power.", TextFormatting.WHITE, name, TextFormatting.GRAY, TextFormatting.WHITE, mod.getPowerManager().getTotalPower(uuid), TextFormatting.GRAY)));
+		sender.sendMessage(new TextComponentString(String.format("%s%s%s has %s%d%s total power and %s%d%s available power.", TextFormatting.WHITE, name, TextFormatting.GRAY, TextFormatting.WHITE, mod.getPowerManager().getTotalPower(uuid), TextFormatting.GRAY, TextFormatting.WHITE, mod.getPowerManager().getFreePower(uuid), TextFormatting.WHITE)));
 		
 	}
 	

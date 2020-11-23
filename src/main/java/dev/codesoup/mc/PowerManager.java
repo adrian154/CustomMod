@@ -28,8 +28,12 @@ public class PowerManager extends Manager {
 		return getTotalPower(player.getUniqueID());
 	}
 	
+	public int getFreePower(UUID uuid) {
+		return getTotalPower(uuid) - mod.getClaims().getNumClaims(uuid);
+	}
+	
 	public int getFreePower(EntityPlayer player) {
-		return getTotalPower(player.getUniqueID());
+		return getFreePower(player.getUniqueID());
 	}
 	
 	public void addPower(UUID uuid, int power) {
@@ -47,7 +51,6 @@ public class PowerManager extends Manager {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't have enough power!"));
 			return false;
 		} else {
-			totalPower.replace(uuid, getTotalPower(uuid) - 1);
 			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.RED.toString() + "-1 power"));
 			return true;
 		}
