@@ -42,4 +42,9 @@ public class InvitationsCommand extends CommandBase {
 		return 0;
 	}
 	
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return true;
+	}
+	
 }

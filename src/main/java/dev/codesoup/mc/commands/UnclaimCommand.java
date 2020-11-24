@@ -32,7 +32,7 @@ public class UnclaimCommand extends CommandBase {
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
 		UUID claimer = mod.getClaims().getClaim(chunk.x, chunk.z);
-		if(claimer != player.getUniqueID()) {
+		if(!claimer.equals(player.getUniqueID())) {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't own this territory."));
 			return;
 		}
@@ -56,6 +56,11 @@ public class UnclaimCommand extends CommandBase {
 	@Override
 	public int getRequiredPermissionLevel() {
 		return 0;
+	}
+	
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return true;
 	}
 	
 }

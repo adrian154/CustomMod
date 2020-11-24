@@ -318,5 +318,10 @@ public class AllianceCommand extends CommandBase {
 	public int getRequiredPermissionLevel() {
 		return 0;
 	}
+
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return true;
+	}
 	
 }

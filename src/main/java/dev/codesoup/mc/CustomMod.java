@@ -19,9 +19,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 
 import dev.codesoup.mc.commands.AllianceCommand;
+import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
 import dev.codesoup.mc.commands.PowerCommand;
+import dev.codesoup.mc.commands.SetSpawnCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.commands.UnclaimCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
@@ -113,6 +115,7 @@ public class CustomMod
     	event.registerServerCommand(new PowerCommand(this));
     	event.registerServerCommand(new UnclaimCommand(this));
     	event.registerServerCommand(new SetSpawnCommand(this));
+    	event.registerServerCommand(new BaseCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {

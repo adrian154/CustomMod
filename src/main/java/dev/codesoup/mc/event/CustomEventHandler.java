@@ -2,6 +2,7 @@ package dev.codesoup.mc.event;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,13 +46,14 @@ public class CustomEventHandler {
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
 	private List<UUID> toKeepInventory;
-	private Map<Pair, Integer> numPeopleOnClaim; 
+	public Map<UUID, Integer> numPeopleOnClaim; 
 	
 	public CustomEventHandler(CustomMod mod) {
 		this.PVPEnabled = true;
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
 		this.toKeepInventory = new ArrayList<UUID>();
+		this.numPeopleOnClaim = new HashMap<UUID, Integer>();
 	}
 	
 	public boolean PVPEnabled() {
@@ -118,14 +120,13 @@ public class CustomEventHandler {
 		if(!(event.getEntity() instanceof EntityPlayerMP) || event.getEntity().world.isRemote) {
 			return;
 		}
-		
-		Pair pair = new Pair(event.getNewChunkX(), event.getNewChunkZ());
+
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 		UUID curChunkClaimer = this.mod.getClaims().getClaim(event.getNewChunkX(), event.getNewChunkZ());
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		
 		// If the chunk claimer changes...
-		if(curChunkClaimer != prevChunkClaimer) {
+		if(!curChunkClaimer.equals(prevChunkClaimer)) {
 			
 			// If the player is entering a chunk...
 			if(curChunkClaimer != null) {
@@ -148,12 +149,12 @@ public class CustomEventHandler {
 						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 					}
 					
-					/// Increase number of people on the claim
-					if(numPeopleOnClaim.get(pair) == null) {
-						numPeopleOnClaim.put(pair, 0);
+					/// Increase number of people on their territory
+					if(numPeopleOnClaim.get(curChunkClaimer) == null) {
+						numPeopleOnClaim.put(curChunkClaimer, 0);
 					}
 					
-					numPeopleOnClaim.replace(pair, numPeopleOnClaim.get(pair) + 1);
+					numPeopleOnClaim.replace(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
 					
 				}
 				
@@ -162,7 +163,10 @@ public class CustomEventHandler {
 				
 				// If the player is leaving a claim that is not theirs...
 				if(prevChunkClaimer != null && !prevChunkClaimer.equals(player.getUniqueID())) {
-					numPeopleOnClaim.replace(pair, numPeopleOnClaim.get(pair) - 1);
+					numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
+					if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
+						numPeopleOnClaim.remove(prevChunkClaimer);
+					}
 				}
 				
 				player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
