@@ -23,6 +23,7 @@ import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
 import dev.codesoup.mc.commands.PowerCommand;
+import dev.codesoup.mc.commands.ProtectCommand;
 import dev.codesoup.mc.commands.SetSpawnCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.commands.UnclaimCommand;
@@ -116,6 +117,7 @@ public class CustomMod
     	event.registerServerCommand(new UnclaimCommand(this));
     	event.registerServerCommand(new SetSpawnCommand(this));
     	event.registerServerCommand(new BaseCommand(this));
+    	event.registerServerCommand(new ProtectCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {
