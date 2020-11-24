@@ -32,7 +32,7 @@ public class BaseCommand extends CommandBase {
 		if(onClaim != null && onClaim > 0) {
 			BlockPos pos = player.getBedLocation();
 			if(pos != null)
-				mod.getServer().getCommandManager().executeCommand(mod.getServer(), String.format("/tp %s %f %f %f", player.getName(), pos.getX(), pos.getY(), pos.getZ()));
+				mod.getServer().getCommandManager().executeCommand(mod.getServer(), String.format("/tp %s %i %i %i", player.getName(), pos.getX(), pos.getY(), pos.getZ()));
 			else
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "You haven't set your spawn!"));
 		} else {
