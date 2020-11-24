@@ -28,6 +28,7 @@ public class AllianceCommand extends CommandBase {
 	private static final String USAGE_INVITE_LIST = TextFormatting.RED + "/alliance invites";
 	private static final String USAGE_MEMBERS = TextFormatting.RED + "/alliance members [alliance name]";
 	private static final String USAGE_ACCEPT = TextFormatting.RED + "/alliance accept <alliance name>";
+	private static final String USAGE_KICK = TextFormatting.RED + "/alliance kick <player>";
 	private static final String USAGE = USAGE_CREATE + "\n" +
 										USAGE_RENAME + "\n" +
 										USAGE_LEAVE + "\n" +
@@ -35,7 +36,8 @@ public class AllianceCommand extends CommandBase {
 										USAGE_UNINVITE + "\n" +
 										USAGE_INVITE_LIST + "\n" +
 										USAGE_MEMBERS + "\n" + 
-										USAGE_ACCEPT;
+										USAGE_ACCEPT + "\n" +
+										USAGE_KICK;
 	
 	public AllianceCommand(CustomMod mod) {
 		this.mod = mod;
@@ -265,6 +267,37 @@ public class AllianceCommand extends CommandBase {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "That alliance has not invited you."));
 			}
 			
+		} else if(params[0].equals("kick")) {
+			
+			if(params.length != 2) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "Not enough parameters.\nUsage: " + USAGE_KICK));
+			}
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You're not in an alliance."));
+				return;
+			}
+			
+			if(!alliance.isLeader(player)) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You must be the leader of your alliance to remove members."));
+				return;
+			}
+			
+			GameProfile toKick = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[1]);
+			if(toKick == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you are trying to remove does not exist."));
+				return;
+			}
+			
+			if(!alliance.getMembers().contains(toKick.getId())) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you are trying to remove is not part of this alliance."));
+				return;
+			}
+			
+			this.allianceManager.removePlayer(alliance, toKick.getId());
+			this.allianceManager.broadcastTo(alliance, toKick.getName() + TextFormatting.GRAY + " was removed from the alliance.");
+			
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));
 		}
@@ -282,8 +315,8 @@ public class AllianceCommand extends CommandBase {
 	}
 	
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
+	public int getRequiredPermissionLevel() {
+		return 0;
 	}
 	
 }

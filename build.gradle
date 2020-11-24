@@ -43,6 +43,7 @@ minecraft {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.github.webbukkit.dynmap:Dynmap:3.1-beta-5'
 }
 
 jar {

@@ -45,10 +45,11 @@ public class CustomMod
     private MinecraftServer server;
     
     private CustomEventHandler customEventHandler;
+    
     private ClaimsManager claimsManager;
     private AllianceManager allianceManager;
     private PowerManager powerManager;
-    
+
     public Logger logger;
     public Gson gson;
     
@@ -111,6 +112,7 @@ public class CustomMod
     	event.registerServerCommand(new InvitationsCommand(this));
     	event.registerServerCommand(new PowerCommand(this));
     	event.registerServerCommand(new UnclaimCommand(this));
+    	event.registerServerCommand(new SetSpawnCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {
@@ -158,11 +160,12 @@ public class CustomMod
     	String claimsData = readConfigFile("claims.dat");
     	String alliancesData = readConfigFile("alliances.dat");
     	String powerData = readConfigFile("power.dat");
-    
+
     	this.claimsManager = claimsData != null ? this.gson.fromJson(claimsData, ClaimsManager.class) : new ClaimsManager(this);
     	this.allianceManager = alliancesData != null ? this.gson.fromJson(alliancesData, AllianceManager.class) : new AllianceManager(this);
     	this.powerManager = powerData != null ? this.gson.fromJson(powerData, PowerManager.class) : new PowerManager(this);
-    	
+
+    	// necessary postloading step
     	this.allianceManager.initPlayerAlliances();
     
     }

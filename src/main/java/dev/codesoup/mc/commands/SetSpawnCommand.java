@@ -6,30 +6,39 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.chunk.Chunk;
 
-public class InvitationsCommand extends CommandBase {
+public class SetSpawnCommand extends CommandBase {
 
 	private CustomMod mod;
-	private final static String USAGE = "/invites";
+	private final static String USAGE = "/setspawn";
 	
-	public InvitationsCommand(CustomMod mod) {
+	public SetSpawnCommand(CustomMod mod) {
 		this.mod = mod;
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
-		
+	
 		if(!(sender instanceof EntityPlayerMP)) {
 			return;
 		}
 		
-		mod.getAllianceManager().listInvitations((EntityPlayerMP)sender, true);
+		EntityPlayerMP player = (EntityPlayerMP)sender;
+		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
+		if(mod.getClaims().getClaim(chunk.x, chunk.z).equals(player.getUniqueID())) {
+			player.setSpawnPoint(player.getPosition(), false);
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Set your spawnpoint."));
+		}
+	
 	}
 	
 	@Override
 	public String getName() {
-		return "invites";
+		return "setspawn";
 	}
 	
 	@Override

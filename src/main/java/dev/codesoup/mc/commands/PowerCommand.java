@@ -57,8 +57,8 @@ public class PowerCommand extends CommandBase {
 	}
 	
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
+	public int getRequiredPermissionLevel() {
+		return 0;
 	}
 	
 }
