@@ -12,8 +12,11 @@ import com.mojang.authlib.GameProfile;
 
 import dev.codesoup.mc.Alliance;
 import dev.codesoup.mc.CustomMod;
-import dev.codesoup.mc.Pair;
 import dev.codesoup.mc.PowerManager;
+import dev.codesoup.mc.mcws.messages.PlayerChatMessage;
+import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
+import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
+import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -158,12 +161,14 @@ public class CustomEventHandler {
 				
 				// send message to player
 				GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
-				player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
+				if(profile != null) {
+					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
 				
-				// send message to claimer
-				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
-				if(claimerPlayer != null) {
-					claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
+					// send message to claimer
+					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
+					if(claimerPlayer != null) {
+						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
+					}
 				}
 				
 				/// Increase number of people on their territory
@@ -188,13 +193,14 @@ public class CustomEventHandler {
 			return;
 		
 		this.mod.getAllianceManager().listInvitations((EntityPlayerMP)event.player, false);
+		mod.getWSServer().broadcastMessage(new PlayerJoinMessage(event));
 		
 	}
 	
 	@SubscribeEvent
 	public void playerLoggedOutEvent(PlayerLoggedOutEvent event) {
 		
-		// TODO
+		mod.getWSServer().broadcastMessage(new PlayerQuitMessage(event));
 		
 	}
 	
@@ -211,6 +217,7 @@ public class CustomEventHandler {
 	@SubscribeEvent
 	public void chatEvent(ServerChatEvent event) {
 		event.setComponent(new TextComponentString(event.getPlayer().getDisplayNameString() + ": " + event.getMessage()));
+		mod.getWSServer().broadcastMessage(new PlayerChatMessage(event));
 	}
 	
 	@SubscribeEvent
@@ -296,6 +303,8 @@ public class CustomEventHandler {
 			}
 			
 		}
+		
+		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
 		
 	}
 	

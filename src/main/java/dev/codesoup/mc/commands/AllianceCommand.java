@@ -29,6 +29,7 @@ public class AllianceCommand extends CommandBase {
 	private static final String USAGE_MEMBERS = TextFormatting.RED + "/alliance members [alliance name]";
 	private static final String USAGE_ACCEPT = TextFormatting.RED + "/alliance accept <alliance name>";
 	private static final String USAGE_KICK = TextFormatting.RED + "/alliance kick <player>";
+	private static final String USAGE_MAKELEADER = TextFormatting.RED + "/alliance makeleader <player>";
 	private static final String USAGE = USAGE_CREATE + "\n" +
 										USAGE_RENAME + "\n" +
 										USAGE_LEAVE + "\n" +
@@ -237,7 +238,17 @@ public class AllianceCommand extends CommandBase {
 			
 			
 			PlayerProfileCache cache = mod.getServer().getPlayerProfileCache();
-			String list = alliance.getMembers().stream().map(uuid -> cache.getProfileByUUID(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
+			String list = alliance.getMembers()
+								  .stream()
+								  .map(uuid -> cache.getProfileByUUID(uuid))
+								  .map(gameProfile -> 
+								  	String.format(
+								  		"%s%s%s%s",
+								  		alliance.isLeader(gameProfile.getId()) ? TextFormatting.YELLOW : TextFormatting.WHITE,
+								  		gameProfile.getName(),
+								  		alliance.isLeader(gameProfile.getId()) ? " (LEADER)" : "",
+								  		TextFormatting.GRAY))
+								  .collect(Collectors.joining(", "));
 			
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Members of " + alliance.getName() + ": " + list));
 			
@@ -302,6 +313,37 @@ public class AllianceCommand extends CommandBase {
 			
 			this.allianceManager.removePlayer(alliance, toKick.getId());
 			this.allianceManager.broadcastTo(alliance, toKick.getName() + TextFormatting.GRAY + " was removed from the alliance.");
+			
+		} else if(params[0].equals("makeleader")) { 
+			
+			if(params.length != 2) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "Not enough parameters.\nUsage: " + USAGE_MAKELEADER));
+				return;
+			}
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You're not in an alliance."));
+			}
+			
+			if(!alliance.isLeader(player)) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "You must be the leader of your alliance to make someone else leader."));
+				return;
+			}
+			
+			GameProfile toPromote = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[1]);
+			if(toPromote == null) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you are trying to promote does not exist."));
+				return;
+			}
+			
+			if(!alliance.getMembers().contains(toPromote.getId())) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "The player you are trying to promote is not part of this alliance."));
+				return;
+			}
+			
+			alliance.makeLeader(toPromote.getId());
+			allianceManager.broadcastTo(alliance, String.format("%s%s made %s%s%s the new leader of this alliance.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
 			
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));

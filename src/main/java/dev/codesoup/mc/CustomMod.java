@@ -28,6 +28,8 @@ import dev.codesoup.mc.commands.SetSpawnCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
 import dev.codesoup.mc.commands.UnclaimCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
+import dev.codesoup.mc.mcws.Configuration;
+import dev.codesoup.mc.mcws.WSServer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
@@ -37,6 +39,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 
 @Mod(modid = CustomMod.MODID, name = CustomMod.NAME, version = CustomMod.VERSION, acceptableRemoteVersions = "*")
 public class CustomMod
@@ -52,7 +55,10 @@ public class CustomMod
     private ClaimsManager claimsManager;
     private AllianceManager allianceManager;
     private PowerManager powerManager;
-
+    
+    private Configuration configuration;
+    private WSServer wsServer;
+    
     public Logger logger;
     public Gson gson;
     
@@ -91,6 +97,19 @@ public class CustomMod
     	
     	registerCommands(event);
     	startPassivePowerTask();
+    	
+    	this.wsServer = new WSServer(this);
+    	
+    }
+    
+    @EventHandler
+    public void init(FMLServerStoppingEvent event) {
+    	
+    	try {
+    		this.wsServer.stop();
+    	} catch(IOException | InterruptedException exception) {
+    		this.logger.error("Uh-oh, super bad thingy: " + exception.getMessage());
+    	}
     	
     }
     
@@ -136,12 +155,20 @@ public class CustomMod
     	return this.powerManager;
     }
     
+    public Configuration getConfiguration() {
+    	return this.configuration;
+    }
+    
     public void broadcast(String message) { 
     	this.server.getPlayerList().sendMessage(new TextComponentString(message));
     }
     
     public MinecraftServer getServer() {
     	return this.server;
+    }
+    
+    public WSServer getWSServer() {
+    	return this.wsServer;
     }
     
     private String readConfigFile(String pathStr) throws IOException {
@@ -170,6 +197,8 @@ public class CustomMod
     	this.allianceManager = alliancesData != null ? this.gson.fromJson(alliancesData, AllianceManager.class) : new AllianceManager(this);
     	this.powerManager = powerData != null ? this.gson.fromJson(powerData, PowerManager.class) : new PowerManager(this);
 
+    	this.configuration = new Configuration();
+    	
     	// necessary postloading step
     	this.allianceManager.initPlayerAlliances();
     

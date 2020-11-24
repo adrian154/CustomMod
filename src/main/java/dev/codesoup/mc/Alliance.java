@@ -54,6 +54,10 @@ public class Alliance {
 		return this.leader;
 	}
 	
+	public boolean isLeader(UUID uuid) {
+		return this.leader.equals(uuid);
+	}
+	
 	public boolean isLeader(EntityPlayer player) {
 		return this.leader.equals(player.getUniqueID());
 	}
