@@ -1,6 +1,8 @@
 package dev.codesoup.mc.event;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -11,14 +13,18 @@ import dev.codesoup.mc.Alliance;
 import dev.codesoup.mc.CustomMod;
 import dev.codesoup.mc.PowerManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
@@ -36,11 +42,13 @@ public class CustomEventHandler {
 	
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
+	private transient List<UUID> toKeepInventory;
 	
 	public CustomEventHandler(CustomMod mod) {
 		this.PVPEnabled = true;
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
+		this.toKeepInventory = new ArrayList<UUID>();
 	}
 	
 	public boolean PVPEnabled() {
@@ -115,7 +123,7 @@ public class CustomEventHandler {
 			
 			if(curChunkClaimer != null) {
 				
-				if(curChunkClaimer == player.getUniqueID()) {
+				if(curChunkClaimer.equals(player.getUniqueID())) {
 					player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
 				} else {
 				
@@ -126,7 +134,7 @@ public class CustomEventHandler {
 					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
 				
 					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
-					if(claimerPlayer != null && curChunkClaimer != player.getUniqueID()) {
+					if(claimerPlayer != null) {
 						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 					}
 					
@@ -184,6 +192,20 @@ public class CustomEventHandler {
 	}
 	
 	@SubscribeEvent
+	public void playerDropsEvent(PlayerDropsEvent event) {
+		if(toKeepInventory.contains(event.getEntityPlayer().getUniqueID())) {
+			for(EntityItem entityItem: event.getDrops()) {
+				ItemStack stack = entityItem.getItem();
+				if(stack.getItem() instanceof ItemArmor) {
+					
+				} else {
+					event.getEntityPlayer().inventory.addItemStackToInventory(stack);
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
 	public void livingDeathEvent(LivingDeathEvent event) {
 		
 		if(!(event.getEntity() instanceof EntityPlayerMP) || event.getEntity().getEntityWorld().isRemote) 
@@ -196,19 +218,31 @@ public class CustomEventHandler {
 			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 			EntityPlayerMP killer = (EntityPlayerMP)event.getSource().getTrueSource();
 			
-			// remove power from killed
-			pm.removePower(player);
-			
-			// give power to killer
-			int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
-			int power = (int)Math.max(Math.sqrt(powerDiff), 0) + 5;
-			pm.addPower(killer.getUniqueID(), power);
-			
-			// distribute power to members of alliance
 			Alliance alliance = mod.getAllianceManager().getAlliance(killer);
-			int distPower = Math.max(powerDiff / 4, 1);
-			for(UUID uuid: alliance.getMembers()) {
-				pm.addPower(uuid, distPower);
+			if(alliance.getMembers().contains(player.getUniqueID())) {
+			
+				// remove power from killer
+				pm.removePower(killer);
+				killer.sendMessage(new TextComponentString(TextFormatting.RED + "Don't kill people in your alliance, they won't drop their inventory!"));
+				toKeepInventory.add(player.getUniqueID());
+				
+			} else {
+			
+				// remove power from killed
+				pm.removePower(player);
+				
+				// give power to killer
+				int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
+				int power = (int)Math.max(Math.sqrt(powerDiff), 0) + 5;
+				pm.addPower(killer.getUniqueID(), power);
+				
+				// distribute power to members of alliance
+				int distPower = Math.max(powerDiff / 4, 1);
+				for(UUID uuid: alliance.getMembers()) {
+					if(uuid != killer.getUniqueID())
+						pm.addPower(uuid, distPower);
+				}
+				
 			}
 			
 		}
