@@ -1,5 +1,7 @@
 package dev.codesoup.mc.commands;
 
+import java.util.UUID;
+
 import dev.codesoup.mc.CustomMod;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -29,9 +31,12 @@ public class SetSpawnCommand extends CommandBase {
 		EntityPlayerMP player = (EntityPlayerMP)sender;
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
-		if(mod.getClaims().getClaim(chunk.x, chunk.z).equals(player.getUniqueID())) {
+		UUID claim = mod.getClaims().getClaim(chunk.x, chunk.z);
+		if(claim != null && claim.equals(player.getUniqueID())) {
 			player.setSpawnPoint(player.getPosition(), false);
 			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Set your spawnpoint."));
+		} else {
+			player.sendMessage(new TextComponentString(TextFormatting.RED + "You can only permanently set your spawn on your own territory."));
 		}
 	
 	}

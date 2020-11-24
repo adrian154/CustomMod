@@ -126,24 +126,26 @@ public class CustomEventHandler {
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		
 		// If the chunk claimer changes...
-		if(curChunkClaimer == null && prevChunkClaimer != null) {
+		if(curChunkClaimer == null) {
 
-			if(!prevChunkClaimer.equals(player.getUniqueID())) {
-					
-				numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
-				if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
-					numPeopleOnClaim.remove(prevChunkClaimer);
+			if(prevChunkClaimer != null) {
+				if(!prevChunkClaimer.equals(player.getUniqueID())) {
+						
+					numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
+					if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
+						numPeopleOnClaim.remove(prevChunkClaimer);
+					}
+						
+					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
+					if(claimerPlayer != null && !claimerPlayer.equals(player)) {
+						claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your base."));
+					}
+						
 				}
-					
-				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
-				if(claimerPlayer != null && !claimerPlayer.equals(player)) {
-					claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your base."));
-				}
-					
+				
+				player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
+				this.occupiedTerritory.put(player, curChunkClaimer);
 			}
-			
-			player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
-			this.occupiedTerritory.put(player, curChunkClaimer);
 			
 		} else if(!curChunkClaimer.equals(prevChunkClaimer)) {
 			
