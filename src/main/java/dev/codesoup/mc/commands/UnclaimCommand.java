@@ -32,7 +32,7 @@ public class UnclaimCommand extends CommandBase {
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
 		UUID claimer = mod.getClaims().getClaim(chunk.x, chunk.z);
-		if(!claimer.equals(player.getUniqueID())) {
+		if(claimer == null || !claimer.equals(player.getUniqueID())) {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't own this territory."));
 			return;
 		}

@@ -126,54 +126,53 @@ public class CustomEventHandler {
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		
 		// If the chunk claimer changes...
-		if(!curChunkClaimer.equals(prevChunkClaimer)) {
-			
-			// If the player is entering a chunk...
-			if(curChunkClaimer != null) {
-				
-				// If it's their own chunk...
-				if(curChunkClaimer.equals(player.getUniqueID())) {
-					player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
+		if(curChunkClaimer == null && prevChunkClaimer != null) {
+
+			if(!prevChunkClaimer.equals(player.getUniqueID())) {
 					
-				// Otherwise...
-				} else {
-				
-					boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), curChunkClaimer);
-					String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
-					
-					GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
-					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
-					
-					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
-					if(claimerPlayer != null) {
-						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
-					}
-					
-					/// Increase number of people on their territory
-					if(numPeopleOnClaim.get(curChunkClaimer) == null) {
-						numPeopleOnClaim.put(curChunkClaimer, 0);
-					}
-					
-					numPeopleOnClaim.replace(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
-					
+				numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
+				if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
+					numPeopleOnClaim.remove(prevChunkClaimer);
 				}
-				
-			// Otherwise... (player has left claim)
+					
+				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
+				if(claimerPlayer != null && !claimerPlayer.equals(player)) {
+					claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your base."));
+				}
+					
+			}
+			
+			player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
+			this.occupiedTerritory.put(player, curChunkClaimer);
+			
+		} else if(!curChunkClaimer.equals(prevChunkClaimer)) {
+			
+			if(curChunkClaimer.equals(player.getUniqueID())) {
+				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
 			} else {
 				
-				// If the player is leaving a claim that is not theirs...
-				if(prevChunkClaimer != null && !prevChunkClaimer.equals(player.getUniqueID())) {
-					numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
-					if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
-						numPeopleOnClaim.remove(prevChunkClaimer);
-					}
+				boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), curChunkClaimer);
+				String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
+				
+				// send message to player
+				GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
+				player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
+				
+				// send message to claimer
+				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
+				if(claimerPlayer != null) {
+					claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 				}
 				
-				player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
+				/// Increase number of people on their territory
+				if(numPeopleOnClaim.get(curChunkClaimer) == null) {
+					numPeopleOnClaim.put(curChunkClaimer, 0);
+				}
+				
+				numPeopleOnClaim.replace(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
 				
 			}
 			
-			// Update
 			this.occupiedTerritory.put(player, curChunkClaimer);
 			
 		}

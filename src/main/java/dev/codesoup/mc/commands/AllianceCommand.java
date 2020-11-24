@@ -158,6 +158,11 @@ public class AllianceCommand extends CommandBase {
 				return;
 			}
 			
+			if(alliance.getInvitations().contains(toInvite.getId())) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "This player has already been invited to the alliance!"));
+				return;
+			}
+			
 			alliance.invite(toInvite.getId());
 			EntityPlayerMP toInvitePlayer = mod.getServer().getPlayerList().getPlayerByUUID(toInvite.getId());
 			if(toInvitePlayer != null) {
@@ -260,7 +265,7 @@ public class AllianceCommand extends CommandBase {
 				this.allianceManager.addPlayer(alliance, player.getUniqueID());
 				player.refreshDisplayName();
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getName() + "!"));
-				this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " joined the alliance.");
+				mod.broadcast(String.format("%s%s joined %s%s%s.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, alliance.getName(), TextFormatting.GRAY));
 				alliance.uninvite(player.getUniqueID());
 				
 			} else {
