@@ -8,7 +8,11 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
-        
+
+plugins {
+	id "com.github.johnrengelman.shadow" version "4.0.1"
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 
 // --- CONFIG ---
@@ -42,8 +46,9 @@ minecraft {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
-    implementation 'com.google.code.gson:gson:2.8.6'
+ 	implementation 'com.google.code.gson:gson:2.8.6'
 	implementation 'org.java-websocket:Java-WebSocket:1.5.1'
+	compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 jar {
