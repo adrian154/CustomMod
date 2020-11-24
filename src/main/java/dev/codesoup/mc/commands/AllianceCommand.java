@@ -158,7 +158,7 @@ public class AllianceCommand extends CommandBase {
 			
 			alliance.invite(toInvite.getId());
 			EntityPlayerMP toInvitePlayer = mod.getServer().getPlayerList().getPlayerByUUID(toInvite.getId());
-			if(player != null) {
+			if(toInvitePlayer != null) {
 				toInvitePlayer.sendMessage(new TextComponentString(TextFormatting.GRAY + "You were invited to " + TextFormatting.WHITE + alliance.getName() + TextFormatting.GRAY + "."));
 			}
 				

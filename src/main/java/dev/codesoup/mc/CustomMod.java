@@ -163,7 +163,10 @@ public class CustomMod
     	this.allianceManager = alliancesData != null ? this.gson.fromJson(alliancesData, AllianceManager.class) : new AllianceManager(this);
     	this.powerManager = powerData != null ? this.gson.fromJson(powerData, PowerManager.class) : new PowerManager(this);
     	
+    	this.allianceManager.initPlayerAlliances();
+    
     }
+  
  
     public void saveAll() throws FileNotFoundException {
     	saveConfig("claims.dat", gson.toJson(this.claimsManager));

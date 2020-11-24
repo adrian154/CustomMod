@@ -25,6 +25,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
@@ -197,12 +198,31 @@ public class CustomEventHandler {
 			for(EntityItem entityItem: event.getDrops()) {
 				ItemStack stack = entityItem.getItem();
 				if(stack.getItem() instanceof ItemArmor) {
-					
+					// TODO: Save armor
 				} else {
 					event.getEntityPlayer().inventory.addItemStackToInventory(stack);
 				}
 			}
 		}
+	}
+	
+	@SubscribeEvent
+	public void playerCloneEvent(PlayerEvent.Clone event) {
+		
+		if(event.getOriginal() != null && toKeepInventory.contains(event.getEntityPlayer().getUniqueID())) {
+			
+			EntityPlayer original = event.getOriginal();
+			
+			// TODO: Transfer armor
+			
+			for(ItemStack stack: original.inventory.mainInventory) {
+				event.getEntityPlayer().inventory.addItemStackToInventory(stack);
+			}
+			
+			toKeepInventory.remove(event.getEntityPlayer().getUniqueID());
+			
+		}
+		
 	}
 	
 	@SubscribeEvent
