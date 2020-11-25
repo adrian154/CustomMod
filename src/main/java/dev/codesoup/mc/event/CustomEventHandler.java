@@ -67,6 +67,22 @@ public class CustomEventHandler {
 		this.PVPEnabled = !this.PVPEnabled;
 		return this.PVPEnabled;
 	}
+	
+	public void incrementClaim(UUID uuid) {
+		if(numPeopleOnClaim.get(uuid) == null) {
+			numPeopleOnClaim.put(uuid, 1);
+		} else {
+			numPeopleOnClaim.put(uuid, numPeopleOnClaim.get(uuid) + 1);
+		}
+	}
+	
+	public void decrementClaim(UUID uuid) {
+		if(numPeopleOnClaim.get(uuid) == null) {
+			numPeopleOnClaim.put(uuid, 0);
+		} else {
+			numPeopleOnClaim.put(uuid, Math.max(numPeopleOnClaim.get(uuid) - 1, 0));
+		}
+	}
 
 	@SubscribeEvent
 	public void attackEntityEvent(AttackEntityEvent event) {
@@ -139,10 +155,7 @@ public class CustomEventHandler {
 				if(!prevChunkClaimer.equals(player.getUniqueID())) {
 					
 					// Decrease the number of people on the claim
-					numPeopleOnClaim.put(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
-					if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
-						numPeopleOnClaim.remove(prevChunkClaimer);
-					}
+					decrementClaim(prevChunkClaimer);
 				
 					// Tell them that the player left
 					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
@@ -163,10 +176,7 @@ public class CustomEventHandler {
 			// Decrement number of people on previous claim
 			if(prevChunkClaimer != null) {
 				
-				numPeopleOnClaim.put(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
-				if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
-					numPeopleOnClaim.remove(prevChunkClaimer);
-				}
+				decrementClaim(prevChunkClaimer);
 			
 				// Tell them that the player left
 				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
@@ -181,7 +191,7 @@ public class CustomEventHandler {
 				
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
 				
-			// Otherwise, increase the number of peopleon territory
+			// Otherwise, increase the number of people on territory
 			} else {
 				
 				boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), curChunkClaimer);
@@ -201,12 +211,7 @@ public class CustomEventHandler {
 					
 				}
 				
-				/// Increase number of people on their territory
-				if(numPeopleOnClaim.get(curChunkClaimer) == null) {
-					numPeopleOnClaim.put(curChunkClaimer, 0);
-				}
-				
-				numPeopleOnClaim.put(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
+				incrementClaim(curChunkClaimer);
 				
 			}
 			
