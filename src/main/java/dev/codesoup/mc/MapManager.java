@@ -1,5 +1,8 @@
 package dev.codesoup.mc;
 
+import java.util.Map;
+import java.util.UUID;
+
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
@@ -26,8 +29,6 @@ public class MapManager extends RequiresMod {
 		}
 		
 		DynmapCommonAPIListener.register(new DynmapListener());
-		this.createMarkerLayer();
-		
 		
 	}
 	
@@ -36,14 +37,19 @@ public class MapManager extends RequiresMod {
 		@Override
 		public void apiEnabled(DynmapCommonAPI api) {
 			if(api != null) {
+				
 				dynmapAPI = api;
 				markerAPI = api.getMarkerAPI();
+				
+				createMarkerLayer();
+				initClaims(mod.getClaims());
+				
 			}
 		}
 		
 	}
 	
-	public void addMarker(int x, int z) {
+	private void addMarker(int x, int z) {
 		
 		String markerID = String.format("%d-%d", x, z);
 		String tooltip = "test";
@@ -52,20 +58,44 @@ public class MapManager extends RequiresMod {
 		double[] zlist = new double[] {z * 16, z * 16 + 15};
 		
 		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "world", xlist, zlist, false);
-		marker.setLineStyle(3, 1, 0xffff00);
-		marker.setFillStyle(0.5, 0xffff00);
+		if(marker != null) {
+			marker.setLineStyle(3, 1, 0xffff00);
+			marker.setFillStyle(0.5, 0xffff00);
+		}
 		
+	}
+	
+	public void initClaims(ClaimsManager manager) {
+		
+		Map<Pair, UUID> claims = manager.getClaims();
+		
+		for(Pair pair: claims.keySet()) {
+			addMarker(pair.A, pair.B);
+		}
+		
+	}
+	
+	public void doClaim(int x, int z) {
+		addMarker(x, z);
+	}
+	
+	public void doUnclaim(int x, int z) {
+		AreaMarker marker = markerSet.findAreaMarker(String.format("%d-%d", x, z));
+		if(marker != null) {
+			marker.deleteMarker();
+		}
 	}
 	
 	private void createMarkerLayer() {
 		
-		markerSet = this.markerAPI.getMarkerSet(MARKER_SET_NAME);
-		if(markerSet == null) {
-			markerSet = this.markerAPI.createMarkerSet(MARKER_SET_NAME, CLAIMS_LAYER_NAME, null, false);
+		if(this.markerAPI != null) {
+			markerSet = this.markerAPI.getMarkerSet(MARKER_SET_NAME);
+			if(markerSet == null) {
+				markerSet = this.markerAPI.createMarkerSet(MARKER_SET_NAME, CLAIMS_LAYER_NAME, null, false);
+			}
+			
+			markerSet.setMarkerSetLabel(CLAIMS_LAYER_NAME);
 		}
-		
-		markerSet.setMarkerSetLabel(CLAIMS_LAYER_NAME);
-		
 		
 	}
 	

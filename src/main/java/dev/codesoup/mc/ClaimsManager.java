@@ -70,6 +70,10 @@ public class ClaimsManager extends RequiresMod {
 		
 	}
 	
+	public Map<Pair, UUID> getClaims() {
+		return this.claims;
+	}
+	
 	public List<Pair> getClaims(UUID uuid) {
 		if(playerClaims.get(uuid) == null)
 			playerClaims.put(uuid, new ArrayList<Pair>());
