@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 
 import dev.codesoup.mc.Alliance;
 import dev.codesoup.mc.AllianceManager;
+import dev.codesoup.mc.Colors;
 import dev.codesoup.mc.CustomMod;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -167,7 +168,7 @@ public class AllianceCommand extends CommandBase {
 			alliance.invite(toInvite.getId());
 			EntityPlayerMP toInvitePlayer = mod.getServer().getPlayerList().getPlayerByUUID(toInvite.getId());
 			if(toInvitePlayer != null) {
-				toInvitePlayer.sendMessage(new TextComponentString(TextFormatting.GRAY + "You were invited to " + TextFormatting.WHITE + alliance.getName() + TextFormatting.GRAY + "."));
+				toInvitePlayer.sendMessage(new TextComponentString(TextFormatting.GRAY + "You were invited to " + TextFormatting.WHITE + alliance.getFmtName() + TextFormatting.GRAY + "."));
 			}
 				
 			this.allianceManager.broadcastTo(alliance, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the alliance.");
@@ -250,7 +251,7 @@ public class AllianceCommand extends CommandBase {
 								  		TextFormatting.GRAY))
 								  .collect(Collectors.joining(", "));
 			
-			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Members of " + alliance.getName() + ": " + list));
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Members of " + alliance.getFmtName() + TextFormatting.GRAY + ": " + list));
 			
 		} else if(params[0].equals("accept")) {
 			
@@ -275,8 +276,8 @@ public class AllianceCommand extends CommandBase {
 			if(alliance.hasInvitationFor(player)) {
 				this.allianceManager.addPlayer(alliance, player.getUniqueID());
 				player.refreshDisplayName();
-				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getName() + "!"));
-				mod.broadcast(String.format("%s%s joined %s%s%s.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, alliance.getName(), TextFormatting.GRAY));
+				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + alliance.getFmtName() + TextFormatting.GREEN + "!"));
+				mod.broadcast(String.format("%s%s joined %s%s.", player.getName(), TextFormatting.GRAY, alliance.getFmtName(), TextFormatting.GRAY));
 				alliance.uninvite(player.getUniqueID());
 				
 			} else {
@@ -350,6 +351,15 @@ public class AllianceCommand extends CommandBase {
 			
 			alliance.makeLeader(toPromote.getId());
 			allianceManager.broadcastTo(alliance, String.format("%s%s made %s%s%s the new leader of this alliance.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
+			
+		} else if(params[0].equals("color")) {
+			
+			if(params.length == 1) {
+			
+				String colors = Colors.colors.keySet().stream().map(name -> String.format("%s%s", Colors.fromString(name), name)).collect(Collectors.joining(TextFormatting.GRAY + ", "));
+				sender.sendMessage(new TextComponentString("Available colors: " + colors));
+				
+			}
 			
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));

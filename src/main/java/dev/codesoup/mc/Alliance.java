@@ -5,21 +5,28 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextFormatting;
 
 public class Alliance {
 
 	private List<UUID> members;
 	private List<UUID> outstandingInvitations;
 	private String name;
+	private TextFormatting color;
 	private UUID leader;
 	
 	public Alliance() {
 		this.members = new ArrayList<UUID>();
 		this.outstandingInvitations = new ArrayList<UUID>();
+		this.color = TextFormatting.YELLOW;
 	}
 	
 	public String getName() {
 		return this.name;
+	}
+	
+	public String getFmtName() {
+		return color + this.name;
 	}
 	
 	public void setName(String newName) {
@@ -72,6 +79,10 @@ public class Alliance {
 	
 	public boolean hasInvitationFor(EntityPlayer player) {
 		return this.outstandingInvitations.contains(player.getUniqueID());
+	}
+	
+	public void setColor(TextFormatting color) {
+		this.color = color;
 	}
 	
 	public List<UUID> getInvitations() {
