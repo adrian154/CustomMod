@@ -82,7 +82,7 @@ public class CustomEventHandler {
 		}
 		
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntityPlayer();
-		if(mod.getClaims().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
+		if(!(target instanceof EntityPlayer) && mod.getClaims().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
 			event.setCanceled(true);
 		}
 		
@@ -232,6 +232,8 @@ public class CustomEventHandler {
 	
 	@SubscribeEvent
 	public void playerDropsEvent(PlayerDropsEvent event) {
+		
+		/*
 		if(toKeepInventory.contains(event.getEntityPlayer().getUniqueID())) {
 			for(EntityItem entityItem: event.getDrops()) {
 				ItemStack stack = entityItem.getItem();
@@ -241,12 +243,14 @@ public class CustomEventHandler {
 					event.getEntityPlayer().inventory.addItemStackToInventory(stack);
 				}
 			}
-		}
+		}*/
+		
 	}
 	
 	@SubscribeEvent
 	public void playerCloneEvent(PlayerEvent.Clone event) {
 		
+		/*
 		if(event.getOriginal() != null && toKeepInventory.contains(event.getEntityPlayer().getUniqueID())) {
 			
 			EntityPlayer original = event.getOriginal();
@@ -259,7 +263,7 @@ public class CustomEventHandler {
 			
 			toKeepInventory.remove(event.getEntityPlayer().getUniqueID());
 			
-		}
+		}*/
 		
 	}
 	
@@ -281,8 +285,9 @@ public class CustomEventHandler {
 			
 				// remove power from killer
 				pm.removePower(killer);
-				killer.sendMessage(new TextComponentString(TextFormatting.RED + "Don't kill people in your alliance, they won't drop their inventory!"));
-				toKeepInventory.add(player.getUniqueID());
+				
+				//killer.sendMessage(new TextComponentString(TextFormatting.RED + "Don't kill people in your alliance, they won't drop their inventory!"));
+				//toKeepInventory.add(player.getUniqueID());
 				
 			} else {
 			

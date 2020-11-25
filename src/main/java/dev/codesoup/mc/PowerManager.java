@@ -36,6 +36,16 @@ public class PowerManager extends Manager {
 		return getFreePower(player.getUniqueID());
 	}
 	
+	public void addPower(EntityPlayerMP player, int power) {
+		
+		if(totalPower.get(player.getUniqueID()) == null)
+			totalPower.put(player.getUniqueID(), 0);
+		
+		player.sendMessage(new TextComponentString(TextFormatting.GREEN + "+" + power + " power"));
+		totalPower.replace(player.getUniqueID(), totalPower.get(player.getUniqueID()) + 1);
+	
+	}
+	
 	public void addPower(UUID uuid, int power) {
 		
 		EntityPlayerMP player;

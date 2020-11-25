@@ -46,10 +46,26 @@ public class ClaimsManager extends Manager {
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
 		UUID claim = getClaim(chunk.x, chunk.z);
 		
+		// If the claim is unclaimed, it's up for grabs
 		if(claim == null) {
+			
 			return false;
+		
 		} else {
-			return mod.getServer().getPlayerList().getPlayerByUUID(claim) == null || mod.getAllianceManager().areAllied(uuid, claim);
+			
+			// If the player is offline...
+			if(mod.getServer().getPlayerList().getPlayerByUUID(claim) == null) {
+			
+				// If they are allied, don't protect. Otherwise, if they are allied, protect.
+				return !mod.getAllianceManager().areAllied(uuid, claim);
+			
+			} else {
+				
+				// otherwise, there are no protections
+				return false;
+				
+			}
+			
 		}
 		
 	}

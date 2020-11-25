@@ -9,8 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
@@ -21,6 +22,7 @@ import com.google.gson.InstanceCreator;
 import dev.codesoup.mc.commands.AllianceCommand;
 import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
+import dev.codesoup.mc.commands.GivePowerCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
 import dev.codesoup.mc.commands.PowerCommand;
 import dev.codesoup.mc.commands.ProtectCommand;
@@ -61,6 +63,8 @@ public class CustomMod
     
     public Logger logger;
     public Gson gson;
+    
+    private ScheduledExecutorService executor;
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -115,15 +119,9 @@ public class CustomMod
     
     private void startPassivePowerTask() {
     	
-    	Timer timer = new Timer();
-    	CustomMod mod = this;
-    	timer.schedule(new TimerTask() {
-    		public void run() {
-    			for(EntityPlayerMP player: mod.getServer().getPlayerList().getPlayers()) {
-    				mod.getPowerManager().addPower(player.getUniqueID(), 1);
-    			}
-    		}
-    	}, 0, 60 * 5 * 1000);
+    	Runnable timerTask = new GivePowerTask(this);
+    	executor = Executors.newScheduledThreadPool(1);
+    	executor.scheduleAtFixedRate(timerTask, 0, 60 * 5, TimeUnit.SECONDS);
     	
     }
     
@@ -137,6 +135,7 @@ public class CustomMod
     	event.registerServerCommand(new SetSpawnCommand(this));
     	event.registerServerCommand(new BaseCommand(this));
     	event.registerServerCommand(new ProtectCommand(this));
+    	event.registerServerCommand(new GivePowerCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {
@@ -226,6 +225,30 @@ public class CustomMod
     			return clazz.getDeclaredConstructor(CustomMod.class).newInstance(mod);
     		} catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException exception) {
     			return null;
+    		}
+    	}
+    	
+    }
+    
+    private void givePower() {
+    	for(EntityPlayerMP player: this.getServer().getPlayerList().getPlayers()) {
+    		powerManager.addPower(player, 1);
+    	}
+    }
+    
+    private class GivePowerTask implements Runnable {
+    	
+    	private CustomMod mod;
+    	
+    	public GivePowerTask(CustomMod mod) {
+    		this.mod = mod;
+    	}
+    	
+    	public void run() {
+    		try {
+    			mod.givePower();
+    		} catch(Exception exception) {
+    			exception.printStackTrace();
     		}
     	}
     	
