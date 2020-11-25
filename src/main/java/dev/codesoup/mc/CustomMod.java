@@ -216,7 +216,7 @@ public class CustomMod
     	saveConfig("power.dat", gson.toJson(this.powerManager));
     }
     
-    private class ManagerCreator<T extends Manager> implements InstanceCreator<T> {
+    private class ManagerCreator<T extends RequiresMod> implements InstanceCreator<T> {
     
     	private CustomMod mod;
     	private Class<T> clazz;

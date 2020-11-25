@@ -13,7 +13,7 @@ import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class AllianceManager extends Manager {
+public class AllianceManager extends RequiresMod {
 	
 	private List<Alliance> alliances;
 	private transient Map<UUID, Alliance> playerAlliances;

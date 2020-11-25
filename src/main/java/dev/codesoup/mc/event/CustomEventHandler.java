@@ -312,7 +312,7 @@ public class CustomEventHandler {
 		}
 		
 		BlockPos pos = player.getPosition();
-		player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", pos.getX(), pos.getZ())));
+		player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", TextFormatting.RED, pos.getX(), pos.getZ())));
 		
 		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
 		
