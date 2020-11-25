@@ -49,7 +49,7 @@ public class ClaimsManager extends Manager {
 		if(claim == null) {
 			return false;
 		} else {
-			return mod.getServer().getPlayerList().getPlayerByUUID(claim) == null;
+			return mod.getServer().getPlayerList().getPlayerByUUID(claim) == null || mod.getAllianceManager().areAllied(uuid, claim);
 		}
 		
 	}

@@ -23,6 +23,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
@@ -235,7 +236,7 @@ public class CustomEventHandler {
 			for(EntityItem entityItem: event.getDrops()) {
 				ItemStack stack = entityItem.getItem();
 				if(stack.getItem() instanceof ItemArmor) {
-					// TODO: Save armor
+					event.getEntityPlayer().inventory.armorInventory.add(stack);
 				} else {
 					event.getEntityPlayer().inventory.addItemStackToInventory(stack);
 				}
@@ -301,6 +302,9 @@ public class CustomEventHandler {
 				}
 				
 			}
+			
+			BlockPos pos = player.getPosition();
+			player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", pos.getX(), pos.getZ())));
 			
 		}
 		

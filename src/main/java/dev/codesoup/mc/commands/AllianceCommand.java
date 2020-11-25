@@ -314,6 +314,11 @@ public class AllianceCommand extends CommandBase {
 			this.allianceManager.removePlayer(alliance, toKick.getId());
 			this.allianceManager.broadcastTo(alliance, toKick.getName() + TextFormatting.GRAY + " was removed from the alliance.");
 			
+			EntityPlayerMP player2 = mod.getServer().getPlayerList().getPlayerByUUID(toKick.getId());
+			if(player2 != null) {
+				player2.refreshDisplayName();
+			}
+			
 		} else if(params[0].equals("makeleader")) { 
 			
 			if(params.length != 2) {
@@ -324,6 +329,7 @@ public class AllianceCommand extends CommandBase {
 			Alliance alliance = this.allianceManager.getAlliance(player);
 			if(alliance == null) {
 				player.sendMessage(new TextComponentString(TextFormatting.RED + "You're not in an alliance."));
+				return;
 			}
 			
 			if(!alliance.isLeader(player)) {

@@ -41,10 +41,10 @@ public class PowerManager extends Manager {
 		EntityPlayerMP player;
 		if((player = mod.getServer().getPlayerList().getPlayerByUUID(uuid)) != null) {
 			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.GREEN.toString() + "+" + power + " power"));
-			
 		}
 		
 		totalPower.replace(uuid, totalPower.get(uuid) + power);
+		
 	}
 	
 	public boolean removeFreePower(EntityPlayerMP player) {
