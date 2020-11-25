@@ -3,7 +3,6 @@ package dev.codesoup.mc.event;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -18,11 +17,8 @@ import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
 import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
 import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -30,8 +26,6 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerDropsEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
@@ -49,14 +43,12 @@ public class CustomEventHandler {
 	
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
-	private List<UUID> toKeepInventory;
 	public Map<UUID, Integer> numPeopleOnClaim; 
 	
 	public CustomEventHandler(CustomMod mod) {
 		this.PVPEnabled = true;
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
-		this.toKeepInventory = new ArrayList<UUID>();
 		this.numPeopleOnClaim = new HashMap<UUID, Integer>();
 	}
 	
@@ -128,33 +120,61 @@ public class CustomEventHandler {
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 		UUID curChunkClaimer = this.mod.getClaims().getClaim(event.getNewChunkX(), event.getNewChunkZ());
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
+		this.occupiedTerritory.put(player, curChunkClaimer);
 		
-		// If the chunk claimer changes...
+		// If the player is now in a null chunk...
 		if(curChunkClaimer == null) {
 
+			// If they were leaving a player claim...
 			if(prevChunkClaimer != null) {
+				
+				// If they are leaving someone's claim...
 				if(!prevChunkClaimer.equals(player.getUniqueID())) {
-						
+					
+					// Decrease the number of people on the claim
 					numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
 					if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
 						numPeopleOnClaim.remove(prevChunkClaimer);
 					}
-						
+				
+					// Tell them that the player left
 					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
 					if(claimerPlayer != null && !claimerPlayer.equals(player)) {
-						claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your base."));
+						claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
 					}
 						
 				}
 				
+				// Tell the player they are now in the wilderness
 				player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
-				this.occupiedTerritory.put(player, curChunkClaimer);
+				
 			}
 			
+		// If the player is not in a null chunk, but it's not equal to the previous chunk...
 		} else if(!curChunkClaimer.equals(prevChunkClaimer)) {
 			
+			// Decrement number of people on previous claim
+			if(prevChunkClaimer != null) {
+				
+				numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
+				if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
+					numPeopleOnClaim.remove(prevChunkClaimer);
+				}
+			
+				// Tell them that the player left
+				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
+				if(claimerPlayer != null && !claimerPlayer.equals(player)) {
+					claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
+				}
+				
+			}
+			
+			// If the new chunk is their territory, tell them.
 			if(curChunkClaimer.equals(player.getUniqueID())) {
+				
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
+				
+			// Otherwise, increase the number of peopleon territory
 			} else {
 				
 				boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), curChunkClaimer);
@@ -163,6 +183,7 @@ public class CustomEventHandler {
 				// send message to player
 				GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
 				if(profile != null) {
+					
 					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
 				
 					// send message to claimer
@@ -170,6 +191,7 @@ public class CustomEventHandler {
 					if(claimerPlayer != null) {
 						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 					}
+					
 				}
 				
 				/// Increase number of people on their territory
@@ -180,8 +202,6 @@ public class CustomEventHandler {
 				numPeopleOnClaim.replace(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
 				
 			}
-			
-			this.occupiedTerritory.put(player, curChunkClaimer);
 			
 		}
 		
@@ -194,6 +214,8 @@ public class CustomEventHandler {
 			return;
 		
 		this.mod.getAllianceManager().listInvitations((EntityPlayerMP)event.player, false);
+		
+		// MCWS integration
 		mod.getWSServer().broadcastMessage(new PlayerJoinMessage(event));
 		
 	}
@@ -201,24 +223,27 @@ public class CustomEventHandler {
 	@SubscribeEvent
 	public void playerLoggedOutEvent(PlayerLoggedOutEvent event) {
 		
+		// MCWS integration
 		mod.getWSServer().broadcastMessage(new PlayerQuitMessage(event));
 		
 	}
 	
 	@SubscribeEvent
-	public void nameFormatEvent(NameFormat event) {
-		
+	public void nameFormatEvent(NameFormat event) {		
 		EntityPlayer player = event.getEntityPlayer();
 		String name = this.mod.getAllianceManager().getName(player);
 		event.setDisplayname(name);
 		player.setCustomNameTag(name);
-
 	}
 	
 	@SubscribeEvent
 	public void chatEvent(ServerChatEvent event) {
+	
 		event.setComponent(new TextComponentString(event.getPlayer().getDisplayNameString() + ": " + event.getMessage()));
+		
+		// MCWS integration
 		mod.getWSServer().broadcastMessage(new PlayerChatMessage(event));
+	
 	}
 	
 	@SubscribeEvent
@@ -231,53 +256,17 @@ public class CustomEventHandler {
 	}
 	
 	@SubscribeEvent
-	public void playerDropsEvent(PlayerDropsEvent event) {
-		
-		/*
-		if(toKeepInventory.contains(event.getEntityPlayer().getUniqueID())) {
-			for(EntityItem entityItem: event.getDrops()) {
-				ItemStack stack = entityItem.getItem();
-				if(stack.getItem() instanceof ItemArmor) {
-					event.getEntityPlayer().inventory.armorInventory.add(stack);
-				} else {
-					event.getEntityPlayer().inventory.addItemStackToInventory(stack);
-				}
-			}
-		}*/
-		
-	}
-	
-	@SubscribeEvent
-	public void playerCloneEvent(PlayerEvent.Clone event) {
-		
-		/*
-		if(event.getOriginal() != null && toKeepInventory.contains(event.getEntityPlayer().getUniqueID())) {
-			
-			EntityPlayer original = event.getOriginal();
-			
-			// TODO: Transfer armor
-			
-			for(ItemStack stack: original.inventory.mainInventory) {
-				event.getEntityPlayer().inventory.addItemStackToInventory(stack);
-			}
-			
-			toKeepInventory.remove(event.getEntityPlayer().getUniqueID());
-			
-		}*/
-		
-	}
-	
-	@SubscribeEvent
 	public void livingDeathEvent(LivingDeathEvent event) {
 		
 		if(!(event.getEntity() instanceof EntityPlayerMP) || event.getEntity().getEntityWorld().isRemote) 
 			return;
 		
 		Entity source = event.getSource().getTrueSource();
+		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 		PowerManager pm = mod.getPowerManager();
+		
 		if(source instanceof EntityPlayer) {
 			
-			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 			EntityPlayerMP killer = (EntityPlayerMP)event.getSource().getTrueSource();
 			
 			Alliance alliance = mod.getAllianceManager().getAlliance(killer);
@@ -285,10 +274,7 @@ public class CustomEventHandler {
 			
 				// remove power from killer
 				pm.removePower(killer);
-				
-				//killer.sendMessage(new TextComponentString(TextFormatting.RED + "Don't kill people in your alliance, they won't drop their inventory!"));
-				//toKeepInventory.add(player.getUniqueID());
-				
+
 			} else {
 			
 				// remove power from killed
@@ -296,22 +282,25 @@ public class CustomEventHandler {
 				
 				// give power to killer
 				int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
-				int power = (int)Math.max(Math.sqrt(powerDiff), 0) + 5;
+				int power = (int)Math.max(Math.sqrt(powerDiff), 5);
 				pm.addPower(killer.getUniqueID(), power);
 				
 				// distribute power to members of alliance
 				int distPower = Math.max(powerDiff / 4, 1);
 				for(UUID uuid: alliance.getMembers()) {
-					if(uuid != killer.getUniqueID())
+					if(!uuid.equals(killer.getUniqueID())) {
 						pm.addPower(uuid, distPower);
+					}
 				}
 				
 			}
 			
-			BlockPos pos = player.getPosition();
-			player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", pos.getX(), pos.getZ())));
+			mod.broadcast(String.format("%s killed %s", killer.getName(), player.getName()));
 			
 		}
+		
+		BlockPos pos = player.getPosition();
+		player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", pos.getX(), pos.getZ())));
 		
 		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
 		

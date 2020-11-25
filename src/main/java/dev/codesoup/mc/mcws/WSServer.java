@@ -19,7 +19,6 @@ public class WSServer extends WebSocketServer {
 	public WSServer(CustomMod mod) {
 		super(new InetSocketAddress(1738));
 		this.mod = mod;
-		this.start();
 	}
 	
 

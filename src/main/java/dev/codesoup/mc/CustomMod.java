@@ -103,6 +103,7 @@ public class CustomMod
     	startPassivePowerTask();
     	
     	this.wsServer = new WSServer(this);
+    	wsServer.run();
     	
     }
     
@@ -118,11 +119,9 @@ public class CustomMod
     }
     
     private void startPassivePowerTask() {
-    	
     	Runnable timerTask = new GivePowerTask(this);
     	executor = Executors.newScheduledThreadPool(1);
     	executor.scheduleAtFixedRate(timerTask, 0, 60 * 5, TimeUnit.SECONDS);
-    	
     }
     
     private void registerCommands(FMLServerStartingEvent event) {
