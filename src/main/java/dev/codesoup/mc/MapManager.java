@@ -54,8 +54,8 @@ public class MapManager extends RequiresMod {
 		String markerID = String.format("%d-%d", x, z);
 		String tooltip = "test";
 		
-		double[] xlist = new double[] {x * 16, x * 16 + 15};
-		double[] zlist = new double[] {z * 16, z * 16 + 15};
+		double[] xlist = new double[] {x * 16, x * 16 + 16};
+		double[] zlist = new double[] {z * 16, z * 16 + 16};
 		
 		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "world", xlist, zlist, false);
 		if(marker != null) {

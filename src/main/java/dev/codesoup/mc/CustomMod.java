@@ -33,7 +33,6 @@ import dev.codesoup.mc.event.CustomEventHandler;
 import dev.codesoup.mc.mcws.Configuration;
 import dev.codesoup.mc.mcws.WSServer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Biomes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
@@ -166,6 +165,10 @@ public class CustomMod
     
     public Configuration getConfiguration() {
     	return this.configuration;
+    }
+    
+    public MapManager getMapManager() {
+    	return this.mapManager;
     }
     
     public void broadcast(String message) { 
