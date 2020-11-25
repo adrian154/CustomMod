@@ -85,6 +85,10 @@ public class Alliance {
 		this.color = color;
 	}
 	
+	public TextFormatting getColor() {
+		return this.color;
+	}
+	
 	public List<UUID> getInvitations() {
 		return this.outstandingInvitations;
 	}

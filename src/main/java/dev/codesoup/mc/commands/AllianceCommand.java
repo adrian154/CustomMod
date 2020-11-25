@@ -355,11 +355,30 @@ public class AllianceCommand extends CommandBase {
 		} else if(params[0].equals("color")) {
 			
 			if(params.length == 1) {
-			
 				String colors = Colors.colors.keySet().stream().map(name -> String.format("%s%s", Colors.fromString(name), name)).collect(Collectors.joining(TextFormatting.GRAY + ", "));
 				sender.sendMessage(new TextComponentString("Available colors: " + colors));
-				
+				return;
 			}
+			
+			Alliance alliance = this.allianceManager.getAlliance(player);
+			if(alliance == null) {
+				sender.sendMessage(new TextComponentString(TextFormatting.RED + "You're not in an alliance."));
+				return;
+			}
+			
+			if(!alliance.isLeader(player)) {
+				sender.sendMessage(new TextComponentString(TextFormatting.RED + "You must be the leader of your alliance to change its color."));
+				return;
+			}
+			
+			TextFormatting color = Colors.fromString(params[1]);
+			if(color == null) {
+				sender.sendMessage(new TextComponentString(TextFormatting.RED + "Invalid color. Do /alliance color to view a list of colors."));
+				return;
+			}
+			
+			alliance.setColor(color);
+			this.allianceManager.refreshNames(alliance);
 			
 		} else {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "Unknown command.\nUsage: " + USAGE));

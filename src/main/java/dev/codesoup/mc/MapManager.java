@@ -49,7 +49,14 @@ public class MapManager extends RequiresMod {
 		
 	}
 	
-	private void addMarker(int x, int z) {
+	private void addMarker(int x, int z, UUID uuid) {
+		
+		Alliance alliance = mod.getAllianceManager().getAlliance(uuid);
+		int color;
+		if(alliance != null) 
+			color = Colors.toRGB(alliance.getColor());
+		else
+			color = 0xffffff;
 		
 		String markerID = String.format("%d-%d", x, z);
 		String tooltip = "test";
@@ -59,8 +66,8 @@ public class MapManager extends RequiresMod {
 		
 		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "world", xlist, zlist, false);
 		if(marker != null) {
-			marker.setLineStyle(3, 1, 0xffff00);
-			marker.setFillStyle(0.5, 0xffff00);
+			marker.setLineStyle(3, 1, color);
+			marker.setFillStyle(0.5, color);
 		}
 		
 	}
@@ -70,13 +77,13 @@ public class MapManager extends RequiresMod {
 		Map<Pair, UUID> claims = manager.getClaims();
 		
 		for(Pair pair: claims.keySet()) {
-			addMarker(pair.A, pair.B);
+			addMarker(pair.A, pair.B, claims.get(pair));
 		}
 		
 	}
 	
-	public void doClaim(int x, int z) {
-		addMarker(x, z);
+	public void doClaim(int x, int z, UUID uuid) {
+		addMarker(x, z, uuid);
 	}
 	
 	public void doUnclaim(int x, int z) {

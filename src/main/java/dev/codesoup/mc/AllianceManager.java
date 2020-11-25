@@ -81,14 +81,16 @@ public class AllianceManager extends RequiresMod {
 	}
 	
 	public String getName(EntityPlayer player) {
+		
 		Alliance alliance = this.getAlliance(player);
 		
 		String prefix = "";
 		if(alliance != null) {
-			prefix = String.format("%s[%s]%s ", TextFormatting.YELLOW, alliance.getName(), TextFormatting.RESET);
+			prefix = String.format("[%s]%s ", alliance.getFmtName(), TextFormatting.RESET);
 		}
 		
 		return String.format("%s%s", prefix, player.getName());
+	
 	}
 	
 	public void refreshNames(Alliance alliance) {
