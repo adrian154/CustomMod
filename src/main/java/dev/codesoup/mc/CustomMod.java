@@ -36,12 +36,14 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 
 @Mod(modid = CustomMod.MODID, name = CustomMod.NAME, version = CustomMod.VERSION, acceptableRemoteVersions = "*")
 public class CustomMod
@@ -103,7 +105,7 @@ public class CustomMod
     	startPassivePowerTask();
     	
     	this.wsServer = new WSServer(this);
-    	wsServer.run();
+    	wsServer.start();
     	
     }
     
@@ -115,6 +117,11 @@ public class CustomMod
     	} catch(IOException | InterruptedException exception) {
     		this.logger.error("Uh-oh, super bad thingy: " + exception.getMessage());
     	}
+    	
+    }
+    
+    @EventHandler
+    public void entityRegistration(RegistryEvent.Register<EntityEntry> event) {
     	
     }
     

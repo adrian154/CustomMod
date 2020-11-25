@@ -1,7 +1,6 @@
 package dev.codesoup.mc.event;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,14 +16,21 @@ import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
 import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
 import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -32,6 +38,7 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -132,7 +139,7 @@ public class CustomEventHandler {
 				if(!prevChunkClaimer.equals(player.getUniqueID())) {
 					
 					// Decrease the number of people on the claim
-					numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
+					numPeopleOnClaim.put(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
 					if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
 						numPeopleOnClaim.remove(prevChunkClaimer);
 					}
@@ -156,7 +163,7 @@ public class CustomEventHandler {
 			// Decrement number of people on previous claim
 			if(prevChunkClaimer != null) {
 				
-				numPeopleOnClaim.replace(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
+				numPeopleOnClaim.put(prevChunkClaimer, numPeopleOnClaim.get(prevChunkClaimer) - 1);
 				if(numPeopleOnClaim.get(prevChunkClaimer) == 0) {
 					numPeopleOnClaim.remove(prevChunkClaimer);
 				}
@@ -199,7 +206,7 @@ public class CustomEventHandler {
 					numPeopleOnClaim.put(curChunkClaimer, 0);
 				}
 				
-				numPeopleOnClaim.replace(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
+				numPeopleOnClaim.put(curChunkClaimer, numPeopleOnClaim.get(curChunkClaimer) + 1);
 				
 			}
 			
@@ -303,6 +310,53 @@ public class CustomEventHandler {
 		player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", pos.getX(), pos.getZ())));
 		
 		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
+		
+	}
+	
+	@SubscribeEvent
+	public void livingSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
+		
+		if(event.getWorld().isRemote) {
+			return;
+		}
+		
+		Entity entity = event.getEntity();
+		if(entity instanceof EntityZombie && !event.isSpawner() && event.getResult().equals(Event.Result.ALLOW) && Math.random() > 0.75) {
+
+			// Deny the spawn
+			event.setResult(Event.Result.DENY);
+			
+			// Spawn pigman
+			EntityPigZombie pigman = new EntityPigZombie(event.getWorld());
+			pigman.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch);
+			event.getWorld().spawnEntity(pigman);
+			
+		}
+		
+	}
+	
+	@SubscribeEvent
+	public void livingDropsEvent(LivingDropsEvent event) {
+		
+		if(event.getEntity() instanceof EntityPigZombie) {
+
+			event.setCanceled(true);
+			
+			int which = (int)Math.floor(Math.random() * 7);
+			Item item = null; int quantityMax = 0;
+			switch(which) {
+				case 0: item = Items.BLAZE_ROD; quantityMax = 5; break;
+				case 1: item = Items.GHAST_TEAR; quantityMax = 3; break;
+				case 2: item = Items.NETHER_WART; quantityMax = 5; break;
+				case 3: item = Item.getItemFromBlock(Blocks.NETHERRACK); quantityMax = 16; break;
+				case 4: item = Item.getItemFromBlock(Blocks.SOUL_SAND); quantityMax = 16; break;
+				case 5: item = Items.QUARTZ; quantityMax = 32; break;
+				case 6: item = Item.getItemFromBlock(Blocks.MAGMA); quantityMax = 16; break;
+			}
+			
+			event.getEntity().dropItem(item, (int)Math.floor(Math.random() * quantityMax));
+			
+		}
 		
 	}
 	
