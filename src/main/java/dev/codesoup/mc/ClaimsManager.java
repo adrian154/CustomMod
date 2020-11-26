@@ -27,18 +27,26 @@ public class ClaimsManager extends RequiresMod {
 	}
 	
 	public void setClaim(int x, int z, UUID uuid) {
+		
 		Pair pair = new Pair(x, z);
 		claims.put(pair, uuid);
 		
 		if(playerClaims.get(uuid) == null)
 			playerClaims.put(uuid, new ArrayList<Pair>());
 		playerClaims.get(uuid).add(pair);
+		
+		mod.getMapManager().doClaim(x, z, uuid);
+		
 	}
 	
 	public void unclaim(int x, int z) {
+		
 		Pair pair = new Pair(x, z);
 		UUID claimer = claims.remove(pair);
 		playerClaims.get(claimer).remove(pair);
+		
+		mod.getMapManager().doUnclaim(x, z);
+		
 	}
 	
 	public boolean shouldProtect(World world, BlockPos pos, UUID uuid) {
@@ -88,7 +96,9 @@ public class ClaimsManager extends RequiresMod {
 	
 	public Pair unclaimLast(UUID uuid) {
 		List<Pair> claims = playerClaims.get(uuid);
-		return claims.get(claims.size() - 1);
+		Pair last = claims.get(claims.size() - 1);
+		this.unclaim(last.A, last.B);
+		return last;
 	}
 	
 }

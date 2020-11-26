@@ -9,7 +9,7 @@ public class PlayerDeathMessage extends OnePlayerMessage {
 	
 	public PlayerDeathMessage(LivingDeathEvent event) {
 		super("death", (EntityPlayerMP)event.getEntity());
-		this.deathMessage = event.getSource().getDeathMessage(event.getEntityLiving()).toString();
+		this.deathMessage = event.getSource().getDeathMessage(event.getEntityLiving()).getFormattedText();
 	}
 	
 }

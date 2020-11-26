@@ -86,7 +86,7 @@ public class AllianceManager extends RequiresMod {
 		
 		String prefix = "";
 		if(alliance != null) {
-			prefix = String.format("[%s]%s ", alliance.getFmtName(), TextFormatting.RESET);
+			prefix = String.format("%s[%s]%s ", alliance.getColor(), alliance.getName(), TextFormatting.RESET);
 		}
 		
 		return String.format("%s%s", prefix, player.getName());

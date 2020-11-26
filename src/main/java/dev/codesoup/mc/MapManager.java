@@ -1,5 +1,6 @@
 package dev.codesoup.mc;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -44,6 +45,8 @@ public class MapManager extends RequiresMod {
 				createMarkerLayer();
 				initClaims(mod.getClaims());
 				
+			} else {
+				mod.logger.error("No API?");
 			}
 		}
 		
@@ -64,22 +67,20 @@ public class MapManager extends RequiresMod {
 		double[] xlist = new double[] {x * 16, x * 16 + 16};
 		double[] zlist = new double[] {z * 16, z * 16 + 16};
 		
-		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "world", xlist, zlist, false);
+		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "earth", xlist, zlist, false);
 		if(marker != null) {
-			marker.setLineStyle(3, 1, color);
-			marker.setFillStyle(0.5, color);
+			marker.setLineStyle(1, 0, color);
+			marker.setFillStyle(0.7, color);
+		} else {
+			mod.logger.error("Failed to create marker");
 		}
 		
 	}
 	
 	public void initClaims(ClaimsManager manager) {
-		
-		Map<Pair, UUID> claims = manager.getClaims();
-		
-		for(Pair pair: claims.keySet()) {
-			addMarker(pair.A, pair.B, claims.get(pair));
+		for(Pair pair: manager.getClaims().keySet()) {
+			addMarker(pair.A, pair.B, mod.getClaims().getClaim(pair.A, pair.B));
 		}
-		
 	}
 	
 	public void doClaim(int x, int z, UUID uuid) {
@@ -93,6 +94,30 @@ public class MapManager extends RequiresMod {
 		}
 	}
 	
+	public void refreshClaims(Alliance alliance) {
+		for(UUID uuid: alliance.getMembers()) {
+			refreshClaims(uuid);
+		}
+	}
+	
+	public void refreshClaims(UUID uuid) {
+		refreshClaims(mod.getClaims().getClaims(uuid), uuid);
+	}
+	
+	public void refreshClaims(Map<Pair, UUID> claims) {
+		for(Pair pair: claims.keySet()) {
+			doUnclaim(pair.A, pair.B);
+			addMarker(pair.A, pair.B, claims.get(pair));
+		}
+	}
+	
+	public void refreshClaims(List<Pair> pairs, UUID uuid) {
+		for(Pair pair: pairs) {
+			doUnclaim(pair.A, pair.B);
+			addMarker(pair.A, pair.B, uuid);
+		}
+	}
+	
 	private void createMarkerLayer() {
 		
 		if(this.markerAPI != null) {
@@ -102,6 +127,8 @@ public class MapManager extends RequiresMod {
 			}
 			
 			markerSet.setMarkerSetLabel(CLAIMS_LAYER_NAME);
+		} else {
+			mod.logger.error("Marker API is null!");
 		}
 		
 	}

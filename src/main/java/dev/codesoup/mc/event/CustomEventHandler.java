@@ -28,9 +28,9 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -39,6 +39,7 @@ import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -318,18 +319,18 @@ public class CustomEventHandler {
 		
 	}
 	
-	@SubscribeEvent
-	public void livingSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
+	@SubscribeEvent(priority=EventPriority.LOWEST)
+	public void entityJoinWorldEvent(EntityJoinWorldEvent event) {
 		
 		if(event.getWorld().isRemote) {
 			return;
 		}
 		
 		Entity entity = event.getEntity();
-		if(entity instanceof EntityZombie && !event.isSpawner() && event.getResult().equals(Event.Result.ALLOW) && Math.random() > 0.75) {
+		if(entity instanceof EntityZombie && Math.random() > 0.75) {
 
 			// Deny the spawn
-			event.setResult(Event.Result.DENY);
+			event.setCanceled(true);
 			
 			// Spawn pigman
 			EntityPigZombie pigman = new EntityPigZombie(event.getWorld());

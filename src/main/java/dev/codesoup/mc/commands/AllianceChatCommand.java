@@ -1,5 +1,7 @@
 package dev.codesoup.mc.commands;
 
+import java.util.Arrays;
+
 import dev.codesoup.mc.Alliance;
 import dev.codesoup.mc.AllianceManager;
 import dev.codesoup.mc.CustomMod;
@@ -10,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
-import scala.actors.threadpool.Arrays;
 
 public class AllianceChatCommand extends CommandBase {
 
