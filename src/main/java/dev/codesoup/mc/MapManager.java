@@ -17,6 +17,7 @@ public class MapManager extends RequiresMod {
 	public static final String MARKER_SET_NAME = "custommod.claims.markerset";
 	public static final String CLAIMS_LAYER_NAME = "Claims";
 	
+	private boolean dynmapExists;
 	private DynmapCommonAPI dynmapAPI;
 	private MarkerAPI markerAPI;
 	private MarkerSet markerSet;
@@ -25,11 +26,13 @@ public class MapManager extends RequiresMod {
 		
 		super(mod);
 	
-		if(!Loader.isModLoaded("dynmap")) {
-			throw new RuntimeException("Dynmap is not installed!");
-		}
+		this.dynmapExists = Loader.isModLoaded("dynmap");
 		
-		DynmapCommonAPIListener.register(new DynmapListener());
+		if(dynmapExists) {
+			DynmapCommonAPIListener.register(new DynmapListener());
+		} else {
+			mod.logger.error("Dynmap not installed, map will not work!");
+		}
 		
 	}
 	
@@ -78,43 +81,63 @@ public class MapManager extends RequiresMod {
 	}
 	
 	public void initClaims(ClaimsManager manager) {
-		for(Pair pair: manager.getClaims().keySet()) {
-			addMarker(pair.A, pair.B, mod.getClaims().getClaim(pair.A, pair.B));
+	
+		if(dynmapExists) {
+			for(AreaMarker marker: markerSet.getAreaMarkers()) {
+				marker.deleteMarker();
+			}
+			
+			for(Pair pair: manager.getClaims().keySet()) {
+				addMarker(pair.A, pair.B, mod.getClaims().getClaim(pair.A, pair.B));
+			}
 		}
+		
 	}
 	
 	public void doClaim(int x, int z, UUID uuid) {
-		addMarker(x, z, uuid);
+		if(dynmapExists) {
+			addMarker(x, z, uuid);
+		}
 	}
 	
 	public void doUnclaim(int x, int z) {
-		AreaMarker marker = markerSet.findAreaMarker(String.format("%d-%d", x, z));
-		if(marker != null) {
-			marker.deleteMarker();
+		if(dynmapExists) {
+			AreaMarker marker = markerSet.findAreaMarker(String.format("%d-%d", x, z));
+			if(marker != null) {
+				marker.deleteMarker();
+			}
 		}
 	}
 	
 	public void refreshClaims(Alliance alliance) {
-		for(UUID uuid: alliance.getMembers()) {
-			refreshClaims(uuid);
+		if(dynmapExists) {
+			for(UUID uuid: alliance.getMembers()) {
+				refreshClaims(uuid);
+			}
 		}
 	}
 	
 	public void refreshClaims(UUID uuid) {
-		refreshClaims(mod.getClaims().getClaims(uuid), uuid);
+		if(dynmapExists) {
+			refreshClaims(mod.getClaims().getClaims(uuid), uuid);
+		}
 	}
 	
 	public void refreshClaims(Map<Pair, UUID> claims) {
-		for(Pair pair: claims.keySet()) {
-			doUnclaim(pair.A, pair.B);
-			addMarker(pair.A, pair.B, claims.get(pair));
+		if(dynmapExists) {
+			for(Pair pair: claims.keySet()) {
+				doUnclaim(pair.A, pair.B);
+				addMarker(pair.A, pair.B, claims.get(pair));
+			}
 		}
 	}
 	
 	public void refreshClaims(List<Pair> pairs, UUID uuid) {
-		for(Pair pair: pairs) {
-			doUnclaim(pair.A, pair.B);
-			addMarker(pair.A, pair.B, uuid);
+		if(dynmapExists) {
+			for(Pair pair: pairs) {
+				doUnclaim(pair.A, pair.B);
+				addMarker(pair.A, pair.B, uuid);
+			}
 		}
 	}
 	

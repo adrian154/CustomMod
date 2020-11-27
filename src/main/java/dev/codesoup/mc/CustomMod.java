@@ -36,6 +36,7 @@ import dev.codesoup.mc.event.CustomEventHandler;
 import dev.codesoup.mc.mcws.Configuration;
 import dev.codesoup.mc.mcws.WSServer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
@@ -126,11 +127,6 @@ public class CustomMod
     	
     }
     
-    @EventHandler
-    public void entityRegistration(RegistryEvent.Register<EntityEntry> event) {
-    	
-    }
-    
     private void startPassivePowerTask() {
     	Runnable timerTask = new GivePowerTask(this);
     	executor = Executors.newScheduledThreadPool(1);
@@ -187,6 +183,10 @@ public class CustomMod
     
     public WSServer getWSServer() {
     	return this.wsServer;
+    }
+    
+    public Scoreboard getScoreboard() {
+    	return this.server.getWorld(0).getScoreboard();
     }
     
     private String readConfigFile(String pathStr) throws IOException {

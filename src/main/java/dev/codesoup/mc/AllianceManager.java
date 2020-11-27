@@ -20,6 +20,7 @@ public class AllianceManager extends RequiresMod {
 	
 	public AllianceManager(CustomMod mod) {
 		super(mod);
+		mod.getServer().getWorld(0).toString();
 		this.alliances = new ArrayList<Alliance>();
 		this.playerAlliances = new HashMap<UUID, Alliance>();
 	}
@@ -64,10 +65,12 @@ public class AllianceManager extends RequiresMod {
 	}
 	
 	public void addAlliance(Alliance alliance) {
+		
 		this.alliances.add(alliance);
 		for(UUID uuid: alliance.getMembers()) {
 			playerAlliances.put(uuid, alliance);
 		}
+		
 	}
 
 	public void broadcastTo(Alliance alliance, String message) {

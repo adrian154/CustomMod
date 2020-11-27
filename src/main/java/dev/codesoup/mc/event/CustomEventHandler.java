@@ -16,8 +16,8 @@ import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
 import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
 import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -38,7 +38,6 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -327,7 +326,7 @@ public class CustomEventHandler {
 		}
 		
 		Entity entity = event.getEntity();
-		if(entity instanceof EntityZombie && Math.random() > 0.75) {
+		if(entity instanceof EntityMob && Math.random() > 0.75) {
 
 			// Deny the spawn
 			event.setCanceled(true);
