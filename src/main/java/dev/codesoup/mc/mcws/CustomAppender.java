@@ -26,6 +26,7 @@ public class CustomAppender extends AbstractAppender {
 	
 	@Override
 	public void append(LogEvent event) {	
+		System.out.println(event.getMessage().getFormattedMessage());
 		event = event.toImmutable();
 		mod.getWSServer().broadcastMessageToAuthed(new ConsoleMessage(event.getThreadName(), event.getLevel().toString(), event.getMessage().getFormattedMessage()));
 	}

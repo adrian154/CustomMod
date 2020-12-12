@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
@@ -34,20 +35,19 @@ import dev.codesoup.mc.commands.UnclaimCommand;
 import dev.codesoup.mc.commands.ViewInventoryCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
 import dev.codesoup.mc.mcws.Configuration;
+import dev.codesoup.mc.mcws.CustomAppender;
 import dev.codesoup.mc.mcws.WSServer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
-import net.minecraftforge.fml.common.registry.EntityEntry;
 
 @Mod(modid = CustomMod.MODID, name = CustomMod.NAME, version = CustomMod.VERSION, acceptableRemoteVersions = "*", dependencies="after:dynmap")
 public class CustomMod
@@ -114,6 +114,9 @@ public class CustomMod
     	
     	this.mapManager = new MapManager(this);
 
+    	org.apache.logging.log4j.core.Logger srvLogger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
+    	srvLogger.addAppender(new CustomAppender(this));
+    	
     }
     
     @EventHandler
@@ -121,6 +124,7 @@ public class CustomMod
     	
     	try {
     		this.wsServer.stop();
+    		System.out.println("Goodbye from MCWebSocket!");
     	} catch(IOException | InterruptedException exception) {
     		this.logger.error("Uh-oh, super bad thingy: " + exception.getMessage());
     	}

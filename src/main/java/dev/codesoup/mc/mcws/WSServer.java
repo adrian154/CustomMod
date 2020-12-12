@@ -1,6 +1,7 @@
 package dev.codesoup.mc.mcws;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.java_websocket.WebSocket;
@@ -19,6 +20,7 @@ public class WSServer extends WebSocketServer {
 	public WSServer(CustomMod mod) {
 		super(new InetSocketAddress(1738));
 		this.mod = mod;
+		this.authedClients = new ArrayList<WebSocket>();
 	}
 	
 
@@ -29,7 +31,7 @@ public class WSServer extends WebSocketServer {
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
-		System.out.println("an error occured on connection with " + conn.getRemoteSocketAddress() + ": " + ex.getMessage());
+		ex.printStackTrace();
 	}
 
 	@Override
