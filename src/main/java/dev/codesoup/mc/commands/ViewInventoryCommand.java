@@ -22,13 +22,6 @@ public class ViewInventoryCommand extends ModCommandBase {
 		
 		_assert(params.length == 1, ERR_INCORRECT_USAGE + USAGE);
 		
-		/*
-		 * For contrast:
-		if(params.length < 1) {
-			sender.sendMessage(new TextComponentString(TextFormatting.RED + "Usage: " + USAGE));
-		}
-		*/
-		
 		for(String playername: params) {
 			EntityPlayer player = mod.getServer().getPlayerList().getPlayerByUsername(playername);
 			String itemList = player.inventory.mainInventory.stream().map(stack -> String.format("%d x %s", stack.getCount(), stack.getDisplayName())).collect(Collectors.joining(", "));

@@ -1,6 +1,8 @@
 package dev.codesoup.mc.commands;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 import dev.codesoup.mc.CustomMod;
 import net.minecraft.command.CommandException;
@@ -20,7 +22,7 @@ public class MCWSCommand extends ModCommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
-		_assert(params.length > 1, ERR_INCORRECT_USAGE + USAGE);
+		_assert(params.length >= 1, ERR_INCORRECT_USAGE + USAGE);
 		
 		if(params[0].equals("reload")) {
 			
@@ -33,8 +35,24 @@ public class MCWSCommand extends ModCommandBase {
 			
 		} else if(params[0].equals("genkey")) {
 			
-			int count = 1;
+			_assert(params.length < 2, ERR_INCORRECT_USAGE + USAGE);
 			
+			int count = 1;
+			if(params.length == 2) count = parseInt(params[1]);
+			
+			SecureRandom random = new SecureRandom();
+			for(int i = 0; i < count; i++) {
+				byte bytes[] = new byte[64];
+				random.nextBytes(bytes);
+				String key = Base64.getEncoder().encodeToString(bytes);
+				mod.getConfiguration().addKey(key);
+			}
+			
+			try {
+				mod.getConfiguration().save();
+			} catch(IOException exception) {
+				throw new CommandException("Failed to save configuration.");
+			}
 			
 		}
 		
