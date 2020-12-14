@@ -24,6 +24,7 @@ import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.GivePowerCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
+import dev.codesoup.mc.commands.MCWSCommand;
 import dev.codesoup.mc.commands.NationChatCommand;
 import dev.codesoup.mc.commands.NationCommand;
 import dev.codesoup.mc.commands.PowerCommand;
@@ -153,6 +154,7 @@ public class CustomMod
     	event.registerServerCommand(new RerenderMarkersCommand(this));
     	event.registerServerCommand(new ViewInventoryCommand(this));
     	event.registerServerCommand(new TopCommand(this));
+    	event.registerServerCommand(new MCWSCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {
