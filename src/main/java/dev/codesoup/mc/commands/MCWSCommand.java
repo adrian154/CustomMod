@@ -35,7 +35,7 @@ public class MCWSCommand extends ModCommandBase {
 			
 		} else if(params[0].equals("genkey")) {
 			
-			_assert(params.length < 2, ERR_INCORRECT_USAGE + USAGE);
+			_assert(params.length <= 2, ERR_INCORRECT_USAGE + USAGE);
 			
 			int count = 1;
 			if(params.length == 2) count = parseInt(params[1]);
