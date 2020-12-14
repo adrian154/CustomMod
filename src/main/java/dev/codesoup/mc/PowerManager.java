@@ -61,10 +61,10 @@ public class PowerManager extends RequiresMod {
 		
 		EntityPlayerMP player;
 		if((player = mod.getServer().getPlayerList().getPlayerByUUID(uuid)) != null) {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.GREEN.toString() + "+" + power + " power"));
+			player.sendMessage(powerDiff(power));
 		}
 		
-		totalPower.replace(uuid, totalPower.get(uuid) + power);
+		totalPower.replace(uuid, getTotalPower(uuid) + power);
 		
 	}
 	

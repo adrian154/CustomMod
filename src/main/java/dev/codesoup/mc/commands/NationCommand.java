@@ -21,16 +21,16 @@ import net.minecraft.util.text.TextFormatting;
 public class NationCommand extends ModCommandBase {
 
 	private NationManager nationManager;
-	private static final String USAGE_CREATE = TextFormatting.RED + "/alliance create <name>";
-	private static final String USAGE_RENAME = TextFormatting.RED + "/alliance rename <name>";
-	private static final String USAGE_LEAVE = TextFormatting.RED + "/alliance leave";
-	private static final String USAGE_INVITE = TextFormatting.RED + "/alliance invite <player>";
-	private static final String USAGE_UNINVITE = TextFormatting.RED + "/alliance uninvite <player>";
-	private static final String USAGE_INVITE_LIST = TextFormatting.RED + "/alliance invites";
-	private static final String USAGE_MEMBERS = TextFormatting.RED + "/alliance members [alliance name]";
-	private static final String USAGE_ACCEPT = TextFormatting.RED + "/alliance accept <alliance name>";
-	private static final String USAGE_KICK = TextFormatting.RED + "/alliance kick <player>";
-	private static final String USAGE_MAKELEADER = TextFormatting.RED + "/alliance makeleader <player>";
+	private static final String USAGE_CREATE = TextFormatting.RED + "/nation create <name>";
+	private static final String USAGE_RENAME = TextFormatting.RED + "/nation rename <name>";
+	private static final String USAGE_LEAVE = TextFormatting.RED + "/nation leave";
+	private static final String USAGE_INVITE = TextFormatting.RED + "/nation invite <player>";
+	private static final String USAGE_UNINVITE = TextFormatting.RED + "/nation uninvite <player>";
+	private static final String USAGE_INVITE_LIST = TextFormatting.RED + "/nation invites";
+	private static final String USAGE_MEMBERS = TextFormatting.RED + "/nation members [nation name]";
+	private static final String USAGE_ACCEPT = TextFormatting.RED + "/nation accept <nation name>";
+	private static final String USAGE_KICK = TextFormatting.RED + "/nation kick <player>";
+	private static final String USAGE_MAKELEADER = TextFormatting.RED + "/nation makeleader <player>";
 	private static final String USAGE = USAGE_CREATE + "\n" +
 										USAGE_RENAME + "\n" +
 										USAGE_LEAVE + "\n" +
@@ -63,7 +63,7 @@ public class NationCommand extends ModCommandBase {
 	
 	private void assertNationName(String name) throws CommandException {
 		_assert(nationManager.getNation(name) == null, ERR_NATION_NAME_NONUNIQUE);
-		_assert(name.length() > 3 && name.length() < 24, ERR_BAD_NAME_LENGTH);
+		_assert(name.length() >= 3 && name.length() <= 24, ERR_BAD_NAME_LENGTH);
 	}
 	
 	private Nation assertNation(String name) throws CommandException {

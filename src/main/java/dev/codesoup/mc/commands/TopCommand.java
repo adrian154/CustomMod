@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +35,8 @@ public class TopCommand extends ModCommandBase {
 		
 		PowerManager pwm = mod.getPowerManager();
 		
+		String str;
+		
 		if(params[0].equals("players")) {
 			
 			List<Pair<GameProfile, Integer>> top = new ArrayList<>();
@@ -60,9 +63,13 @@ public class TopCommand extends ModCommandBase {
 				}
 				
 			}
-
-			String list = top.stream().map(pair -> String.format("%s (%d)", pair.getLeft().getName(), pair.getRight())).collect(Collectors.joining(", "));			
-			sender.sendMessage(new TextComponentString(list));
+			
+			str = IntStream.range(0, top.size())
+				.mapToObj(i -> {
+					Pair<GameProfile, Integer> pair = top.get(i);
+					return String.format("%s#%d - %s%s (%d)", TextFormatting.GRAY, i + 1, mod.getNationManager().getNation(pair.getLeft().getId()).getColor().toString(), pair.getLeft().getName(), pair.getRight());
+				})
+				.collect(Collectors.joining("\n"));
 			
 		} else {
 		
@@ -90,10 +97,16 @@ public class TopCommand extends ModCommandBase {
 				
 			}
 
-			String list = top.stream().map(pair -> String.format("%s (%d)%s", pair.getLeft().getFmtName(), pair.getRight(), TextFormatting.RESET.toString())).collect(Collectors.joining(", "));
-			sender.sendMessage(new TextComponentString(list));
-			
+			str = IntStream.range(0, top.size())
+					.mapToObj(i -> {
+						Pair<Nation, Integer> pair = top.get(i);
+						return String.format("%s#%d - %s (%d)", TextFormatting.GRAY, i + 1, pair.getLeft().getFmtName(), pair.getRight());
+					})
+					.collect(Collectors.joining("\n"));
+		
 		}
+		
+		sender.sendMessage(new TextComponentString(str));
 		
 	}
 	
