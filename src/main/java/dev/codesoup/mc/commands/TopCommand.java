@@ -17,6 +17,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 
 public class TopCommand extends ModCommandBase {
 
@@ -89,7 +90,7 @@ public class TopCommand extends ModCommandBase {
 				
 			}
 
-			String list = top.stream().map(pair -> String.format("%s (%d)%s", pair.getLeft().getFmtName(), pair.getRight())).collect(Collectors.joining(", "));
+			String list = top.stream().map(pair -> String.format("%s (%d)%s", pair.getLeft().getFmtName(), pair.getRight(), TextFormatting.RESET.toString())).collect(Collectors.joining(", "));
 			sender.sendMessage(new TextComponentString(list));
 			
 		}
