@@ -36,14 +36,12 @@ public class PowerManager extends RequiresMod {
 		return getFreePower(player.getUniqueID());
 	}
 	
-	public void addPower(EntityPlayerMP player, int power) {
-		
-		if(totalPower.get(player.getUniqueID()) == null)
-			totalPower.put(player.getUniqueID(), 0);
-		
-		player.sendMessage(new TextComponentString(TextFormatting.GREEN + "+" + power + " power"));
-		totalPower.replace(player.getUniqueID(), totalPower.get(player.getUniqueID()) + 1);
+	private TextComponentString powerDiff(int amt) {
+		return new TextComponentString(String.format("%s%d power", amt < 0 ? TextFormatting.RED : (TextFormatting.GREEN + "+"), amt));
+	}
 	
+	public void addPower(EntityPlayerMP player, int power) {
+		addPower(player.getUniqueID(), power);
 	}
 	
 	public void addPower(UUID uuid, int power) {
@@ -57,33 +55,29 @@ public class PowerManager extends RequiresMod {
 		
 	}
 	
-	public boolean removeFreePower(EntityPlayerMP player) {
-		if(mod.getClaims().getNumClaims(player.getUniqueID()) >= getTotalPower(player)) {
+	public boolean removeFreePower(EntityPlayerMP player, int amount) {
+		if(getFreePower(player) < amount) {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't have enough power!"));
 			return false;
 		} else {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.RED.toString() + "-1 power"));
+			removePower(player, amount);
 			return true;
 		}
 	}
 	
-	public void removePower(EntityPlayerMP player) {
+	public void removePower(EntityPlayerMP player, int amount) {
 		
 		UUID uuid = player.getUniqueID();
 		
-		int actualAmt = getTotalPower(player) > 0 ? 1 : 0;
-		if(actualAmt == 1) {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.RED.toString() + "-1 power"));
-		} else {
-			player.sendMessage(new TextComponentString(TextFormatting.ITALIC.toString() + TextFormatting.GRAY.toString() + "-0 power"));
-		}
-		
-		if(mod.getClaims().getNumClaims(uuid) > getTotalPower(uuid) - 1) {
+		player.sendMessage(powerDiff(amount));
+
+		int overdraw = amount - getFreePower(player);
+		for(int i = 0; i < overdraw; i++) {
 			Pair unclaimed = mod.getClaims().unclaimLast(uuid);
 			player.sendMessage(new TextComponentString(String.format("%sWARNING: Your claim at (%d, %d) was unclaimed since you have lost too much power!", TextFormatting.RED, unclaimed.A * 16, unclaimed.B * 16)));
 		}
-		
-		totalPower.replace(uuid, getTotalPower(uuid) - actualAmt);
+
+		totalPower.replace(uuid, getTotalPower(uuid) - amount);
 		
 	}
 	

@@ -120,7 +120,7 @@ public class CustomMod
     }
     
     @EventHandler
-    public void init(FMLServerStoppingEvent event) {
+    public void stopping(FMLServerStoppingEvent event) {
     	
     	try {
     		this.wsServer.stop();

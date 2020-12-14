@@ -98,6 +98,7 @@ public class ClaimsManager extends RequiresMod {
 		List<Pair> claims = playerClaims.get(uuid);
 		Pair last = claims.get(claims.size() - 1);
 		this.unclaim(last.A, last.B);
+		claims.remove(claims.size() - 1); 
 		return last;
 	}
 	

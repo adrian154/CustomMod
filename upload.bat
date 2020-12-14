@@ -1,0 +1,1 @@
+scp -i id_rsa build/libs/custommod-1.0.jar ubuntu@mc.codesoup.dev:/mcserver/mods

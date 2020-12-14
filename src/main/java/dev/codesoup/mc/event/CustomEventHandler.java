@@ -84,6 +84,52 @@ public class CustomEventHandler {
 		}
 	}
 
+	private void onEnterClaim(UUID claimer, EntityPlayer player) {
+		
+		if(claimer.equals(player.getUniqueID())) {
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
+			return;
+		}
+		
+		incrementClaim(claimer);
+		
+		boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), claimer);
+		String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
+		
+		// send message to player
+		GameProfile profile = mod.getServer().getPlayerProfileCache().getProfileByUUID(claimer);
+		if(profile != null) {
+			
+			player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
+		
+			// send message to claimer
+			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(claimer);
+			if(claimerPlayer != null) {
+				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
+			}
+			
+		}
+		
+	}
+	
+	private void onExitClaim(UUID claimer, EntityPlayer player) {
+		
+		// Tell them that the player left
+		if(!claimer.equals(player.getUniqueID())) {
+			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(claimer);
+			if(claimerPlayer != null && !claimerPlayer.equals(player)) {
+				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
+			}
+		}
+		
+	}
+	
+	private void onEnterWilderness(EntityPlayer player) {
+		
+		player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
+		
+	}
+	
 	@SubscribeEvent
 	public void attackEntityEvent(AttackEntityEvent event) {
 
@@ -145,74 +191,17 @@ public class CustomEventHandler {
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		this.occupiedTerritory.put(player, curChunkClaimer);
 		
-		// If the player is now in a null chunk...
-		if(curChunkClaimer == null) {
-
-			// If they were leaving a player claim...
-			if(prevChunkClaimer != null) {
-				
-				// If they are leaving someone's claim...
-				if(!prevChunkClaimer.equals(player.getUniqueID())) {
-					
-					// Decrease the number of people on the claim
-					decrementClaim(prevChunkClaimer);
-				
-					// Tell them that the player left
-					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
-					if(claimerPlayer != null && !claimerPlayer.equals(player)) {
-						claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
-					}
-						
-				}
-				
-				// Tell the player they are now in the wilderness
-				player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
-				
-			}
+		// If the player is entering an unclaimed chunk...
+		if(curChunkClaimer == null && prevChunkClaimer != null) {
+	
+			onExitClaim(prevChunkClaimer, player);
+			onEnterWilderness(player);
 			
-		// If the player is not in a null chunk, but it's not equal to the previous chunk...
 		} else if(!curChunkClaimer.equals(prevChunkClaimer)) {
-			
-			// Decrement number of people on previous claim
+		
+			onEnterClaim(curChunkClaimer, player);
 			if(prevChunkClaimer != null) {
-				
-				decrementClaim(prevChunkClaimer);
-			
-				// Tell them that the player left
-				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(prevChunkClaimer);
-				if(claimerPlayer != null && !claimerPlayer.equals(player)) {
-					claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
-				}
-				
-			}
-			
-			// If the new chunk is their territory, tell them.
-			if(curChunkClaimer.equals(player.getUniqueID())) {
-				
-				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
-				
-			// Otherwise, increase the number of people on territory
-			} else {
-				
-				boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), curChunkClaimer);
-				String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
-				
-				// send message to player
-				GameProfile profile = event.getEntity().getEntityWorld().getMinecraftServer().getPlayerProfileCache().getProfileByUUID(curChunkClaimer);
-				if(profile != null) {
-					
-					player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
-				
-					// send message to claimer
-					EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(curChunkClaimer);
-					if(claimerPlayer != null) {
-						claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
-					}
-					
-				}
-				
-				incrementClaim(curChunkClaimer);
-				
+				onExitClaim(prevChunkClaimer, player);
 			}
 			
 		}
@@ -306,8 +295,6 @@ public class CustomEventHandler {
 				}
 				
 			}
-			
-			mod.broadcast(String.format("%s killed %s", killer.getName(), player.getName()));
 			
 		}
 		
