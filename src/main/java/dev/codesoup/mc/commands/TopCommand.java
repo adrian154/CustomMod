@@ -63,7 +63,7 @@ public class TopCommand extends ModCommandBase {
 			String list = top.stream().map(pair -> String.format("%s (%d)", pair.getLeft().getName(), pair.getRight())).collect(Collectors.joining(", "));			
 			sender.sendMessage(new TextComponentString(list));
 			
-		} else if(params[0] == "nations") {
+		} else {
 		
 			List<Pair<Nation, Integer>> top = new ArrayList<>();
 			for(Nation nation: mod.getNationManager().getNations()) {
