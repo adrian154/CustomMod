@@ -236,7 +236,8 @@ public class CustomMod
     }
   
  
-    public void saveAll() throws FileNotFoundException {
+    public void saveAll() throws FileNotFoundException, IOException {
+    	configuration.save();
     	saveConfig("claims.dat", gson.toJson(this.claimsManager));
     	saveConfig("nations.dat", gson.toJson(this.nationManager));
     	saveConfig("power.dat", gson.toJson(this.powerManager));

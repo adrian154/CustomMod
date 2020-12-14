@@ -1,6 +1,7 @@
 package dev.codesoup.mc.event;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -8,29 +9,22 @@ import java.util.WeakHashMap;
 
 import com.mojang.authlib.GameProfile;
 
-import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.CustomMod;
+import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.PowerManager;
 import dev.codesoup.mc.mcws.messages.PlayerChatMessage;
 import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
 import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
 import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -38,7 +32,6 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -253,7 +246,7 @@ public class CustomEventHandler {
 	public void saveEvent(WorldEvent.Save event) {
 		try {
 			this.mod.saveAll();
-		} catch(FileNotFoundException exception) {
+		} catch(IOException exception) {
 			mod.logger.error("FAILED TO SAVE CONFIGS, THIS IS REALLY REALLY BAD!");
 		}
 	}
@@ -307,6 +300,8 @@ public class CustomEventHandler {
 		
 	}
 	
+	// NEVER EVER AGAIN.
+	/*
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void entityJoinWorldEvent(EntityJoinWorldEvent event) {
 		
@@ -328,7 +323,7 @@ public class CustomEventHandler {
 		}
 		
 	}
-	
+
 	@SubscribeEvent
 	public void livingDropsEvent(LivingDropsEvent event) {
 		
@@ -353,5 +348,6 @@ public class CustomEventHandler {
 		}
 		
 	}
+	*/
 	
 }

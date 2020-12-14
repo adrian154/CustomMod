@@ -13,7 +13,6 @@ public class Configuration {
 	private File configFile;
 	private Gson gson;
 	private ConfigContainer configContainer;
-	private boolean needsSave;
 	
 	public Configuration() throws IOException {
 		this.gson = new Gson();
@@ -34,17 +33,14 @@ public class Configuration {
 	
 	public void save() throws IOException {
 		
-		if(needsSave) {
-			PrintWriter pw = new PrintWriter(configFile.getPath());
-			pw.println(gson.toJson(configContainer));
-			pw.close();
-		}
+		PrintWriter pw = new PrintWriter(configFile.getPath());
+		pw.println(gson.toJson(configContainer));
+		pw.close();
 		
 	}
 	
 	public void addKey(String key) {
 		configContainer.keys.add(key);
-		needsSave = true;
 	}
 	
 	public boolean verifyKey(String key) {
