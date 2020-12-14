@@ -103,7 +103,7 @@ public class CustomMod
     	
     	try {
     		this.loadAll();
-    	} catch(IOException | IllegalAccessException | InstantiationException exception) {
+    	} catch(IOException | IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}	
     	
@@ -211,12 +211,13 @@ public class CustomMod
     	out.close();
     }
     
-    private <T extends RequiresMod> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, InstantiationException {
+    private <T extends RequiresMod> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
     	String config = readConfigFile(configName);
-    	return config != null ? this.gson.fromJson(config, clazz) : clazz.newInstance();
+    	System.out.println(config);
+    	return config != null ? this.gson.fromJson(config, clazz) : clazz.getConstructor(CustomMod.class).newInstance(this);
     }
     
-    private void loadAll() throws IOException, IllegalAccessException, InstantiationException {
+    private void loadAll() throws IOException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
     
     	this.claimsManager = loadFromConfig(ClaimsManager.class, "claims.dat");
     	this.nationManager = loadFromConfig(NationManager.class, "nations.dat");

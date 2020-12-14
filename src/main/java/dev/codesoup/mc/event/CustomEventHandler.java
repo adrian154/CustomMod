@@ -192,10 +192,12 @@ public class CustomEventHandler {
 		this.occupiedTerritory.put(player, curChunkClaimer);
 		
 		// If the player is entering an unclaimed chunk...
-		if(curChunkClaimer == null && prevChunkClaimer != null) {
+		if(curChunkClaimer == null) {
 	
-			onExitClaim(prevChunkClaimer, player);
-			onEnterWilderness(player);
+			if(prevChunkClaimer != null) {
+				onExitClaim(prevChunkClaimer, player);
+				onEnterWilderness(player);
+			}
 			
 		} else if(!curChunkClaimer.equals(prevChunkClaimer)) {
 		

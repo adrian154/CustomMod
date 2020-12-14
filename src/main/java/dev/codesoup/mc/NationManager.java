@@ -37,6 +37,10 @@ public class NationManager extends RequiresMod {
 		return playerNations.get(player.getUniqueID());
 	}
 	
+	public List<Nation> getNations() {
+		return nations;
+	}
+	
 	public Nation getNation(UUID uuid) {
 		return playerNations.get(uuid);
 	}

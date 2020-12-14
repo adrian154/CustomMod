@@ -135,7 +135,7 @@ public class NationCommand extends ModCommandBase {
 		}
 		
 		// Commands that require you to be in a nation...
-		_assert(nation == null, ERR_MUST_BE_IN_NATION);
+		_assert(nation != null, ERR_MUST_BE_IN_NATION);
 		
 		// Commands that do not require you to be leader...
 		if(params[0].equals("leave")) {

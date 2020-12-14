@@ -23,6 +23,14 @@ public class PowerManager extends RequiresMod {
 		return this.totalPower.keySet();
 	}
 	
+	public int getTotalPower(Nation nation) {
+		int totalPower = 0;
+		for(UUID uuid: nation.getMembers()) {
+			totalPower += this.getTotalPower(uuid);
+		}
+		return totalPower;
+	}
+	
 	public int getTotalPower(UUID uuid) {
 		if(!totalPower.containsKey(uuid))
 			totalPower.put(uuid, 12);
