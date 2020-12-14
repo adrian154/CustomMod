@@ -232,7 +232,7 @@ public class CustomMod
     }
   
  
-    public void saveAll() throws FileNotFoundException, IOException {
+    public void saveAll() throws FileNotFoundException {
     	saveConfig("claims.dat", gson.toJson(this.claimsManager));
     	saveConfig("alliances.dat", gson.toJson(this.nationManager));
     	saveConfig("power.dat", gson.toJson(this.powerManager));
