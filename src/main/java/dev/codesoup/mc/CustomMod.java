@@ -1,5 +1,6 @@
 package dev.codesoup.mc;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -7,8 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -198,24 +197,30 @@ public class CustomMod
     }
     
     public static String readConfigFile(String pathStr) throws IOException {
-    	Path path = Paths.get(pathStr);
-    	if(Files.exists(path)) {
-    		return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+    	File file = new File(pathStr);
+    	if(file.exists()) {
+    		return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
     	} else {
-    		Files.createFile(path);
+    		file.createNewFile();
     		return null;
     	}
     }
     
     public static void saveConfig(String path, String contents) throws FileNotFoundException {
     	PrintWriter out = new PrintWriter(path);
+    	out.println(contents);
     	out.close();
     }
     
     private <T extends RequiresMod> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
     	String config = readConfigFile(configName);
-    	System.out.println(config);
-    	return config != null ? this.gson.fromJson(config, clazz) : clazz.getConstructor(CustomMod.class).newInstance(this);
+    	if(config == null) {
+    		logger.debug(String.format("No config file \"%s\", creating new instance...", configName));
+    		return clazz.getConstructor(CustomMod.class).newInstance(this);
+    	} else {
+    		logger.debug(String.format("Loaded manager from config file \"%s\"", configName));
+    		return gson.fromJson(config, clazz);
+    	}
     }
     
     private void loadAll() throws IOException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
