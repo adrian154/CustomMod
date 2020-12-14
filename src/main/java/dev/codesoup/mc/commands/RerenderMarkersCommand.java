@@ -7,13 +7,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
-public class RerenderMarkersCommand extends CommandBase {
+public class RerenderMarkersCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private final static String USAGE = "/rem";
 	
 	public RerenderMarkersCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "rem", 4);
 	}
 	
 	@Override
@@ -22,11 +21,6 @@ public class RerenderMarkersCommand extends CommandBase {
 		mod.getMapManager().initClaims(mod.getClaims());
 		sender.sendMessage(new TextComponentString("Working..."));
 		
-	}
-	
-	@Override
-	public String getName() {
-		return "rem";
 	}
 	
 	@Override

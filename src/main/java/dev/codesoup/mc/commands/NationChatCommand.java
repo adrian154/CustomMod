@@ -13,44 +13,32 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class NationChatCommand extends CommandBase {
+public class NationChatCommand extends ModCommandBase {
 
-	private CustomMod mod;
-	private NationManager allianceManager;
-	private final static String USAGE = "/ac";
+	private NationManager nationManager;
+	private final static String USAGE = "/nc";
 	
 	public NationChatCommand(CustomMod mod) {
-		this.mod = mod;
-		this.allianceManager = mod.getAllianceManager();
+		super(mod, "nc", 0);
+		this.nationManager = mod.getNationManager();
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 	
-		if(!(sender instanceof EntityPlayerMP)) {
-			return;
-		}
+		EntityPlayerMP player = assertIsPlayer(sender);
+		Nation nation = this.nationManager.getNation(player);
 		
-		EntityPlayerMP player = (EntityPlayerMP)sender;
-		Nation alliance = this.allianceManager.getNation(player);
-		
-		if(alliance == null) {
-			player.sendMessage(new TextComponentString(TextFormatting.RED + "You aren't in an alliance."));
-			return;
-		}
-		
-		if(params.length < 1) {
-			player.sendMessage(new TextComponentString(TextFormatting.RED + "You didn't specify a message."));
-			return;
-		}
-		
+		_assert(nation != null, "You are not in a nation.");
+		_assert(params.length >= 1, "You did not specify a message.");
+
 		String message = String.join(" ", (String [])Arrays.copyOfRange(params, 0, params.length));
 		
-		this.allianceManager.broadcastTo(
-			alliance,
+		this.nationManager.broadcastTo(
+			nation,
 			String.format(
 				"%s(alliance)%s %s: %s",
-				TextFormatting.DARK_GREEN,
+				nation.getColor(),
 				TextFormatting.RESET,
 				player.getName(),
 				message
@@ -58,26 +46,10 @@ public class NationChatCommand extends CommandBase {
 		);
 		
 	}
-	
-	@Override
-	public String getName() {
-		return "ac";
-	}
-	
+
 	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
 	}
-
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 0;
-	}
-	
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
-	}
-	
 	
 }

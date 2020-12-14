@@ -7,13 +7,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
-public class InvitationsCommand extends CommandBase {
+public class InvitationsCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private final static String USAGE = "/invites";
 	
 	public InvitationsCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "invites", 0);
 	}
 	
 	@Override
@@ -23,28 +22,13 @@ public class InvitationsCommand extends CommandBase {
 			return;
 		}
 		
-		mod.getAllianceManager().listInvitations((EntityPlayerMP)sender, true);
+		mod.getNationManager().listInvitations((EntityPlayerMP)sender, true);
 		
-	}
-	
-	@Override
-	public String getName() {
-		return "invites";
 	}
 	
 	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
-	}
-	
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 0;
-	}
-	
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
 	}
 	
 }

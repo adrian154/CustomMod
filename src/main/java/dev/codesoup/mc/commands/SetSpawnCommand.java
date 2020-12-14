@@ -3,7 +3,6 @@ package dev.codesoup.mc.commands;
 import java.util.UUID;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,23 +12,18 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.chunk.Chunk;
 
-public class SetSpawnCommand extends CommandBase {
-
-	private CustomMod mod;
+public class SetSpawnCommand extends ModCommandBase {
+	
 	private final static String USAGE = "/setspawn";
 	
 	public SetSpawnCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "setspawn", 0);
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 	
-		if(!(sender instanceof EntityPlayerMP)) {
-			return;
-		}
-		
-		EntityPlayerMP player = (EntityPlayerMP)sender;
+		EntityPlayerMP player = assertIsPlayer(sender);
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
 		UUID claim = mod.getClaims().getClaim(chunk.x, chunk.z);
@@ -44,23 +38,8 @@ public class SetSpawnCommand extends CommandBase {
 	}
 	
 	@Override
-	public String getName() {
-		return "setspawn";
-	}
-	
-	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
-	}
-	
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 0;
-	}
-
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
 	}
 	
 }

@@ -11,6 +11,8 @@ import net.minecraft.util.text.TextFormatting;
 
 public class GivePowerCommand extends ModCommandBase {
 
+	private final static String USAGE = "/givepower <user> <amount>";
+	
 	public GivePowerCommand(CustomMod mod) {
 		super(mod, "givepower", 4);
 	}
@@ -18,7 +20,7 @@ public class GivePowerCommand extends ModCommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
-		_assert(params.length == 2, ERR_INCORRECT_USAGE + "/givepower <user> <amount>");
+		_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE);
 
 		GameProfile profile = assertPlayer(params[0]);
 		int power = parseInt(params[1]);
@@ -29,7 +31,7 @@ public class GivePowerCommand extends ModCommandBase {
 	
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/givepower <person> <amount>";
+		return USAGE;
 	}
 	
 }

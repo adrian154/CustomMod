@@ -1,19 +1,17 @@
 package dev.codesoup.mc.commands;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextFormatting;
 
-public class TogglePVPCommand extends CommandBase {
+public class TogglePVPCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private final static String USAGE = "/pvp";
 	
 	public TogglePVPCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "pvp", 4);
 	}
 	
 	@Override
@@ -25,11 +23,6 @@ public class TogglePVPCommand extends CommandBase {
 			mod.broadcast(TextFormatting.GREEN + "PVP is now disabled.");
 		}
 		
-	}
-	
-	@Override
-	public String getName() {
-		return "pvp";
 	}
 	
 	@Override

@@ -35,11 +35,6 @@ public class ViewInventoryCommand extends ModCommandBase {
 	}
 	
 	@Override
-	public String getName() {
-		return "vi";
-	}
-	
-	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
 	}

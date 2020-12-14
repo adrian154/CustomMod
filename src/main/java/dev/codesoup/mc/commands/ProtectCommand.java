@@ -3,30 +3,25 @@ package dev.codesoup.mc.commands;
 import java.util.UUID;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.chunk.Chunk;
 
-public class ProtectCommand extends CommandBase {
+public class ProtectCommand extends ModCommandBase {
 
 	private CustomMod mod;
 	private final static String USAGE = "/protect";
 	
 	public ProtectCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "protect", 4);
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
-		if(!(sender instanceof EntityPlayerMP)) {
-			return;
-		}
-		
-		EntityPlayerMP player = (EntityPlayerMP)sender;
+		EntityPlayerMP player = assertIsPlayer(sender);
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		UUID claimer = mod.getClaims().getClaim(chunk.x, chunk.z);
 		
@@ -39,18 +34,8 @@ public class ProtectCommand extends CommandBase {
 	}
 	
 	@Override
-	public String getName() {
-		return "protect";
-	}
-	
-	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
-	}
-	
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 4;
 	}
 	
 }

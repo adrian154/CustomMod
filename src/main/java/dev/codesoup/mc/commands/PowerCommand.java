@@ -13,13 +13,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class PowerCommand extends CommandBase {
+public class PowerCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private final static String USAGE = "/power";
 	
 	public PowerCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "power", 0);
 	}
 	
 	@Override
@@ -28,16 +27,11 @@ public class PowerCommand extends CommandBase {
 		UUID uuid;
 		String name;
 		if(params.length == 0) {
-			if(sender instanceof EntityPlayerMP) {
-				EntityPlayerMP player = (EntityPlayerMP)sender;
-				uuid = player.getUniqueID();
-				name = player.getName();
-			} else {
-				sender.sendMessage(new TextComponentString(TextFormatting.RED + "Get outta here, robot!"));
-				return;
-			}
+			EntityPlayerMP player = assertIsPlayer(sender);
+			uuid = player.getUniqueID();
+			name = player.getName();
 		} else {
-			GameProfile target = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(params[0]);
+			GameProfile target = assertPlayer(params[0]);
 			uuid = target.getId();
 			name = target.getName();
 		}
@@ -47,23 +41,8 @@ public class PowerCommand extends CommandBase {
 	}
 	
 	@Override
-	public String getName() {
-		return "power";
-	}
-	
-	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
-	}
-	
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 0;
-	}
-	
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
 	}
 	
 }
