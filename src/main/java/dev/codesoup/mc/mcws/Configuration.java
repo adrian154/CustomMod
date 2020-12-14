@@ -1,42 +1,47 @@
 package dev.codesoup.mc.mcws;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import com.google.gson.Gson;
 
 public class Configuration {
 
 	private File configFile;
-	private List<String> keys;
+	private Gson gson;
+	private ConfigContainer configContainer;
 	
 	public Configuration() throws IOException {
-		keys = new ArrayList<String>();
+		this.gson = new Gson();
+		this.configFile = new File("mcws-config.json");
 		this.reload();
 	}
 	
 	public void reload() throws IOException {
 		
-		configFile = new File("mcws-keys.cfg");
-		configFile.createNewFile();
-		keys.removeAll(keys);
-		
-		/* This part is crude, since I plan on extending it to other configuration options */
-		BufferedReader reader = new BufferedReader(new FileReader(configFile));
-		
-		String line;
-		while((line = reader.readLine()) != null) {
-			keys.add(line);
+		if(configFile.exists()) {
+			String str = new String(Files.readAllBytes(configFile.toPath()), StandardCharsets.UTF_8);
+			configContainer = gson.fromJson(str, ConfigContainer.class);
+		} else {
+			configContainer = new ConfigContainer();
 		}
 		
-		reader.close();
+	}
+	
+	public void save() throws IOException {
+		
+		PrintWriter pw = new PrintWriter(configFile.getPath());
+		pw.println(gson.toJson(configContainer));
+		pw.close();
 		
 	}
 	
 	public boolean verifyKey(String key) {
-		return keys.contains(key);
+		return configContainer.keys.contains(key);
 	}
 
 }

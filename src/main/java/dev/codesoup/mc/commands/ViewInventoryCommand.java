@@ -8,11 +8,9 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 
 public class ViewInventoryCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private final static String USAGE = "/vi <player1> <player2> (...)";
 	
 	public ViewInventoryCommand(CustomMod mod) {
@@ -22,9 +20,14 @@ public class ViewInventoryCommand extends ModCommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
+		_assert(params.length == 1, ERR_INCORRECT_USAGE + USAGE);
+		
+		/*
+		 * For contrast:
 		if(params.length < 1) {
 			sender.sendMessage(new TextComponentString(TextFormatting.RED + "Usage: " + USAGE));
 		}
+		*/
 		
 		for(String playername: params) {
 			EntityPlayer player = mod.getServer().getPlayerList().getPlayerByUsername(playername);

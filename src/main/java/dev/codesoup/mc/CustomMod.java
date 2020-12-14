@@ -195,7 +195,7 @@ public class CustomMod
     	return this.server.getWorld(0).getScoreboard();
     }
     
-    private String readConfigFile(String pathStr) throws IOException {
+    public static String readConfigFile(String pathStr) throws IOException {
     	Path path = Paths.get(pathStr);
     	if(Files.exists(path)) {
     		return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
@@ -205,7 +205,7 @@ public class CustomMod
     	}
     }
     
-    private void saveConfig(String path, String contents) throws FileNotFoundException {
+    public static void saveConfig(String path, String contents) throws FileNotFoundException {
     	PrintWriter out = new PrintWriter(path);
     	out.println(contents);
     	out.close();
