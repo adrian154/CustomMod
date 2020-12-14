@@ -3,7 +3,6 @@ package dev.codesoup.mc.commands;
 import java.util.stream.Collectors;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,13 +10,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class ViewInventoryCommand extends CommandBase {
+public class ViewInventoryCommand extends ModCommandBase {
 
 	private CustomMod mod;
 	private final static String USAGE = "/vi <player1> <player2> (...)";
 	
 	public ViewInventoryCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "vi", 4);
 	}
 	
 	@Override

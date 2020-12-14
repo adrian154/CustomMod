@@ -39,9 +39,9 @@ public class NationCommand extends ModCommandBase {
 										USAGE_INVITE_LIST + "\n" +
 										USAGE_MEMBERS + "\n" + 
 										USAGE_ACCEPT + "\n" +
-										USAGE_KICK;
+										USAGE_KICK + "\n" + 
+										USAGE_MAKELEADER;
 	
-	private final String ERR_INCORRECT_USAGE = "Incorrect number of parameters.\nUsage: ";
 	private final String ERR_CANNOT_BE_IN_NATION = "You must leave your current nation to create a new one.\nIf you would like to do so, do " + USAGE_LEAVE;
 	private final String ERR_MUST_BE_IN_NATION = "You are not in a nation.";
 	private final String ERR_NATION_NAME_NONUNIQUE = "A nation of that name exists already.";
@@ -57,7 +57,7 @@ public class NationCommand extends ModCommandBase {
 	private final String ERR_UNKNOWN_COMMAND = "No such command.";
 	
 	public NationCommand(CustomMod mod) {
-		super(mod);
+		super(mod, "nation", 0);
 		this.nationManager = mod.getNationManager();
 	}
 	
@@ -75,16 +75,8 @@ public class NationCommand extends ModCommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 	
-		if(!(sender instanceof EntityPlayerMP)) {
-			return;
-		}
-		
-		if(params.length == 0) {
-			sender.sendMessage(new TextComponentString(TextFormatting.RED + "Not enough parameters.\n" + USAGE));
-			return;
-		}
-		
-		EntityPlayerMP player = (EntityPlayerMP)sender;
+		EntityPlayerMP player = assertIsPlayer(sender);
+		_assert(params.length > 0, ERR_INCORRECT_USAGE + USAGE);
 		Nation nation = this.nationManager.getNation(player);
 
 		// Commands that do not require you to be in a nation...
@@ -266,7 +258,7 @@ public class NationCommand extends ModCommandBase {
 			
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_MAKELEADER);
 			GameProfile toPromote = assertPlayer(params[1]);
-			_assert(nation.getMembers().contains(toPromote), ERR_NOT_IN_ALLIANCE);
+			_assert(nation.getMembers().contains(toPromote.getId()), ERR_NOT_IN_ALLIANCE);
 			
 			nation.makeLeader(toPromote.getId());
 			nationManager.broadcastTo(nation, String.format("%s%s made %s%s%s the new leader of this alliance.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
@@ -299,18 +291,8 @@ public class NationCommand extends ModCommandBase {
 	}
 	
 	@Override
-	public String getName() {
-		return "alliance";
-	}
-	
-	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
-	}
-	
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 0;
 	}
 
 	@Override

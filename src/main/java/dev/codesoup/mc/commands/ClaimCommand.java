@@ -11,56 +11,37 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.chunk.Chunk;
 
-public class ClaimCommand extends CommandBase {
+public class ClaimCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private ClaimsManager claims;
 	private final static String USAGE = "/claim";
 	
 	public ClaimCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod, "claim", 0);
 		this.claims = mod.getClaims();
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 	
-		if(!(sender instanceof EntityPlayerMP)) {
-			return;
-		}
-		
-		EntityPlayerMP player = (EntityPlayerMP)sender;
+		EntityPlayerMP player = assertIsPlayer(sender);
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
 		if(claims.getClaim(chunk.x, chunk.z) == null) {
-			if(mod.getPowerManager().removeFreePower(player)) {
+			if(mod.getPowerManager().removeFreePower(player, 1)) {
 				claims.setClaim(chunk.x, chunk.z, player.getUniqueID());
 				player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
 			}
 		} else {
-			player.sendMessage(new TextComponentString(TextFormatting.RED + "That chunk is already claimed!"));
+			throw new CommandException("That chunk is already claimed!");
 		}
 		
 	}
-	
-	@Override
-	public String getName() {
-		return "claim";
-	}
+
 	
 	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
 	}
 
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 0;
-	}
-	
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
-	}
-	
 }
