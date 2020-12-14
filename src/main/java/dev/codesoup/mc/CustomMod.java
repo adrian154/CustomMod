@@ -20,17 +20,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 
-import dev.codesoup.mc.commands.NationCommand;
 import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.GivePowerCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
 import dev.codesoup.mc.commands.NationChatCommand;
+import dev.codesoup.mc.commands.NationCommand;
 import dev.codesoup.mc.commands.PowerCommand;
 import dev.codesoup.mc.commands.ProtectCommand;
 import dev.codesoup.mc.commands.RerenderMarkersCommand;
 import dev.codesoup.mc.commands.SetSpawnCommand;
 import dev.codesoup.mc.commands.TogglePVPCommand;
+import dev.codesoup.mc.commands.TopCommand;
 import dev.codesoup.mc.commands.UnclaimCommand;
 import dev.codesoup.mc.commands.ViewInventoryCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
@@ -151,6 +152,7 @@ public class CustomMod
     	event.registerServerCommand(new NationChatCommand(this));
     	event.registerServerCommand(new RerenderMarkersCommand(this));
     	event.registerServerCommand(new ViewInventoryCommand(this));
+    	event.registerServerCommand(new TopCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {

@@ -2,6 +2,7 @@ package dev.codesoup.mc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,10 +13,14 @@ import net.minecraft.util.text.TextFormatting;
 public class PowerManager extends RequiresMod {
 
 	private Map<UUID, Integer> totalPower;
-
+	
 	public PowerManager(CustomMod mod) {
 		super(mod);
 		totalPower = new HashMap<UUID, Integer>();
+	}
+	
+	public Set<UUID> getKeys() {
+		return this.totalPower.keySet();
 	}
 	
 	public int getTotalPower(UUID uuid) {

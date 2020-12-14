@@ -11,10 +11,10 @@ import net.minecraft.util.text.TextFormatting;
 
 public class GivePowerCommand extends ModCommandBase {
 
-	private final static String USAGE = "/givepower <user> <amount>";
+	private final static String USAGE = "/gp <user> <amount>";
 	
 	public GivePowerCommand(CustomMod mod) {
-		super(mod, "givepower", 4);
+		super(mod, "gp", 4);
 	}
 	
 	@Override

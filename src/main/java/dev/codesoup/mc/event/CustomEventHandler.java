@@ -93,7 +93,7 @@ public class CustomEventHandler {
 		
 		incrementClaim(claimer);
 		
-		boolean allied = mod.getAllianceManager().areAllied(player.getUniqueID(), claimer);
+		boolean allied = mod.getNationManager().sameNation(player.getUniqueID(), claimer);
 		String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
 		
 		// send message to player
@@ -214,7 +214,7 @@ public class CustomEventHandler {
 		if(!(event.player instanceof EntityPlayerMP))
 			return;
 		
-		this.mod.getAllianceManager().listInvitations((EntityPlayerMP)event.player, false);
+		this.mod.getNationManager().listInvitations((EntityPlayerMP)event.player, false);
 		
 		// MCWS integration
 		mod.getWSServer().broadcastMessage(new PlayerJoinMessage(event));
@@ -232,7 +232,7 @@ public class CustomEventHandler {
 	@SubscribeEvent
 	public void nameFormatEvent(NameFormat event) {		
 		EntityPlayer player = event.getEntityPlayer();
-		String name = this.mod.getAllianceManager().getName(player);
+		String name = this.mod.getNationManager().getName(player);
 		event.setDisplayname(name);
 		player.setCustomNameTag(name);
 	}
@@ -270,20 +270,20 @@ public class CustomEventHandler {
 			
 			EntityPlayerMP killer = (EntityPlayerMP)event.getSource().getTrueSource();
 			
-			Nation alliance = mod.getAllianceManager().getAlliance(killer);
+			Nation alliance = mod.getNationManager().getNation(killer);
 			if(alliance.getMembers().contains(player.getUniqueID())) {
 			
 				// remove power from killer
-				pm.removePower(killer);
+				pm.removePower(killer, 10);
 
 			} else {
 			
 				// remove power from killed
-				pm.removePower(player);
+				pm.removePower(player, 5);
 				
 				// give power to killer
 				int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
-				int power = (int)Math.max(Math.sqrt(powerDiff), 5);
+				int power = (int)Math.max(3 * Math.sqrt(powerDiff), 5);
 				pm.addPower(killer.getUniqueID(), power);
 				
 				// distribute power to members of alliance

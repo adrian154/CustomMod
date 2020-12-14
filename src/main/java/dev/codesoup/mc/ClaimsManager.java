@@ -64,7 +64,7 @@ public class ClaimsManager extends RequiresMod {
 			if(mod.getServer().getPlayerList().getPlayerByUUID(claim) == null) {
 			
 				// If they are allied, don't protect. Otherwise, if they are allied, protect.
-				return !mod.getAllianceManager().areAllied(uuid, claim);
+				return !mod.getNationManager().sameNation(uuid, claim);
 			
 			} else {
 				

@@ -57,7 +57,7 @@ public class MapManager extends RequiresMod {
 	
 	private void addMarker(int x, int z, UUID uuid) {
 		
-		Nation alliance = mod.getAllianceManager().getNation(uuid);
+		Nation alliance = mod.getNationManager().getNation(uuid);
 		int color;
 		if(alliance != null) 
 			color = Colors.toRGB(alliance.getColor());
