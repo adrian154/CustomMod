@@ -57,7 +57,7 @@ public class MapManager extends RequiresMod {
 	
 	private void addMarker(int x, int z, UUID uuid) {
 		
-		Alliance alliance = mod.getAllianceManager().getAlliance(uuid);
+		Nation alliance = mod.getAllianceManager().getNation(uuid);
 		int color;
 		if(alliance != null) 
 			color = Colors.toRGB(alliance.getColor());
@@ -65,7 +65,7 @@ public class MapManager extends RequiresMod {
 			color = 0xffffff;
 		
 		String markerID = String.format("%d-%d", x, z);
-		String tooltip = "test";
+		String tooltip = "";
 		
 		double[] xlist = new double[] {x * 16, x * 16 + 16};
 		double[] zlist = new double[] {z * 16, z * 16 + 16};
@@ -109,7 +109,7 @@ public class MapManager extends RequiresMod {
 		}
 	}
 	
-	public void refreshClaims(Alliance alliance) {
+	public void refreshClaims(Nation alliance) {
 		if(dynmapExists) {
 			for(UUID uuid: alliance.getMembers()) {
 				refreshClaims(uuid);

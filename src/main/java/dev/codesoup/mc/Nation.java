@@ -7,7 +7,7 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextFormatting;
 
-public class Alliance {
+public class Nation {
 
 	private List<UUID> members;
 	private List<UUID> outstandingInvitations;
@@ -15,7 +15,7 @@ public class Alliance {
 	private TextFormatting color;
 	private UUID leader;
 	
-	public Alliance() {
+	public Nation() {
 		this.members = new ArrayList<UUID>();
 		this.outstandingInvitations = new ArrayList<UUID>();
 		this.color = TextFormatting.YELLOW;
@@ -77,8 +77,12 @@ public class Alliance {
 		this.outstandingInvitations.remove(uuid);
 	}
 	
+	public boolean hasInvitationFor(UUID uuid) {
+		return this.outstandingInvitations.contains(uuid);
+	}
+	
 	public boolean hasInvitationFor(EntityPlayer player) {
-		return this.outstandingInvitations.contains(player.getUniqueID());
+		return hasInvitationFor(player.getUniqueID());
 	}
 	
 	public void setColor(TextFormatting color) {

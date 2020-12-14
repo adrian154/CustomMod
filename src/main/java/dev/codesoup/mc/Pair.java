@@ -11,7 +11,7 @@ public class Pair {
 	
 	@Override
 	public int hashCode() {
-		return A * 256 + B;
+		return A * 1024 + B;
 	}
 	
 	@Override

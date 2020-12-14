@@ -20,8 +20,7 @@ public class ClaimsManager extends RequiresMod {
 		claims = new HashMap<Pair, UUID>();
 		playerClaims = new HashMap<UUID, List<Pair>>();
 	}
-	
-	// x and z are chunk coordinates
+
 	public UUID getClaim(int x, int z) {
 		return claims.get(new Pair(x, z));
 	}

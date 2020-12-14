@@ -8,7 +8,7 @@ import java.util.WeakHashMap;
 
 import com.mojang.authlib.GameProfile;
 
-import dev.codesoup.mc.Alliance;
+import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.CustomMod;
 import dev.codesoup.mc.PowerManager;
 import dev.codesoup.mc.mcws.messages.PlayerChatMessage;
@@ -270,7 +270,7 @@ public class CustomEventHandler {
 			
 			EntityPlayerMP killer = (EntityPlayerMP)event.getSource().getTrueSource();
 			
-			Alliance alliance = mod.getAllianceManager().getAlliance(killer);
+			Nation alliance = mod.getAllianceManager().getAlliance(killer);
 			if(alliance.getMembers().contains(player.getUniqueID())) {
 			
 				// remove power from killer

@@ -2,8 +2,8 @@ package dev.codesoup.mc.commands;
 
 import java.util.Arrays;
 
-import dev.codesoup.mc.Alliance;
-import dev.codesoup.mc.AllianceManager;
+import dev.codesoup.mc.Nation;
+import dev.codesoup.mc.NationManager;
 import dev.codesoup.mc.CustomMod;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -13,13 +13,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class AllianceChatCommand extends CommandBase {
+public class NationChatCommand extends CommandBase {
 
 	private CustomMod mod;
-	private AllianceManager allianceManager;
+	private NationManager allianceManager;
 	private final static String USAGE = "/ac";
 	
-	public AllianceChatCommand(CustomMod mod) {
+	public NationChatCommand(CustomMod mod) {
 		this.mod = mod;
 		this.allianceManager = mod.getAllianceManager();
 	}
@@ -32,7 +32,7 @@ public class AllianceChatCommand extends CommandBase {
 		}
 		
 		EntityPlayerMP player = (EntityPlayerMP)sender;
-		Alliance alliance = this.allianceManager.getAlliance(player);
+		Nation alliance = this.allianceManager.getNation(player);
 		
 		if(alliance == null) {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You aren't in an alliance."));

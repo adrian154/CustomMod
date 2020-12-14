@@ -20,12 +20,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 
-import dev.codesoup.mc.commands.AllianceChatCommand;
-import dev.codesoup.mc.commands.AllianceCommand;
+import dev.codesoup.mc.commands.NationCommand;
 import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.GivePowerCommand;
 import dev.codesoup.mc.commands.InvitationsCommand;
+import dev.codesoup.mc.commands.NationChatCommand;
 import dev.codesoup.mc.commands.PowerCommand;
 import dev.codesoup.mc.commands.ProtectCommand;
 import dev.codesoup.mc.commands.RerenderMarkersCommand;
@@ -61,7 +61,7 @@ public class CustomMod
     private CustomEventHandler customEventHandler;
     
     private ClaimsManager claimsManager;
-    private AllianceManager allianceManager;
+    private NationManager nationManager;
     private PowerManager powerManager;
     private MapManager mapManager;
     
@@ -80,7 +80,7 @@ public class CustomMod
     	
     	GsonBuilder gsonBuilder = new GsonBuilder();
     	gsonBuilder.enableComplexMapKeySerialization();
-    	gsonBuilder.registerTypeAdapter(AllianceManager.class, new ManagerCreator<AllianceManager>(this, AllianceManager.class));
+    	gsonBuilder.registerTypeAdapter(NationManager.class, new ManagerCreator<NationManager>(this, NationManager.class));
     	gsonBuilder.registerTypeAdapter(ClaimsManager.class, new ManagerCreator<ClaimsManager>(this, ClaimsManager.class));
     	gsonBuilder.registerTypeAdapter(PowerManager.class, new ManagerCreator<PowerManager>(this, PowerManager.class));
         this.gson = gsonBuilder.create();
@@ -102,7 +102,7 @@ public class CustomMod
     	
     	try {
     		this.loadAll();
-    	} catch(IOException exception) {
+    	} catch(IOException | IllegalAccessException | InstantiationException exception) {
     		this.logger.fatal("Exception while initializing: " + exception.getMessage());
     	}	
     	
@@ -140,7 +140,7 @@ public class CustomMod
     private void registerCommands(FMLServerStartingEvent event) {
     	event.registerServerCommand(new TogglePVPCommand(this));
     	event.registerServerCommand(new ClaimCommand(this));
-    	event.registerServerCommand(new AllianceCommand(this));
+    	event.registerServerCommand(new NationCommand(this));
     	event.registerServerCommand(new InvitationsCommand(this));
     	event.registerServerCommand(new PowerCommand(this));
     	event.registerServerCommand(new UnclaimCommand(this));
@@ -148,7 +148,7 @@ public class CustomMod
     	event.registerServerCommand(new BaseCommand(this));
     	event.registerServerCommand(new ProtectCommand(this));
     	event.registerServerCommand(new GivePowerCommand(this));
-    	event.registerServerCommand(new AllianceChatCommand(this));
+    	event.registerServerCommand(new NationChatCommand(this));
     	event.registerServerCommand(new RerenderMarkersCommand(this));
     	event.registerServerCommand(new ViewInventoryCommand(this));
     }
@@ -161,8 +161,8 @@ public class CustomMod
     	return this.claimsManager;
     }
     
-    public AllianceManager getAllianceManager() {
-    	return this.allianceManager;
+    public NationManager getNationManager() {
+    	return this.nationManager;
     }
     
     public PowerManager getPowerManager() {
@@ -209,27 +209,27 @@ public class CustomMod
     	out.close();
     }
     
-    private void loadAll() throws IOException {
+    private <T extends RequiresMod> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, InstantiationException {
+    	String config = readConfigFile(configName);
+    	return config != null ? this.gson.fromJson(config, clazz) : clazz.newInstance();
+    }
     
-    	String claimsData = readConfigFile("claims.dat");
-    	String alliancesData = readConfigFile("alliances.dat");
-    	String powerData = readConfigFile("power.dat");
-
-    	this.claimsManager = claimsData != null ? this.gson.fromJson(claimsData, ClaimsManager.class) : new ClaimsManager(this);
-    	this.allianceManager = alliancesData != null ? this.gson.fromJson(alliancesData, AllianceManager.class) : new AllianceManager(this);
-    	this.powerManager = powerData != null ? this.gson.fromJson(powerData, PowerManager.class) : new PowerManager(this);
-
+    private void loadAll() throws IOException, IllegalAccessException, InstantiationException {
+    
+    	this.claimsManager = loadFromConfig(ClaimsManager.class, "claims.dat");
+    	this.nationManager = loadFromConfig(NationManager.class, "nations.dat");
+    	this.powerManager = loadFromConfig(PowerManager.class, "power.dat");	    	
     	this.configuration = new Configuration();
     	
-    	// necessary postloading step
-    	this.allianceManager.initPlayerAlliances();
-    
+    	// Postinit step
+    	this.nationManager.initPlayerNations();
+    	
     }
   
  
     public void saveAll() throws FileNotFoundException {
     	saveConfig("claims.dat", gson.toJson(this.claimsManager));
-    	saveConfig("alliances.dat", gson.toJson(this.allianceManager));
+    	saveConfig("alliances.dat", gson.toJson(this.nationManager));
     	saveConfig("power.dat", gson.toJson(this.powerManager));
     }
     

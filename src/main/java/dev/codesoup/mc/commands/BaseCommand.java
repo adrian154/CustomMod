@@ -1,7 +1,6 @@
 package dev.codesoup.mc.commands;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -10,13 +9,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class BaseCommand extends CommandBase {
+public class BaseCommand extends ModCommandBase {
 
 	private CustomMod mod;
 	private final static String USAGE = "/base";
 	
 	public BaseCommand(CustomMod mod) {
-		this.mod = mod;
+		super(mod);
 	}
 	
 	@Override
