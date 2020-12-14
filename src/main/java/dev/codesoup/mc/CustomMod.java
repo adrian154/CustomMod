@@ -209,7 +209,6 @@ public class CustomMod
     
     public static void saveConfig(String path, String contents) throws FileNotFoundException {
     	PrintWriter out = new PrintWriter(path);
-    	out.println(contents);
     	out.close();
     }
     

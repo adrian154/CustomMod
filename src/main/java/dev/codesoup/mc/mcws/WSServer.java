@@ -18,7 +18,7 @@ public class WSServer extends WebSocketServer {
 	private List<WebSocket> authedClients;
 	
 	public WSServer(CustomMod mod) {
-		super(new InetSocketAddress(1738));
+		super(new InetSocketAddress(mod.getConfiguration().getPort()));
 		this.mod = mod;
 		this.authedClients = new ArrayList<WebSocket>();
 	}

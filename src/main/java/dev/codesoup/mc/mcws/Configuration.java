@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import com.google.gson.Gson;
 
@@ -50,6 +49,10 @@ public class Configuration {
 	
 	public boolean verifyKey(String key) {
 		return configContainer.keys.contains(key);
+	}
+	
+	public int getPort() {
+		return configContainer.port;
 	}
 
 }
