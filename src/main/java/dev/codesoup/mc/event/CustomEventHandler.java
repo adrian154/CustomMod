@@ -109,10 +109,15 @@ public class CustomEventHandler {
 		
 		// Tell them that the player left
 		if(!claimer.equals(player.getUniqueID())) {
+			
 			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(claimer);
+			
 			if(claimerPlayer != null && !claimerPlayer.equals(player)) {
 				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
 			}
+			
+			decrementClaim(claimer);
+			
 		}
 		
 	}
@@ -184,21 +189,17 @@ public class CustomEventHandler {
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		this.occupiedTerritory.put(player, curChunkClaimer);
 		
-		// If the player is entering an unclaimed chunk...
-		if(curChunkClaimer == null) {
-	
-			if(prevChunkClaimer != null) {
-				onExitClaim(prevChunkClaimer, player);
-				onEnterWilderness(player);
-			}
-			
-		} else if(!curChunkClaimer.equals(prevChunkClaimer)) {
 		
+		if(prevChunkClaimer != null && !prevChunkClaimer.equals(curChunkClaimer)) {
+			onExitClaim(prevChunkClaimer, player);
+		}
+		
+		if(curChunkClaimer != null && curChunkClaimer.equals(prevChunkClaimer)) {
 			onEnterClaim(curChunkClaimer, player);
-			if(prevChunkClaimer != null) {
-				onExitClaim(prevChunkClaimer, player);
-			}
-			
+		}
+		
+		if(curChunkClaimer == null && prevChunkClaimer != null) {
+			onEnterWilderness(player);
 		}
 		
 	}

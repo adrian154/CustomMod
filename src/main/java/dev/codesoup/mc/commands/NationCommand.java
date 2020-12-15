@@ -101,6 +101,23 @@ public class NationCommand extends ModCommandBase {
 			
 		}
 		
+		if(params[0].equals("accept")) {
+			
+			_assert(nation == null, ERR_CANNOT_BE_IN_NATION);
+			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_ACCEPT);
+			Nation theNation = assertNation(params[1]);
+			_assert(theNation.hasInvitationFor(player), ERR_1P_NOT_INVITED);
+			
+			nationManager.addPlayer(theNation, player.getUniqueID());
+			player.refreshDisplayName();
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + theNation.getFmtName() + TextFormatting.GREEN + "!"));
+			mod.broadcast(String.format("%s%s joined %s%s.", player.getName(), TextFormatting.GRAY, theNation.getFmtName(), TextFormatting.GRAY));
+			theNation.uninvite(player.getUniqueID());
+			
+			return;
+			
+		}
+		
 		if(params[0].equals("members")) {
 			
 			Nation theNation;
@@ -195,23 +212,6 @@ public class NationCommand extends ModCommandBase {
 				player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Outstanding invites: " + TextFormatting.WHITE + list));
 			
 			}
-			
-			return;
-			
-		}
-		
-		if(params[0].equals("accept")) {
-			
-			_assert(nation == null, ERR_CANNOT_BE_IN_NATION);
-			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_ACCEPT);
-			Nation theNation = assertNation(params[1]);
-			_assert(nation.hasInvitationFor(player), ERR_1P_NOT_INVITED);
-			
-			nationManager.addPlayer(nation, player.getUniqueID());
-			player.refreshDisplayName();
-			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Welcome to " + theNation.getFmtName() + TextFormatting.GREEN + "!"));
-			mod.broadcast(String.format("%s%s joined %s%s.", player.getName(), TextFormatting.GRAY, theNation.getFmtName(), TextFormatting.GRAY));
-			theNation.uninvite(player.getUniqueID());
 			
 			return;
 			

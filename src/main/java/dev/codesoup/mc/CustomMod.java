@@ -111,7 +111,6 @@ public class CustomMod
     	startPassivePowerTask();
     	
     	this.wsServer = new WSServer(this);
-    	wsServer.start();
     	
     	this.mapManager = new MapManager(this);
 

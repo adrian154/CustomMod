@@ -21,6 +21,8 @@ public class WSServer extends WebSocketServer {
 		super(new InetSocketAddress(mod.getConfiguration().getPort()));
 		this.mod = mod;
 		this.authedClients = new ArrayList<WebSocket>();
+		this.setReuseAddr(true);
+		this.start();
 	}
 	
 

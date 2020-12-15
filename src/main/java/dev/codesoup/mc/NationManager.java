@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.mojang.authlib.GameProfile;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerList;
@@ -106,6 +108,19 @@ public class NationManager extends RequiresMod {
 		
 		return String.format("%s%s", prefix, player.getName());
 	
+	}
+	
+	public String getName(GameProfile profile) {
+		
+		Nation nation = this.getNation(profile.getId());
+		
+		String prefix = "";
+		if(nation != null) {
+			prefix = String.format("%s[%s]%s ", nation.getColor(), nation.getName(), TextFormatting.RESET);
+		}
+		
+		return String.format("%s%s", prefix, profile.getName());
+		
 	}
 	
 	public void refreshNames(Nation nation) {
