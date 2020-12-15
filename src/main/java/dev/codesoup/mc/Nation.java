@@ -29,15 +29,19 @@ public class Nation {
 		this.color = TextFormatting.YELLOW;
 		this.ID = UUID.randomUUID();
 		
-		this.team = manager.getMod().getScoreboard().getTeam(ID.toString());
+		this.team = manager.getMod().getScoreboard().getTeam(this.getTeamName());
 		if(team == null) {
-			team = manager.getMod().getScoreboard().createTeam(ID.toString());
+			team = manager.getMod().getScoreboard().createTeam(this.getTeamName());
 		}
 		
 	}
 	
 	public UUID getID() {
 		return this.ID;
+	}
+	
+	private String getTeamName() {
+		return this.ID.toString().substring(0, 16);
 	}
 	
 	public String getName() {
@@ -62,10 +66,12 @@ public class Nation {
 	
 	public void addMember(EntityPlayer player) {
 		this.addMember(player.getUniqueID());
+		manager.getMod().getScoreboard().addPlayerToTeam(player.getName(), team.getName());
 	}
 	
 	public void removeMember(UUID uuid) {
 		this.members.remove(uuid);
+		manager.getMod().getScoreboard().removePlayerFromTeam(manager.getMod().getProfile(uuid).getName(), team);
 	}
 	
 	public void makeLeader(UUID newLeader) {
