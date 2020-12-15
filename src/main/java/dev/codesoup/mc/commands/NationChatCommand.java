@@ -2,15 +2,13 @@ package dev.codesoup.mc.commands;
 
 import java.util.Arrays;
 
+import dev.codesoup.mc.CustomMod;
 import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.NationManager;
-import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
 public class NationChatCommand extends ModCommandBase {
@@ -37,7 +35,7 @@ public class NationChatCommand extends ModCommandBase {
 		this.nationManager.broadcastTo(
 			nation,
 			String.format(
-				"%s(alliance)%s %s: %s",
+				"%s(nation)%s %s: %s",
 				nation.getColor(),
 				TextFormatting.RESET,
 				player.getName(),

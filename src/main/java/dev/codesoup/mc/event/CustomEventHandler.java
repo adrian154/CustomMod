@@ -1,6 +1,5 @@
 package dev.codesoup.mc.event;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -300,55 +299,5 @@ public class CustomEventHandler {
 		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
 		
 	}
-	
-	// NEVER EVER AGAIN.
-	/*
-	@SubscribeEvent(priority=EventPriority.LOWEST)
-	public void entityJoinWorldEvent(EntityJoinWorldEvent event) {
-		
-		if(event.getWorld().isRemote) {
-			return;
-		}
-		
-		Entity entity = event.getEntity();
-		if(entity instanceof EntityMob && Math.random() > 0.75) {
-
-			// Deny the spawn
-			event.setCanceled(true);
-			
-			// Spawn pigman
-			EntityPigZombie pigman = new EntityPigZombie(event.getWorld());
-			pigman.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch);
-			event.getWorld().spawnEntity(pigman);
-			
-		}
-		
-	}
-
-	@SubscribeEvent
-	public void livingDropsEvent(LivingDropsEvent event) {
-		
-		if(event.getEntity() instanceof EntityPigZombie) {
-
-			event.setCanceled(true);
-			
-			int which = (int)Math.floor(Math.random() * 7);
-			Item item = null; int quantityMax = 0;
-			switch(which) {
-				case 0: item = Items.BLAZE_ROD; quantityMax = 5; break;
-				case 1: item = Items.GHAST_TEAR; quantityMax = 3; break;
-				case 2: item = Items.NETHER_WART; quantityMax = 5; break;
-				case 3: item = Item.getItemFromBlock(Blocks.NETHERRACK); quantityMax = 16; break;
-				case 4: item = Item.getItemFromBlock(Blocks.SOUL_SAND); quantityMax = 16; break;
-				case 5: item = Items.QUARTZ; quantityMax = 32; break;
-				case 6: item = Item.getItemFromBlock(Blocks.MAGMA); quantityMax = 16; break;
-			}
-			
-			event.getEntity().dropItem(item, (int)Math.floor(Math.random() * quantityMax));
-			
-		}
-		
-	}
-	*/
 	
 }

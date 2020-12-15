@@ -24,7 +24,7 @@ public class NationCommand extends ModCommandBase {
 	private static final String USAGE_CREATE = TextFormatting.RED + "/nation create <name>";
 	private static final String USAGE_RENAME = TextFormatting.RED + "/nation rename <name>";
 	private static final String USAGE_LEAVE = TextFormatting.RED + "/nation leave";
-	private static final String USAGE_INVITE = TextFormatting.RED + "/nation invite <player>";
+	private static final String USAGE_INVITE = "/nation invite <player>";
 	private static final String USAGE_UNINVITE = TextFormatting.RED + "/nation uninvite <player>";
 	private static final String USAGE_INVITE_LIST = TextFormatting.RED + "/nation invites";
 	private static final String USAGE_MEMBERS = TextFormatting.RED + "/nation members [nation name]";
@@ -47,11 +47,11 @@ public class NationCommand extends ModCommandBase {
 	private final String ERR_NATION_NAME_NONUNIQUE = "A nation of that name exists already.";
 	private final String ERR_BAD_NAME_LENGTH = "Your nation's length must be between 3 and 24 characters long.";
 	private final String ERR_MUST_BE_LEADER = "You are not the leader of your nation.";
-	private final String ERR_ALREADY_IN_ALLIANCE = "That player is already in the nation.";
-	private final String ERR_NOT_IN_ALLIANCE = "That player is not in the nation.";
+	private final String ERR_ALREADY_IN_NATION = "That player is already in the nation.";
+	private final String ERR_NOT_IN_NATION = "That player is not in the nation.";
 	private final String ERR_ALREADY_INVITED = "That player has already been invited to the nation.";
 	private final String ERR_3P_NOT_INVITED = "That player is not invited to the nation.";
-	private final String ERR_1P_NOT_INVITED = "You are not invited to that alliance.";
+	private final String ERR_1P_NOT_INVITED = "You are not invited to that nation.";
 	private final String ERR_NO_SUCH_NATION = "No nation exists by that name.";
 	private final String ERR_INVALID_COLOR = "Invalid color.";
 	private final String ERR_UNKNOWN_COMMAND = "No such command.";
@@ -93,8 +93,8 @@ public class NationCommand extends ModCommandBase {
 			this.nationManager.addNation(newAlliance);
 
 			player.sendMessage(new TextComponentString(
-				TextFormatting.GREEN + "Your alliance was created.\n" +
-				TextFormatting.GRAY + "Add people with " + TextFormatting.WHITE + "/alliance invite <player>"
+				TextFormatting.GREEN + "Your nation was created.\n" +
+				TextFormatting.GRAY + "Add people with " + TextFormatting.WHITE + USAGE_INVITE
 			));
 			
 			return;
@@ -159,8 +159,8 @@ public class NationCommand extends ModCommandBase {
 			
 			nationManager.removePlayer(nation, player.getUniqueID());
 			player.refreshDisplayName();
-			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You left your alliance."));
-			this.nationManager.broadcastTo(nation, TextFormatting.GRAY + player.getName() + " left the alliance.");
+			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You left your nation."));
+			this.nationManager.broadcastTo(nation, TextFormatting.GRAY + player.getName() + " left the nation.");
 			
 			return;
 			
@@ -170,7 +170,7 @@ public class NationCommand extends ModCommandBase {
 			
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_INVITE);
 			GameProfile toInvite = assertPlayer(params[1]);
-			_assert(!nationManager.sameNation(player.getUniqueID(), toInvite.getId()), ERR_ALREADY_IN_ALLIANCE);
+			_assert(!nationManager.sameNation(player.getUniqueID(), toInvite.getId()), ERR_ALREADY_IN_NATION);
 			_assert(!nation.hasInvitationFor(toInvite.getId()), ERR_ALREADY_INVITED);
 			
 			nation.invite(toInvite.getId());
@@ -179,7 +179,7 @@ public class NationCommand extends ModCommandBase {
 				toInvitePlayer.sendMessage(new TextComponentString(TextFormatting.GRAY + "You were invited to " + nation.getFmtName() + TextFormatting.GRAY + "."));
 			}
 			
-			nationManager.broadcastTo(nation, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the alliance.");
+			nationManager.broadcastTo(nation, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the nation.");
 			
 			return;
 			
@@ -192,7 +192,7 @@ public class NationCommand extends ModCommandBase {
 			_assert(nation.hasInvitationFor(toUninvite.getId()), ERR_3P_NOT_INVITED);
 			
 			nation.uninvite(toUninvite.getId());
-			nationManager.broadcastTo(nation, player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " from the alliance.");
+			nationManager.broadcastTo(nation, player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " from the nation.");
 			
 			return;
 			
@@ -225,11 +225,6 @@ public class NationCommand extends ModCommandBase {
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_RENAME);
 			assertNationName(params[1]);
 			
-			if(params[1].length() < 3 || params[1].length() > 24) {
-				player.sendMessage(new TextComponentString(TextFormatting.RED + "Your alliance's name must be between 3 and 16 characters long!"));
-				return;
-			}
-			
 			nationManager.setNationName(nation, params[1]);
 			
 			return;
@@ -240,14 +235,15 @@ public class NationCommand extends ModCommandBase {
 			
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_KICK); 
 			GameProfile toKick = assertPlayer(params[1]);
-			_assert(nationManager.sameNation(player.getUniqueID(), toKick.getId()), ERR_NOT_IN_ALLIANCE);
+			_assert(nationManager.sameNation(player.getUniqueID(), toKick.getId()), ERR_NOT_IN_NATION);
 			
 			nationManager.removePlayer(nation, toKick.getId());
-			nationManager.broadcastTo(nation, toKick.getName() + TextFormatting.GRAY + " was removed from the alliance.");
+			nationManager.broadcastTo(nation, toKick.getName() + TextFormatting.GRAY + " was removed from the nation.");
 
 			EntityPlayerMP kicked = mod.getServer().getPlayerList().getPlayerByUUID(toKick.getId());
 			if(kicked != null) {
 				kicked.refreshDisplayName();
+				kicked.sendMessage(new TextComponentString(TextFormatting.RED + "You were kicked from your nation."));
 			}
 			
 			return;
@@ -258,10 +254,10 @@ public class NationCommand extends ModCommandBase {
 			
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_MAKELEADER);
 			GameProfile toPromote = assertPlayer(params[1]);
-			_assert(nation.getMembers().contains(toPromote.getId()), ERR_NOT_IN_ALLIANCE);
+			_assert(nation.getMembers().contains(toPromote.getId()), ERR_NOT_IN_NATION);
 			
 			nation.makeLeader(toPromote.getId());
-			nationManager.broadcastTo(nation, String.format("%s%s made %s%s%s the new leader of this alliance.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
+			nationManager.broadcastTo(nation, String.format("%s%s made %s%s%s the new leader of this nation.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
 			
 			return;
 			
