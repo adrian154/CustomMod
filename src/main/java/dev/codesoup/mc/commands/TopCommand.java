@@ -87,7 +87,7 @@ public class TopCommand extends ModCommandBase {
 			})
 			.collect(Collectors.joining("\n"));
 		
-		sender.sendMessage(new TextComponentString(String.format("%sTop %d %s", TextFormatting.GRAY, 5, params.length == 0 ? "overall" : params[0])));
+		sender.sendMessage(new TextComponentString(String.format("%s=== Top %d %s ===", TextFormatting.GRAY, 5, params.length == 0 ? "overall" : params[0])));
 		sender.sendMessage(new TextComponentString(str));
 		
 	}
