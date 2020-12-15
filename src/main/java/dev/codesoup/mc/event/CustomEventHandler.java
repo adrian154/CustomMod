@@ -48,7 +48,11 @@ public class CustomEventHandler {
 	public Map<UUID, Integer> numPeopleOnClaim; 
 	
 	// Cooldown field
-	private static Field targetField = EntityLivingBase.class.getDeclaredFields()[22];
+	private static Field targetField = EntityLivingBase.class.getDeclaredFields()[24]; 
+	
+	static {
+		targetField.setAccessible(true);
+	}
 	
 	public CustomEventHandler(CustomMod mod) {
 		this.PVPEnabled = true;
@@ -310,10 +314,10 @@ public class CustomEventHandler {
 	public void onLivingUpdate(LivingUpdateEvent event) {
 		
 		try {
-			if(!event.getEntity().getEntityWorld().isRemote && event.getEntity() instanceof EntityPlayerMP) {
+			if(event.getEntity() instanceof EntityPlayerMP) {
 				EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-				if(targetField.getInt(player) < 20) {
-					targetField.set(player, 20);
+				if(targetField.getInt(player) < 9999) {
+					targetField.set(player, 9999);
 				}
 			}
 		} catch(IllegalAccessException exception) {
