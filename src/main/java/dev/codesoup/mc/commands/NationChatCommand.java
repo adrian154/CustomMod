@@ -32,16 +32,13 @@ public class NationChatCommand extends ModCommandBase {
 
 		String message = String.join(" ", (String [])Arrays.copyOfRange(params, 0, params.length));
 		
-		this.nationManager.broadcastTo(
-			nation,
-			String.format(
-				"%s(nation)%s %s: %s",
-				nation.getColor(),
-				TextFormatting.RESET,
-				player.getName(),
-				message
-			)
-		);
+		nation.broadcast(String.format(
+			"%s(nation)%s %s: %s",
+			nation.getColor(),
+			TextFormatting.RESET,
+			player.getName(),
+			message
+		));
 		
 	}
 

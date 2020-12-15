@@ -86,7 +86,7 @@ public class NationCommand extends ModCommandBase {
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_CREATE);
 			assertNationName(params[1]);
 			
-			Nation newAlliance = new Nation();
+			Nation newAlliance = new Nation(mod.getNationManager());
 			newAlliance.setName(params[1]);
 			newAlliance.addMember(player);
 			newAlliance.makeLeader(player);
@@ -129,11 +129,9 @@ public class NationCommand extends ModCommandBase {
 				theNation = nation;
 			}
 			
-
-			PlayerProfileCache cache = mod.getServer().getPlayerProfileCache();
 			String list = theNation.getMembers()
 				.stream()
-				.map(uuid -> cache.getProfileByUUID(uuid))
+				.map(uuid -> mod.getProfile(uuid))
 				.map(gameProfile ->
 					String.format(
 						"%s%s%s%s",
@@ -160,7 +158,7 @@ public class NationCommand extends ModCommandBase {
 			nationManager.removePlayer(nation, player.getUniqueID());
 			player.refreshDisplayName();
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "You left your nation."));
-			this.nationManager.broadcastTo(nation, TextFormatting.GRAY + player.getName() + " left the nation.");
+			nation.broadcast(TextFormatting.GRAY + player.getName() + " left the nation.");
 			
 			return;
 			
@@ -174,12 +172,12 @@ public class NationCommand extends ModCommandBase {
 			_assert(!nation.hasInvitationFor(toInvite.getId()), ERR_ALREADY_INVITED);
 			
 			nation.invite(toInvite.getId());
-			EntityPlayerMP toInvitePlayer = mod.getServer().getPlayerList().getPlayerByUUID(toInvite.getId());
+			EntityPlayerMP toInvitePlayer = mod.getPlayer(toInvite.getId());
 			if(toInvitePlayer != null) {
 				toInvitePlayer.sendMessage(new TextComponentString(TextFormatting.GRAY + "You were invited to " + nation.getFmtName() + TextFormatting.GRAY + "."));
 			}
 			
-			nationManager.broadcastTo(nation, player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the nation.");
+			nation.broadcast(player.getName() + TextFormatting.GRAY + " invited " + TextFormatting.WHITE + toInvite.getName() + TextFormatting.GRAY + " to the nation.");
 			
 			return;
 			
@@ -192,7 +190,7 @@ public class NationCommand extends ModCommandBase {
 			_assert(nation.hasInvitationFor(toUninvite.getId()), ERR_3P_NOT_INVITED);
 			
 			nation.uninvite(toUninvite.getId());
-			nationManager.broadcastTo(nation, player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " from the nation.");
+			nation.broadcast(player.getName() + TextFormatting.GRAY + " uninvited " + TextFormatting.WHITE + toUninvite.getName() + TextFormatting.GRAY + " from the nation.");
 			
 			return;
 			
@@ -207,8 +205,7 @@ public class NationCommand extends ModCommandBase {
 			
 			} else {
 				
-				PlayerProfileCache cache = mod.getServer().getPlayerProfileCache();
-				String list = nation.getInvitations().stream().map(uuid -> cache.getProfileByUUID(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
+				String list = nation.getInvitations().stream().map(uuid -> mod.getProfile(uuid)).map(gameProfile -> gameProfile.getName()).collect(Collectors.joining(", "));
 				player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Outstanding invites: " + TextFormatting.WHITE + list));
 			
 			}
@@ -238,9 +235,9 @@ public class NationCommand extends ModCommandBase {
 			_assert(nationManager.sameNation(player.getUniqueID(), toKick.getId()), ERR_NOT_IN_NATION);
 			
 			nationManager.removePlayer(nation, toKick.getId());
-			nationManager.broadcastTo(nation, toKick.getName() + TextFormatting.GRAY + " was removed from the nation.");
+			nation.broadcast(toKick.getName() + TextFormatting.GRAY + " was removed from the nation.");
 
-			EntityPlayerMP kicked = mod.getServer().getPlayerList().getPlayerByUUID(toKick.getId());
+			EntityPlayerMP kicked = mod.getPlayer(toKick.getId());
 			if(kicked != null) {
 				kicked.refreshDisplayName();
 				kicked.sendMessage(new TextComponentString(TextFormatting.RED + "You were kicked from your nation."));
@@ -257,7 +254,7 @@ public class NationCommand extends ModCommandBase {
 			_assert(nation.getMembers().contains(toPromote.getId()), ERR_NOT_IN_NATION);
 			
 			nation.makeLeader(toPromote.getId());
-			nationManager.broadcastTo(nation, String.format("%s%s made %s%s%s the new leader of this nation.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
+			nation.broadcast(String.format("%s%s made %s%s%s the new leader of this nation.", player.getName(), TextFormatting.GRAY, TextFormatting.WHITE, toPromote.getName(), TextFormatting.GRAY));
 			
 			return;
 			
@@ -276,7 +273,6 @@ public class NationCommand extends ModCommandBase {
 			_assert(color != null, ERR_INVALID_COLOR);
 			
 			nation.setColor(color);
-			this.nationManager.refreshNames(nation);
 			
 			return;
 			

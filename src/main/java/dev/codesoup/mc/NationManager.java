@@ -11,7 +11,6 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
@@ -22,7 +21,6 @@ public class NationManager extends RequiresMod {
 	
 	public NationManager(CustomMod mod) {
 		super(mod);
-		mod.getServer().getWorld(0).toString();
 		this.nations = new ArrayList<Nation>();
 		this.playerNations = new HashMap<UUID, Nation>();
 	}
@@ -77,24 +75,14 @@ public class NationManager extends RequiresMod {
 			playerNations.put(uuid, nation);
 		}
 		
-		this.refreshNames(nation);
+		nation.refreshNames();
 		
 	}
 
 	public void setNationName(Nation nation, String string) {
 		nation.setName(string);
-		refreshNames(nation);
-		broadcastTo(nation, TextFormatting.GRAY + "Your alliance was renamed to " + nation.getColor() + string + TextFormatting.GRAY + ".");
-	}
-	
-	public void broadcastTo(Nation nation, String message) {
-		PlayerList playerList = mod.getServer().getPlayerList();
-		for(UUID uuid: nation.getMembers()) {
-			EntityPlayerMP player = playerList.getPlayerByUUID(uuid);
-			if(player != null) {
-				player.sendMessage(new TextComponentString(message));
-			}
-		}
+		nation.refreshNames();
+		nation.broadcast(TextFormatting.GRAY + "Your nation was renamed to " + nation.getFmtName() + TextFormatting.GRAY + ".");
 	}
 	
 	public String getName(EntityPlayer player) {
@@ -121,16 +109,6 @@ public class NationManager extends RequiresMod {
 		
 		return String.format("%s%s", prefix, profile.getName());
 		
-	}
-	
-	public void refreshNames(Nation nation) {
-		PlayerList playerList = mod.getServer().getPlayerList();
-		for(UUID uuid: nation.getMembers()) {
-			EntityPlayerMP player = playerList.getPlayerByUUID(uuid);
-			if(player != null) {
-				player.refreshDisplayName();
-			}
-		}
 	}
 	
 	public void listInvitations(EntityPlayerMP player, boolean listIfNone) {

@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
+import com.mojang.authlib.GameProfile;
 
 import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
@@ -81,9 +83,21 @@ public class CustomMod
     	
     	GsonBuilder gsonBuilder = new GsonBuilder();
     	gsonBuilder.enableComplexMapKeySerialization();
+    	
+    	// Manager deserializers
     	gsonBuilder.registerTypeAdapter(NationManager.class, new ManagerCreator<NationManager>(this, NationManager.class));
     	gsonBuilder.registerTypeAdapter(ClaimsManager.class, new ManagerCreator<ClaimsManager>(this, ClaimsManager.class));
     	gsonBuilder.registerTypeAdapter(PowerManager.class, new ManagerCreator<PowerManager>(this, PowerManager.class));
+    	
+    	gsonBuilder.registerTypeAdapter(Nation.class, new InstanceCreator<Nation>() {
+    		@Override
+    		public Nation createInstance(Type type) {
+    			return new Nation(nationManager);
+    		}
+    	});
+    	
+    	
+    	
         this.gson = gsonBuilder.create();
         
     }
@@ -193,6 +207,22 @@ public class CustomMod
     
     public Scoreboard getScoreboard() {
     	return this.server.getWorld(0).getScoreboard();
+    }
+    
+    public EntityPlayerMP getPlayer(String name) {
+    	return server.getPlayerList().getPlayerByUsername(name);
+    }
+    
+    public EntityPlayerMP getPlayer(UUID uuid) {
+    	return server.getPlayerList().getPlayerByUUID(uuid);
+    }
+    
+    public GameProfile getProfile(String name) {
+    	return server.getPlayerProfileCache().getGameProfileForUsername(name);
+    }
+    
+    public GameProfile getProfile(UUID uuid) {
+    	return server.getPlayerProfileCache().getProfileByUUID(uuid);
     }
     
     public static String readConfigFile(String pathStr) throws IOException {

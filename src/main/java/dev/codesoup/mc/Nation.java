@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
 public class Nation {
@@ -14,11 +17,27 @@ public class Nation {
 	private String name;
 	private TextFormatting color;
 	private UUID leader;
+	private UUID ID;
+	private transient NationManager manager;
+	private transient ScorePlayerTeam team;
 	
-	public Nation() {
+	public Nation(NationManager manager) {
+		
+		this.manager = manager;
 		this.members = new ArrayList<UUID>();
 		this.outstandingInvitations = new ArrayList<UUID>();
 		this.color = TextFormatting.YELLOW;
+		this.ID = UUID.randomUUID();
+		
+		this.team = manager.getMod().getScoreboard().getTeam(ID.toString());
+		if(team == null) {
+			team = manager.getMod().getScoreboard().createTeam(ID.toString());
+		}
+		
+	}
+	
+	public UUID getID() {
+		return this.ID;
 	}
 	
 	public String getName() {
@@ -87,6 +106,7 @@ public class Nation {
 	
 	public void setColor(TextFormatting color) {
 		this.color = color;
+		refreshNames();
 	}
 	
 	public TextFormatting getColor() {
@@ -95,6 +115,24 @@ public class Nation {
 	
 	public List<UUID> getInvitations() {
 		return this.outstandingInvitations;
+	}
+	
+	public void refreshNames() {
+		for(UUID uuid: members) {
+			EntityPlayerMP player = manager.getMod().getPlayer(uuid);
+			if(player != null) {
+				player.refreshDisplayName();
+			}
+		}
+	}
+	
+	public void broadcast(String message) {
+		for(UUID uuid: members) {
+			EntityPlayerMP player = manager.getMod().getPlayer(uuid);
+			if(player != null) {
+				player.sendMessage(new TextComponentString(message));
+			}
+		}
 	}
 	
 }

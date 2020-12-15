@@ -7,5 +7,9 @@ public abstract class RequiresMod {
 	public RequiresMod(CustomMod mod) {
 		this.mod = mod;
 	}
+
+	public CustomMod getMod() {
+		return mod;
+	}
 	
 }

@@ -1,10 +1,10 @@
 package dev.codesoup.mc;
 
-public class Pair {
+public class XZPair {
 	
 	public int A, B;
 	
-	public Pair(int A, int B) {
+	public XZPair(int A, int B) {
 		this.A = A; 
 		this.B = B;
 	}
@@ -16,8 +16,8 @@ public class Pair {
 	
 	@Override
 	public boolean equals(Object other) {
-		if(other instanceof Pair) {
-			Pair otherPair = (Pair)other;
+		if(other instanceof XZPair) {
+			XZPair otherPair = (XZPair)other;
 			return otherPair.A == A && otherPair.B == B;
 		} else {
 			return false;

@@ -86,7 +86,7 @@ public class PowerManager extends RequiresMod {
 
 		int overdraw = amount - getFreePower(player);
 		for(int i = 0; i < overdraw; i++) {
-			Pair unclaimed = mod.getClaims().unclaimLast(uuid);
+			XZPair unclaimed = mod.getClaims().unclaimLast(uuid);
 			player.sendMessage(new TextComponentString(String.format("%sWARNING: Your claim at (%d, %d) was unclaimed since you have lost too much power!", TextFormatting.RED, unclaimed.A * 16, unclaimed.B * 16)));
 		}
 

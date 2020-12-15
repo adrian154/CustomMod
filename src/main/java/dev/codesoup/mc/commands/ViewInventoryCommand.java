@@ -23,7 +23,7 @@ public class ViewInventoryCommand extends ModCommandBase {
 		_assert(params.length == 1, ERR_INCORRECT_USAGE + USAGE);
 		
 		for(String playername: params) {
-			EntityPlayer player = mod.getServer().getPlayerList().getPlayerByUsername(playername);
+			EntityPlayer player = assertOnline(playername);
 			String itemList = player.inventory.mainInventory.stream().map(stack -> String.format("%d x %s", stack.getCount(), stack.getDisplayName())).collect(Collectors.joining(", "));
 			sender.sendMessage(new TextComponentString(playername + ": " + itemList));
 		}

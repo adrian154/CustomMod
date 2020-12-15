@@ -12,26 +12,26 @@ import net.minecraft.world.chunk.Chunk;
 
 public class ClaimsManager extends RequiresMod {
 	
-	private Map<Pair, UUID> claims;
-	private Map<UUID, List<Pair>> playerClaims;
+	private Map<XZPair, UUID> claims;
+	private Map<UUID, List<XZPair>> playerClaims;
 	
 	public ClaimsManager(CustomMod mod) {
 		super(mod);
-		claims = new HashMap<Pair, UUID>();
-		playerClaims = new HashMap<UUID, List<Pair>>();
+		claims = new HashMap<XZPair, UUID>();
+		playerClaims = new HashMap<UUID, List<XZPair>>();
 	}
 
 	public UUID getClaim(int x, int z) {
-		return claims.get(new Pair(x, z));
+		return claims.get(new XZPair(x, z));
 	}
 	
 	public void setClaim(int x, int z, UUID uuid) {
 		
-		Pair pair = new Pair(x, z);
+		XZPair pair = new XZPair(x, z);
 		claims.put(pair, uuid);
 		
 		if(playerClaims.get(uuid) == null)
-			playerClaims.put(uuid, new ArrayList<Pair>());
+			playerClaims.put(uuid, new ArrayList<XZPair>());
 		playerClaims.get(uuid).add(pair);
 		
 		mod.getMapManager().doClaim(x, z, uuid);
@@ -40,7 +40,7 @@ public class ClaimsManager extends RequiresMod {
 	
 	public void unclaim(int x, int z) {
 		
-		Pair pair = new Pair(x, z);
+		XZPair pair = new XZPair(x, z);
 		UUID claimer = claims.remove(pair);
 		playerClaims.get(claimer).remove(pair);
 		
@@ -61,7 +61,7 @@ public class ClaimsManager extends RequiresMod {
 		} else {
 			
 			// If the player is offline...
-			if(mod.getServer().getPlayerList().getPlayerByUUID(claim) == null) {
+			if(mod.getPlayer(claim) == null) {
 			
 				// If they are allied, don't protect. Otherwise, if they are allied, protect.
 				return !mod.getNationManager().sameNation(uuid, claim);
@@ -77,25 +77,25 @@ public class ClaimsManager extends RequiresMod {
 		
 	}
 	
-	public Map<Pair, UUID> getClaims() {
+	public Map<XZPair, UUID> getClaims() {
 		return this.claims;
 	}
 	
-	public List<Pair> getClaims(UUID uuid) {
+	public List<XZPair> getClaims(UUID uuid) {
 		if(playerClaims.get(uuid) == null)
-			playerClaims.put(uuid, new ArrayList<Pair>());
+			playerClaims.put(uuid, new ArrayList<XZPair>());
 		return playerClaims.get(uuid);
 	}
 	
 	public int getNumClaims(UUID uuid) {
 		if(playerClaims.get(uuid) == null)
-			playerClaims.put(uuid, new ArrayList<Pair>());
+			playerClaims.put(uuid, new ArrayList<XZPair>());
 		return playerClaims.get(uuid).size();
 	}
 	
-	public Pair unclaimLast(UUID uuid) {
-		List<Pair> claims = playerClaims.get(uuid);
-		Pair last = claims.get(claims.size() - 1);
+	public XZPair unclaimLast(UUID uuid) {
+		List<XZPair> claims = playerClaims.get(uuid);
+		XZPair last = claims.get(claims.size() - 1);
 		this.unclaim(last.A, last.B);
 		claims.remove(claims.size() - 1); 
 		return last;

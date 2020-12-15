@@ -89,13 +89,13 @@ public class CustomEventHandler {
 		String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
 		
 		// send message to player
-		GameProfile profile = mod.getServer().getPlayerProfileCache().getProfileByUUID(claimer);
+		GameProfile profile = mod.getProfile(claimer);
 		if(profile != null) {
 			
 			player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
 		
 			// send message to claimer
-			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(claimer);
+			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getPlayer(claimer);
 			if(claimerPlayer != null) {
 				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
 			}
@@ -109,7 +109,7 @@ public class CustomEventHandler {
 		// Tell them that the player left
 		if(!claimer.equals(player.getUniqueID())) {
 			
-			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getServer().getPlayerList().getPlayerByUUID(claimer);
+			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getPlayer(claimer);
 			
 			if(claimerPlayer != null && !claimerPlayer.equals(player)) {
 				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));

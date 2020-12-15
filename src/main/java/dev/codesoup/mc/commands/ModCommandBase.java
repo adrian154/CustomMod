@@ -15,6 +15,7 @@ public abstract class ModCommandBase extends CommandBase {
 	protected int requiredPermissionLevel;
 	
 	private final String ERR_USER_NONEXISTANT = "That user does not exist.";
+	private final String ERR_USER_OFFLINE = "That user does not exist or is offline.";
 	private final String ERR_MUST_BE_PLAYER = "You must be a player to use this command.";
 	protected final String ERR_INCORRECT_USAGE = "Incorrect number of parameters.\nUsage: ";
 	
@@ -29,9 +30,15 @@ public abstract class ModCommandBase extends CommandBase {
 	}
 	
 	protected GameProfile assertPlayer(String playerName) throws CommandException {
-		GameProfile profile = mod.getServer().getPlayerProfileCache().getGameProfileForUsername(playerName);
+		GameProfile profile = mod.getProfile(playerName);
 		_assert(profile != null, ERR_USER_NONEXISTANT);
 		return profile;
+	}
+	
+	protected EntityPlayerMP assertOnline(String playerName) throws CommandException {
+		EntityPlayerMP player = mod.getPlayer(playerName);
+		_assert(player != null, ERR_USER_OFFLINE);
+		return player;
 	}
 	
 	protected EntityPlayerMP assertIsPlayer(ICommandSender sender) throws CommandException {

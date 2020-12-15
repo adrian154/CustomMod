@@ -87,7 +87,7 @@ public class MapManager extends RequiresMod {
 				marker.deleteMarker();
 			}
 			
-			for(Pair pair: manager.getClaims().keySet()) {
+			for(XZPair pair: manager.getClaims().keySet()) {
 				addMarker(pair.A, pair.B, mod.getClaims().getClaim(pair.A, pair.B));
 			}
 		}
@@ -123,18 +123,18 @@ public class MapManager extends RequiresMod {
 		}
 	}
 	
-	public void refreshClaims(Map<Pair, UUID> claims) {
+	public void refreshClaims(Map<XZPair, UUID> claims) {
 		if(dynmapExists) {
-			for(Pair pair: claims.keySet()) {
+			for(XZPair pair: claims.keySet()) {
 				doUnclaim(pair.A, pair.B);
 				addMarker(pair.A, pair.B, claims.get(pair));
 			}
 		}
 	}
 	
-	public void refreshClaims(List<Pair> pairs, UUID uuid) {
+	public void refreshClaims(List<XZPair> pairs, UUID uuid) {
 		if(dynmapExists) {
-			for(Pair pair: pairs) {
+			for(XZPair pair: pairs) {
 				doUnclaim(pair.A, pair.B);
 				addMarker(pair.A, pair.B, uuid);
 			}
