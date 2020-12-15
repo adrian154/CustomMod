@@ -1,6 +1,7 @@
 package dev.codesoup.mc.event;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
 import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
 import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
@@ -24,6 +26,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -43,6 +46,9 @@ public class CustomEventHandler {
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
 	public Map<UUID, Integer> numPeopleOnClaim; 
+	
+	// Cooldown field
+	private static Field targetField = EntityLivingBase.class.getDeclaredFields()[22];
 	
 	public CustomEventHandler(CustomMod mod) {
 		this.PVPEnabled = true;
@@ -297,6 +303,22 @@ public class CustomEventHandler {
 		player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", TextFormatting.RED, pos.getX(), pos.getZ())));
 		
 		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
+		
+	}
+	
+	@SubscribeEvent
+	public void onLivingUpdate(LivingUpdateEvent event) {
+		
+		try {
+			if(!event.getEntity().getEntityWorld().isRemote && event.getEntity() instanceof EntityPlayerMP) {
+				EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
+				if(targetField.getInt(player) < 20) {
+					targetField.set(player, 20);
+				}
+			}
+		} catch(IllegalAccessException exception) {
+			System.out.println("Somehow, an exception occurred while trying to apply old combat. You are probably on the wrong version.");
+		}
 		
 	}
 	

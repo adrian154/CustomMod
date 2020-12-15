@@ -86,7 +86,7 @@ public class NationCommand extends ModCommandBase {
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_CREATE);
 			assertNationName(params[1]);
 			
-			Nation newAlliance = new Nation(mod.getNationManager());
+			Nation newAlliance = new Nation(mod.getNationManager(), true);
 			newAlliance.setName(params[1]);
 			newAlliance.addMember(player);
 			newAlliance.makeLeader(player);

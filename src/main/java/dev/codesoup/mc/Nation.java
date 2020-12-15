@@ -19,9 +19,8 @@ public class Nation {
 	private UUID leader;
 	private UUID ID;
 	private transient NationManager manager;
-	private transient ScorePlayerTeam team;
 	
-	public Nation(NationManager manager) {
+	public Nation(NationManager manager, boolean isCreation) {
 		
 		this.manager = manager;
 		this.members = new ArrayList<UUID>();
@@ -29,9 +28,8 @@ public class Nation {
 		this.color = TextFormatting.YELLOW;
 		this.ID = UUID.randomUUID();
 		
-		this.team = manager.getMod().getScoreboard().getTeam(this.getTeamName());
-		if(team == null) {
-			team = manager.getMod().getScoreboard().createTeam(this.getTeamName());
+		if(isCreation) {
+			manager.getMod().getScoreboard().createTeam(this.getTeamName());
 		}
 		
 	}
@@ -66,12 +64,12 @@ public class Nation {
 	
 	public void addMember(EntityPlayer player) {
 		this.addMember(player.getUniqueID());
-		manager.getMod().getScoreboard().addPlayerToTeam(player.getName(), team.getName());
+		manager.getMod().getScoreboard().addPlayerToTeam(player.getName(), this.getTeamName());
 	}
 	
 	public void removeMember(UUID uuid) {
 		this.members.remove(uuid);
-		manager.getMod().getScoreboard().removePlayerFromTeam(manager.getMod().getProfile(uuid).getName(), team);
+		manager.getMod().getScoreboard().removePlayerFromTeam(manager.getMod().getProfile(uuid).getName(), manager.getMod().getScoreboard().getTeam(this.getTeamName()));
 	}
 	
 	public void makeLeader(UUID newLeader) {

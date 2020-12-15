@@ -92,7 +92,7 @@ public class CustomMod
     	gsonBuilder.registerTypeAdapter(Nation.class, new InstanceCreator<Nation>() {
     		@Override
     		public Nation createInstance(Type type) {
-    			return new Nation(nationManager);
+    			return new Nation(nationManager, false);
     		}
     	});
     	
