@@ -124,16 +124,16 @@ public class CustomMod
     @EventHandler
     public void init(FMLServerStartingEvent event) {
     	
-    	this.server = event.getServer();
-    	this.wsServer = new WSServer(this);
-    	this.mapManager = new MapManager(this);
-    	
     	try {
     		this.loadAll();
     	} catch(IOException | IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException exception) {
     		this.logger.fatal("Failed to load something from configuration.");
     		exception.printStackTrace();
     	}	
+    	
+    	this.server = event.getServer();
+    	this.wsServer = new WSServer(this);
+    	this.mapManager = new MapManager(this);
     	
     	registerCommands(event);
     	startPassivePowerTask();

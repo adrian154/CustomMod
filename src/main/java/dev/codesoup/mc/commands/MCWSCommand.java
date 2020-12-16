@@ -42,7 +42,7 @@ public class MCWSCommand extends ModCommandBase {
 			
 			SecureRandom random = new SecureRandom();
 			for(int i = 0; i < count; i++) {
-				byte bytes[] = new byte[64];
+				byte bytes[] = new byte[16];
 				random.nextBytes(bytes);
 				String key = Base64.getEncoder().encodeToString(bytes);
 				mod.getConfiguration().addKey(key);
