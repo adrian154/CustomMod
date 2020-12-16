@@ -93,8 +93,6 @@ public class CustomEventHandler {
 			return;
 		}
 		
-		incrementClaim(claimer);
-		
 		boolean allied = mod.getNationManager().sameNation(player.getUniqueID(), claimer);
 		String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
 		
@@ -112,6 +110,10 @@ public class CustomEventHandler {
 			
 		}
 		
+		if(!allied) {
+			incrementClaim(claimer);
+		}
+		
 	}
 	
 	private void onExitClaim(UUID claimer, EntityPlayer player) {
@@ -125,7 +127,10 @@ public class CustomEventHandler {
 				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
 			}
 			
-			decrementClaim(claimer);
+			// Only decrement if enemy is leaving, since claims can only be incremented by enemies
+			if(!mod.getNationManager().sameNation(claimer, player.getUniqueID())) {
+				decrementClaim(claimer);
+			}
 			
 		}
 		
@@ -150,7 +155,7 @@ public class CustomEventHandler {
 		}
 		
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntityPlayer();
-		if(!(target instanceof EntityPlayer) && mod.getClaims().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
+		if(!(target instanceof EntityPlayer) && mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
 			event.setCanceled(true);
 		}
 		
@@ -159,20 +164,20 @@ public class CustomEventHandler {
 	@SubscribeEvent
 	public void interactEvent(PlayerInteractEvent event) {
 		if(!event.getWorld().isRemote)
-			event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), event.getEntityPlayer().getUniqueID()));
+			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getEntityPlayer().getUniqueID()));
 	}
 
 	@SubscribeEvent
 	public void breakEvent(BreakEvent event) {
 		if(!event.getWorld().isRemote)
-			event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer().getUniqueID()));
+			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer().getUniqueID()));
 	}
 	
 	@SubscribeEvent
 	public void placeEvent(EntityPlaceEvent event) {
 		if(event.getEntity() instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-			event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
+			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
 		}
 	}
 	
@@ -181,7 +186,7 @@ public class CustomEventHandler {
 		if(!event.getWorld().isRemote) {
 			if(event.getEntity() instanceof EntityPlayerMP) {
 				EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-				event.setCanceled(mod.getClaims().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
+				event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
 			}
 		}
 	}
@@ -194,7 +199,7 @@ public class CustomEventHandler {
 		}
 
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-		UUID curChunkClaimer = this.mod.getClaims().getClaim(event.getNewChunkX(), event.getNewChunkZ());
+		UUID curChunkClaimer = this.mod.getClaimsManager().getClaim(event.getNewChunkX(), event.getNewChunkZ());
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		this.occupiedTerritory.put(player, curChunkClaimer);
 		
@@ -271,9 +276,9 @@ public class CustomEventHandler {
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 		PowerManager pm = mod.getPowerManager();
 		
-		if(source instanceof EntityPlayer) {
+		if(source instanceof EntityPlayerMP) {
 			
-			EntityPlayerMP killer = (EntityPlayerMP)event.getSource().getTrueSource();
+			EntityPlayerMP killer = (EntityPlayerMP)source;
 			
 			Nation alliance = mod.getNationManager().getNation(killer);
 			if(alliance.getMembers().contains(player.getUniqueID())) {

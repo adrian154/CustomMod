@@ -18,7 +18,7 @@ public class RerenderMarkersCommand extends ModCommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
-		mod.getMapManager().initClaims(mod.getClaims());
+		mod.getMapManager().initClaims(mod.getClaimsManager());
 		sender.sendMessage(new TextComponentString("Working..."));
 		
 	}

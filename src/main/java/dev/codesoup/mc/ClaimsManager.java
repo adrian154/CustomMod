@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.codesoup.mc.commands.ProtectCommand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class ClaimsManager extends RequiresMod {
+public class ClaimsManager extends Manager {
 	
 	private Map<XZPair, UUID> claims;
 	private Map<UUID, List<XZPair>> playerClaims;
@@ -53,25 +54,26 @@ public class ClaimsManager extends RequiresMod {
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
 		UUID claim = getClaim(chunk.x, chunk.z);
 		
-		// If the claim is unclaimed, it's up for grabs
+		// obviously if no one has claimed it it's up for grabs
 		if(claim == null) {
-			
 			return false;
+		}
+		
+		// chunks claimed by a special UUID are accessible only to ops
+		if(claim.equals(ProtectCommand.PROTECTED_UUID)) {
+			return mod.isOP(uuid);
+		}
+	
+		// If the player is offline...
+		if(mod.getPlayer(claim) == null) {
+		
+			// If they are allied, don't protect. Otherwise, if they are allied, protect.
+			return !mod.getNationManager().sameNation(uuid, claim);
 		
 		} else {
 			
-			// If the player is offline...
-			if(mod.getPlayer(claim) == null) {
-			
-				// If they are allied, don't protect. Otherwise, if they are allied, protect.
-				return !mod.getNationManager().sameNation(uuid, claim);
-			
-			} else {
-				
-				// otherwise, there are no protections
-				return false;
-				
-			}
+			// otherwise, there are no protections
+			return false;
 			
 		}
 		

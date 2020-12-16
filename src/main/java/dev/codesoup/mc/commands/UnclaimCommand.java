@@ -25,13 +25,13 @@ public class UnclaimCommand extends ModCommandBase {
 		EntityPlayerMP player = assertIsPlayer(sender);
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
-		UUID claimer = mod.getClaims().getClaim(chunk.x, chunk.z);
+		UUID claimer = mod.getClaimsManager().getClaim(chunk.x, chunk.z);
 		if(claimer == null || !claimer.equals(player.getUniqueID())) {
 			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't own this territory."));
 			return;
 		}
 		
-		mod.getClaims().unclaim(chunk.x, chunk.z);
+		mod.getClaimsManager().unclaim(chunk.x, chunk.z);
 		player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk unclaimed!"));
 		
 	}

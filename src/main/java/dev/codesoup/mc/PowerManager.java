@@ -10,7 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class PowerManager extends RequiresMod {
+public class PowerManager extends Manager {
 
 	private Map<UUID, Integer> totalPower;
 	
@@ -42,7 +42,7 @@ public class PowerManager extends RequiresMod {
 	}
 	
 	public int getFreePower(UUID uuid) {
-		return getTotalPower(uuid) - mod.getClaims().getNumClaims(uuid);
+		return getTotalPower(uuid) - mod.getClaimsManager().getNumClaims(uuid);
 	}
 	
 	public int getFreePower(EntityPlayer player) {
@@ -86,7 +86,7 @@ public class PowerManager extends RequiresMod {
 
 		int overdraw = amount - getFreePower(player);
 		for(int i = 0; i < overdraw; i++) {
-			XZPair unclaimed = mod.getClaims().unclaimLast(uuid);
+			XZPair unclaimed = mod.getClaimsManager().unclaimLast(uuid);
 			player.sendMessage(new TextComponentString(String.format("%sWARNING: Your claim at (%d, %d) was unclaimed since you have lost too much power!", TextFormatting.RED, unclaimed.A * 16, unclaimed.B * 16)));
 		}
 

@@ -17,7 +17,7 @@ public class ClaimCommand extends ModCommandBase {
 	
 	public ClaimCommand(CustomMod mod) {
 		super(mod, "claim", 0);
-		this.claims = mod.getClaims();
+		this.claims = mod.getClaimsManager();
 	}
 	
 	@Override

@@ -12,7 +12,7 @@ import org.dynmap.markers.MarkerSet;
 
 import net.minecraftforge.fml.common.Loader;
 
-public class MapManager extends RequiresMod {
+public class MapManager extends Manager {
 
 	public static final String MARKER_SET_NAME = "custommod.claims.markerset";
 	public static final String CLAIMS_LAYER_NAME = "Claims";
@@ -46,7 +46,7 @@ public class MapManager extends RequiresMod {
 				markerAPI = api.getMarkerAPI();
 				
 				createMarkerLayer();
-				initClaims(mod.getClaims());
+				initClaims(mod.getClaimsManager());
 				
 			} else {
 				mod.logger.error("No API?");
@@ -88,7 +88,7 @@ public class MapManager extends RequiresMod {
 			}
 			
 			for(XZPair pair: manager.getClaims().keySet()) {
-				addMarker(pair.A, pair.B, mod.getClaims().getClaim(pair.A, pair.B));
+				addMarker(pair.A, pair.B, mod.getClaimsManager().getClaim(pair.A, pair.B));
 			}
 		}
 		
@@ -119,7 +119,7 @@ public class MapManager extends RequiresMod {
 	
 	public void refreshClaims(UUID uuid) {
 		if(dynmapExists) {
-			refreshClaims(mod.getClaims().getClaims(uuid), uuid);
+			refreshClaims(mod.getClaimsManager().getClaims(uuid), uuid);
 		}
 	}
 	

@@ -75,11 +75,8 @@ public class CustomMod
     public Gson gson;
     
     private ScheduledExecutorService executor;
-    
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-    
-    	this.logger = event.getModLog();
+
+    private Gson buildGson() {
     	
     	GsonBuilder gsonBuilder = new GsonBuilder();
     	gsonBuilder.enableComplexMapKeySerialization();
@@ -96,12 +93,26 @@ public class CustomMod
     		}
     	});
     	
+        return gsonBuilder.create();
     	
+    }
+    
+    private void attachAppender() {
     	
-        this.gson = gsonBuilder.create();
+    	org.apache.logging.log4j.core.Logger srvLogger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
+    	srvLogger.addAppender(new CustomAppender(this));
+    	
+    }
+    
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+    
+    	this.logger = event.getModLog();
+    	this.gson = buildGson();
         
     }
-
+    
+    
     @EventHandler
     public void init(FMLInitializationEvent event) {
    
@@ -114,22 +125,19 @@ public class CustomMod
     public void init(FMLServerStartingEvent event) {
     	
     	this.server = event.getServer();
+    	this.wsServer = new WSServer(this);
+    	this.mapManager = new MapManager(this);
     	
     	try {
     		this.loadAll();
     	} catch(IOException | IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException exception) {
-    		this.logger.fatal("Exception while initializing: " + exception.getMessage());
+    		this.logger.fatal("Failed to load something from configuration.");
+    		exception.printStackTrace();
     	}	
     	
     	registerCommands(event);
     	startPassivePowerTask();
-    	
-    	this.wsServer = new WSServer(this);
-    	
-    	this.mapManager = new MapManager(this);
-
-    	org.apache.logging.log4j.core.Logger srvLogger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
-    	srvLogger.addAppender(new CustomAppender(this));
+    	attachAppender();
     	
     }
     
@@ -138,15 +146,15 @@ public class CustomMod
     	
     	try {
     		this.wsServer.stop();
-    		System.out.println("Goodbye from MCWebSocket!");
     	} catch(IOException | InterruptedException exception) {
-    		this.logger.error("Uh-oh, super bad thingy: " + exception.getMessage());
+    		this.logger.error("Failed to close websocket.");
+    		exception.printStackTrace();
     	}
     	
     }
     
     private void startPassivePowerTask() {
-    	Runnable timerTask = new GivePowerTask(this);
+    	Runnable timerTask = new GivePowerTask();
     	executor = Executors.newScheduledThreadPool(1);
     	executor.scheduleAtFixedRate(timerTask, 0, 60 * 5, TimeUnit.SECONDS);
     }
@@ -173,7 +181,7 @@ public class CustomMod
     	return this.customEventHandler;
     }
     
-    public ClaimsManager getClaims() {
+    public ClaimsManager getClaimsManager() {
     	return this.claimsManager;
     }
     
@@ -224,6 +232,10 @@ public class CustomMod
     public GameProfile getProfile(UUID uuid) {
     	return server.getPlayerProfileCache().getProfileByUUID(uuid);
     }
+
+    public boolean isOP(UUID uuid) {
+    	return server.getPlayerList().getOppedPlayers().getEntry(getProfile(uuid)) != null;
+    }
     
     public static String readConfigFile(String pathStr) throws IOException {
     	File file = new File(pathStr);
@@ -241,7 +253,7 @@ public class CustomMod
     	out.close();
     }
     
-    private <T extends RequiresMod> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+    private <T extends Manager> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
     	String config = readConfigFile(configName);
     	if(config == null) {
     		logger.debug(String.format("No config file \"%s\", creating new instance...", configName));
@@ -272,7 +284,7 @@ public class CustomMod
     	saveConfig("power.dat", gson.toJson(this.powerManager));
     }
     
-    private class ManagerCreator<T extends RequiresMod> implements InstanceCreator<T> {
+    private class ManagerCreator<T extends Manager> implements InstanceCreator<T> {
     
     	private CustomMod mod;
     	private Class<T> clazz;
@@ -291,24 +303,14 @@ public class CustomMod
     	}
     	
     }
-    
-    private void givePower() {
-    	for(EntityPlayerMP player: this.getServer().getPlayerList().getPlayers()) {
-    		powerManager.addPower(player, 1);
-    	}
-    }
-    
+
     private class GivePowerTask implements Runnable {
-    	
-    	private CustomMod mod;
-    	
-    	public GivePowerTask(CustomMod mod) {
-    		this.mod = mod;
-    	}
-    	
+ 
     	public void run() {
     		try {
-    			mod.givePower();
+    			for(EntityPlayerMP player: server.getPlayerList().getPlayers()) {
+    	    		powerManager.addPower(player, 1);
+    	    	}
     		} catch(Exception exception) {
     			exception.printStackTrace();
     		}

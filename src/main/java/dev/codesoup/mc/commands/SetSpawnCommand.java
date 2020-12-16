@@ -26,7 +26,7 @@ public class SetSpawnCommand extends ModCommandBase {
 		EntityPlayerMP player = assertIsPlayer(sender);
 		Chunk chunk = player.getEntityWorld().getChunkFromBlockCoords(player.getPosition());
 		
-		UUID claim = mod.getClaims().getClaim(chunk.x, chunk.z);
+		UUID claim = mod.getClaimsManager().getClaim(chunk.x, chunk.z);
 		if(claim != null && claim.equals(player.getUniqueID())) {
 			BlockPos pos = sender.getPosition();
 			server.getCommandManager().executeCommand(mod.getServer(), String.format("/spawnpoint %s %d %d %d", sender.getName(), pos.getX(), pos.getY(), pos.getZ()));

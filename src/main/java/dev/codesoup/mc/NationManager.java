@@ -14,7 +14,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class NationManager extends RequiresMod {
+public class NationManager extends Manager {
 	
 	private List<Nation> nations;
 	private transient Map<UUID, Nation> playerNations;
