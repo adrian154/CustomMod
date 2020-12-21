@@ -30,14 +30,23 @@ public class TopCommand extends ModCommandBase {
 	
 		if(top.size() == 0) {
 			top.add(new ImmutablePair<>(str, power));
-			return;
 		} else {
+			
+			boolean added = false;
 			for(int i = 0; i < top.size(); i++) {
 				if(top.get(i).getRight() <= power) {
 					top.add(i, new ImmutablePair<>(str, power));
-					return;
+					added = true;
+					break;
 				}
 			}
+			
+			if(!added && top.size() < max) {
+				top.add(new ImmutablePair<>(str, power));
+			} else if(top.size() > max) {
+				top.remove(top.size() - 1);
+			}
+			
 		}
 			
 	}

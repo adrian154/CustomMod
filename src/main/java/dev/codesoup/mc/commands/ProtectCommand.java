@@ -13,7 +13,6 @@ import net.minecraft.world.chunk.Chunk;
 
 public class ProtectCommand extends ModCommandBase {
 
-	private CustomMod mod;
 	private final static String USAGE = "/protect";
 	
 	// Protected chunks are claimed under a UUID that will never join the server

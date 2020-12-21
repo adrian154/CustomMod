@@ -1,7 +1,6 @@
 package dev.codesoup.mc.commands;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;

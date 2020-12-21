@@ -199,16 +199,17 @@ public class CustomEventHandler {
 		}
 
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-		UUID curChunkClaimer = this.mod.getClaimsManager().getClaim(event.getNewChunkX(), event.getNewChunkZ());
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
+		UUID curChunkClaimer = this.mod.getClaimsManager().getClaim(event.getNewChunkX(), event.getNewChunkZ());
+
+		// update current chunk
 		this.occupiedTerritory.put(player, curChunkClaimer);
-		
 		
 		if(prevChunkClaimer != null && !prevChunkClaimer.equals(curChunkClaimer)) {
 			onExitClaim(prevChunkClaimer, player);
 		}
 		
-		if(curChunkClaimer != null && curChunkClaimer.equals(prevChunkClaimer)) {
+		if(curChunkClaimer != null && !curChunkClaimer.equals(prevChunkClaimer)) {
 			onEnterClaim(curChunkClaimer, player);
 		}
 		
