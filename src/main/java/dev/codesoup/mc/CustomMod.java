@@ -39,6 +39,7 @@ import dev.codesoup.mc.commands.ViewInventoryCommand;
 import dev.codesoup.mc.event.CustomEventHandler;
 import dev.codesoup.mc.mcws.Configuration;
 import dev.codesoup.mc.mcws.CustomAppender;
+import dev.codesoup.mc.mcws.MCWSEventHandler;
 import dev.codesoup.mc.mcws.WSServer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.scoreboard.Scoreboard;
@@ -62,6 +63,7 @@ public class CustomMod
     private MinecraftServer server;
     
     private CustomEventHandler customEventHandler;
+    private MCWSEventHandler mcwsEventHandler;
     
     private ClaimsManager claimsManager;
     private NationManager nationManager;
@@ -117,7 +119,9 @@ public class CustomMod
     public void init(FMLInitializationEvent event) {
    
     	this.customEventHandler = new CustomEventHandler(this);
+    	this.mcwsEventHandler = new MCWSEventHandler(this);
     	MinecraftForge.EVENT_BUS.register(this.customEventHandler);
+    	MinecraftForge.EVENT_BUS.register(this.mcwsEventHandler);
     	
     }
     

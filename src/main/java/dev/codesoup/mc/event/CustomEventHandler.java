@@ -226,18 +226,7 @@ public class CustomEventHandler {
 			return;
 		
 		this.mod.getNationManager().listInvitations((EntityPlayerMP)event.player, false);
-		
-		// MCWS integration
-		mod.getWSServer().broadcastMessage(new PlayerJoinMessage(event));
-		
-	}
-	
-	@SubscribeEvent
-	public void playerLoggedOutEvent(PlayerLoggedOutEvent event) {
-		
-		// MCWS integration
-		mod.getWSServer().broadcastMessage(new PlayerQuitMessage(event));
-		
+
 	}
 	
 	@SubscribeEvent
@@ -250,12 +239,7 @@ public class CustomEventHandler {
 	
 	@SubscribeEvent
 	public void chatEvent(ServerChatEvent event) {
-	
 		event.setComponent(new TextComponentString(event.getPlayer().getDisplayNameString() + ": " + event.getMessage()));
-		
-		// MCWS integration
-		mod.getWSServer().broadcastMessage(new PlayerChatMessage(event));
-	
 	}
 	
 	@SubscribeEvent
@@ -282,7 +266,7 @@ public class CustomEventHandler {
 			EntityPlayerMP killer = (EntityPlayerMP)source;
 			
 			Nation alliance = mod.getNationManager().getNation(killer);
-			if(alliance.getMembers().contains(player.getUniqueID())) {
+			if(alliance != null && alliance.getMembers().contains(player.getUniqueID())) {
 			
 				// remove power from killer
 				pm.removePower(killer, 10);
@@ -311,9 +295,7 @@ public class CustomEventHandler {
 		
 		BlockPos pos = player.getPosition();
 		player.sendMessage(new TextComponentString(String.format("%sYou died at (%d, %d)", TextFormatting.RED, pos.getX(), pos.getZ())));
-		
-		mod.getWSServer().broadcastMessage(new PlayerDeathMessage(event));
-		
+
 	}
 	
 	@SubscribeEvent
