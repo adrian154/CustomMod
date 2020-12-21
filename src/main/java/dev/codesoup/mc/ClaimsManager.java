@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import dev.codesoup.mc.commands.ProtectCommand;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -49,7 +50,7 @@ public class ClaimsManager extends Manager {
 		
 	}
 	
-	public boolean shouldProtect(World world, BlockPos pos, UUID uuid) {
+	public boolean shouldProtect(World world, BlockPos pos, EntityPlayer player) {
 		
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
 		UUID claim = getClaim(chunk.x, chunk.z);
@@ -61,14 +62,14 @@ public class ClaimsManager extends Manager {
 		
 		// chunks claimed by a special UUID are accessible only to ops
 		if(claim.equals(ProtectCommand.PROTECTED_UUID)) {
-			return mod.isOP(uuid);
+			return !player.canUseCommand(4, "");
 		}
-	
+		
 		// If the player is offline...
 		if(mod.getPlayer(claim) == null) {
 		
 			// If they are allied, don't protect. Otherwise, if they are allied, protect.
-			return !mod.getNationManager().sameNation(uuid, claim);
+			return !mod.getNationManager().sameNation(player.getUniqueID(), claim);
 		
 		} else {
 			

@@ -70,7 +70,7 @@ public class MapManager extends Manager {
 		double[] xlist = new double[] {x * 16, x * 16 + 16};
 		double[] zlist = new double[] {z * 16, z * 16 + 16};
 		
-		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "earth", xlist, zlist, false);
+		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "world", xlist, zlist, false);
 		if(marker != null) {
 			marker.setLineStyle(1, 0, color);
 			marker.setFillStyle(0.7, color);

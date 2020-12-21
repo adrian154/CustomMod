@@ -155,7 +155,7 @@ public class CustomEventHandler {
 		}
 		
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntityPlayer();
-		if(!(target instanceof EntityPlayer) && mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player.getUniqueID())) {
+		if(!(target instanceof EntityPlayer) && mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player)) {
 			event.setCanceled(true);
 		}
 		
@@ -164,20 +164,20 @@ public class CustomEventHandler {
 	@SubscribeEvent
 	public void interactEvent(PlayerInteractEvent event) {
 		if(!event.getWorld().isRemote)
-			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getEntityPlayer().getUniqueID()));
+			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getEntityPlayer()));
 	}
 
 	@SubscribeEvent
 	public void breakEvent(BreakEvent event) {
 		if(!event.getWorld().isRemote)
-			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer().getUniqueID()));
+			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer()));
 	}
 	
 	@SubscribeEvent
 	public void placeEvent(EntityPlaceEvent event) {
 		if(event.getEntity() instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
+			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player));
 		}
 	}
 	
@@ -186,7 +186,7 @@ public class CustomEventHandler {
 		if(!event.getWorld().isRemote) {
 			if(event.getEntity() instanceof EntityPlayerMP) {
 				EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
-				event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player.getUniqueID()));
+				event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player));
 			}
 		}
 	}
@@ -266,29 +266,31 @@ public class CustomEventHandler {
 			EntityPlayerMP killer = (EntityPlayerMP)source;
 			
 			Nation alliance = mod.getNationManager().getNation(killer);
-			if(alliance != null && alliance.getMembers().contains(player.getUniqueID())) {
-			
-				// remove power from killer
-				pm.removePower(killer, 10);
-
-			} else {
-			
-				// remove power from killed
-				pm.removePower(player, 5);
+			if(alliance != null) {
+				if(alliance.getMembers().contains(player.getUniqueID())) {
 				
-				// give power to killer
-				int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
-				int power = (int)Math.max(3 * Math.sqrt(powerDiff), 5);
-				pm.addPower(killer.getUniqueID(), power);
+					// remove power from killer
+					pm.removePower(killer, 10);
+	
+				} else {
 				
-				// distribute power to members of alliance
-				int distPower = Math.max(powerDiff / 4, 1);
-				for(UUID uuid: alliance.getMembers()) {
-					if(!uuid.equals(killer.getUniqueID())) {
-						pm.addPower(uuid, distPower);
+					// remove power from killed
+					pm.removePower(player, 5);
+					
+					// give power to killer
+					int powerDiff = pm.getTotalPower(player) - pm.getTotalPower(killer);
+					int power = (int)Math.max(3 * Math.sqrt(powerDiff), 5);
+					pm.addPower(killer.getUniqueID(), power);
+					
+					// distribute power to members of alliance
+					int distPower = Math.max(powerDiff / 4, 1);
+					for(UUID uuid: alliance.getMembers()) {
+						if(!uuid.equals(killer.getUniqueID())) {
+							pm.addPower(uuid, distPower);
+						}
 					}
+					
 				}
-				
 			}
 			
 		}

@@ -82,7 +82,7 @@ public class PowerManager extends Manager {
 		
 		UUID uuid = player.getUniqueID();
 		
-		player.sendMessage(powerDiff(amount));
+		player.sendMessage(powerDiff(-amount));
 
 		int overdraw = amount - getFreePower(player);
 		for(int i = 0; i < overdraw; i++) {

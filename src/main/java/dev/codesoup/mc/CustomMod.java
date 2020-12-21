@@ -237,10 +237,6 @@ public class CustomMod
     	return server.getPlayerProfileCache().getProfileByUUID(uuid);
     }
 
-    public boolean isOP(UUID uuid) {
-    	return server.getPlayerList().getOppedPlayers().getEntry(getProfile(uuid)) != null;
-    }
-    
     public static String readConfigFile(String pathStr) throws IOException {
     	File file = new File(pathStr);
     	if(file.exists()) {
