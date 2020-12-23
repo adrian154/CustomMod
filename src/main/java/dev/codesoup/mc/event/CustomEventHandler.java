@@ -42,7 +42,7 @@ public class CustomEventHandler {
 	
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
-	private Map<EntityPlayer, Boolean> isAutoclaiming;
+	private transient Map<UUID, Boolean> isAutoclaiming;
 	public Map<UUID, Integer> numPeopleOnClaim; 
 	
 	// Cooldown field
@@ -56,7 +56,7 @@ public class CustomEventHandler {
 		this.PVPEnabled = true;
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
-		this.isAutoclaiming = new HashMap<EntityPlayer, Boolean>();
+		this.isAutoclaiming = new HashMap<UUID, Boolean>();
 		this.numPeopleOnClaim = new HashMap<UUID, Integer>();
 	}
 	
@@ -86,15 +86,15 @@ public class CustomEventHandler {
 	}
 	
 	public boolean isAutoclaiming(EntityPlayer player) {
-		return isAutoclaiming.get(player) == null;
+		return isAutoclaiming.get(player.getUniqueID()) != null;
 	}
 	
 	public void startAutoclaiming(EntityPlayer player) {
-		isAutoclaiming.put(player, true);
+		isAutoclaiming.put(player.getUniqueID(), true);
 	}
 	
 	public void stopAutoclaiming(EntityPlayer player) {
-		isAutoclaiming.remove(player);
+		isAutoclaiming.remove(player.getUniqueID());
 	}
 	
 	private void onEnterClaim(UUID claimer, EntityPlayer player) {
@@ -154,10 +154,6 @@ public class CustomEventHandler {
 	private void onEnterWilderness(EntityPlayer player) {
 		
 		player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
-		
-		if(isAutoclaiming(player)) {
-			mod.getClaimsManager().claim(player, player.getEntityWorld().getChunkFromBlockCoords(player.getPosition()), true);
-		}
 		
 	}
 	
@@ -249,6 +245,10 @@ public class CustomEventHandler {
 		
 		if(curChunkClaimer == null && prevChunkClaimer != null) {
 			onEnterWilderness(player);
+		}
+		
+		if(isAutoclaiming(player)) {
+			mod.getClaimsManager().claim(player, player.getEntityWorld().getChunkFromBlockCoords(player.getPosition()), true);
 		}
 		
 	}
