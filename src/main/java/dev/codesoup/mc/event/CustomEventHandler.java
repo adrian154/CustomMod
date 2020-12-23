@@ -10,6 +10,7 @@ import java.util.WeakHashMap;
 import com.mojang.authlib.GameProfile;
 
 import dev.codesoup.mc.CustomMod;
+import dev.codesoup.mc.GenericToggleManager;
 import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.PowerManager;
 import net.minecraft.entity.Entity;
@@ -42,7 +43,7 @@ public class CustomEventHandler {
 	
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
-	private transient Map<UUID, Boolean> isAutoclaiming;
+	private transient GenericToggleManager isAutoclaiming;
 	public Map<UUID, Integer> numPeopleOnClaim; 
 	
 	// Cooldown field
@@ -56,7 +57,7 @@ public class CustomEventHandler {
 		this.PVPEnabled = true;
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
-		this.isAutoclaiming = new HashMap<UUID, Boolean>();
+		this.isAutoclaiming = new GenericToggleManager();
 		this.numPeopleOnClaim = new HashMap<UUID, Integer>();
 	}
 	
@@ -85,16 +86,8 @@ public class CustomEventHandler {
 		}
 	}
 	
-	public boolean isAutoclaiming(EntityPlayer player) {
-		return isAutoclaiming.get(player.getUniqueID()) != null;
-	}
-	
-	public void startAutoclaiming(EntityPlayer player) {
-		isAutoclaiming.put(player.getUniqueID(), true);
-	}
-	
-	public void stopAutoclaiming(EntityPlayer player) {
-		isAutoclaiming.remove(player.getUniqueID());
+	public GenericToggleManager getAutoclaimManager() {
+		return this.isAutoclaiming;
 	}
 	
 	private void onEnterClaim(UUID claimer, EntityPlayer player) {
@@ -247,7 +240,7 @@ public class CustomEventHandler {
 			onEnterWilderness(player);
 		}
 		
-		if(isAutoclaiming(player)) {
+		if(isAutoclaiming.get(player)) {
 			mod.getClaimsManager().claim(player, player.getEntityWorld().getChunkFromBlockCoords(player.getPosition()), true);
 		}
 		

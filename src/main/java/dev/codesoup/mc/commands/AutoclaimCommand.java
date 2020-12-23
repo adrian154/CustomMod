@@ -20,14 +20,12 @@ public class AutoclaimCommand extends ModCommandBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 		
 		EntityPlayerMP player = assertIsPlayer(sender);
-		if(mod.getEventHandler().isAutoclaiming(player)) {
-			mod.getEventHandler().stopAutoclaiming(player);
-			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Stopped autoclaiming."));
-		} else {
-			mod.getEventHandler().startAutoclaiming(player);
+		if(mod.getEventHandler().getAutoclaimManager().toggle(player)) {
 			player.sendMessage(new TextComponentString(TextFormatting.GOLD + "Started autoclaiming."));
+		} else {
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Stopped autoclaiming."));
 		}
-		
+
 	}
 	
 	@Override
