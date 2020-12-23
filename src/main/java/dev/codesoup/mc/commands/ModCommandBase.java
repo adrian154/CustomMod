@@ -7,6 +7,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 
 public abstract class ModCommandBase extends CommandBase {
 
@@ -54,6 +55,11 @@ public abstract class ModCommandBase extends CommandBase {
 	@Override
 	public String getName() {
 		return this.commandName;
+	}
+	
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return this.requiredPermissionLevel == 0 ? true : sender.canUseCommand(this.requiredPermissionLevel, "");
 	}
 	
 }

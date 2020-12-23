@@ -9,6 +9,8 @@ import java.util.UUID;
 import dev.codesoup.mc.commands.ProtectCommand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -102,6 +104,19 @@ public class ClaimsManager extends Manager {
 		this.unclaim(last.A, last.B);
 		claims.remove(claims.size() - 1); 
 		return last;
+	}
+
+	public void claim(EntityPlayer player, Chunk chunk, boolean passive) {
+		
+		if(getClaim(chunk.x, chunk.z) == null && mod.getPowerManager().removeClaimPower(player, 1)) {
+			setClaim(chunk.x, chunk.z, player.getUniqueID());
+			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Chunk claimed!"));
+		} else {
+			if(!passive) {
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "This chunk is already claimed."));
+			}
+		}
+		
 	}
 	
 }

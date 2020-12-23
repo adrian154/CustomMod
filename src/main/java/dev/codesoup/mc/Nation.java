@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
@@ -20,25 +19,28 @@ public class Nation {
 	private UUID ID;
 	private transient NationManager manager;
 	
-	public Nation(NationManager manager, boolean isCreation) {
-		
+	public Nation(NationManager manager) {
+		this();
 		this.manager = manager;
+		manager.getMod().getScoreboard().createTeam(this.getTeamName());
+	}
+	
+	public Nation() {
 		this.members = new ArrayList<UUID>();
 		this.outstandingInvitations = new ArrayList<UUID>();
 		this.color = TextFormatting.YELLOW;
 		this.ID = UUID.randomUUID();
-		
-		if(isCreation) {
-			manager.getMod().getScoreboard().createTeam(this.getTeamName());
-		}
-		
+	}
+	
+	public void setNationManager(NationManager manager) {
+		this.manager = manager;
 	}
 	
 	public UUID getID() {
 		return this.ID;
 	}
 	
-	private String getTeamName() {
+	public String getTeamName() {
 		return this.ID.toString().substring(0, 16);
 	}
 	
@@ -64,12 +66,10 @@ public class Nation {
 	
 	public void addMember(EntityPlayer player) {
 		this.addMember(player.getUniqueID());
-		manager.getMod().getScoreboard().addPlayerToTeam(player.getName(), this.getTeamName());
 	}
 	
 	public void removeMember(UUID uuid) {
 		this.members.remove(uuid);
-		manager.getMod().getScoreboard().removePlayerFromTeam(manager.getMod().getProfile(uuid).getName(), manager.getMod().getScoreboard().getTeam(this.getTeamName()));
 	}
 	
 	public void makeLeader(UUID newLeader) {

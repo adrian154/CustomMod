@@ -14,7 +14,6 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
@@ -86,7 +85,7 @@ public class NationCommand extends ModCommandBase {
 			_assert(params.length == 2, ERR_INCORRECT_USAGE + USAGE_CREATE);
 			assertNationName(params[1]);
 			
-			Nation newAlliance = new Nation(mod.getNationManager(), true);
+			Nation newAlliance = new Nation(mod.getNationManager());
 			newAlliance.setName(params[1]);
 			newAlliance.addMember(player);
 			newAlliance.makeLeader(player);
@@ -122,11 +121,11 @@ public class NationCommand extends ModCommandBase {
 			
 			Nation theNation;
 			
-			if(nation == null) {
-				_assert(params.length == 2, ERR_MUST_BE_IN_NATION);
-				theNation = assertNation(params[1]);
-			} else {
+			if(params.length == 1) {
+				_assert(nation != null, ERR_MUST_BE_IN_NATION);
 				theNation = nation;
+			} else {
+				theNation = assertNation(params[1]);
 			}
 			
 			String list = theNation.getMembers()
@@ -135,13 +134,13 @@ public class NationCommand extends ModCommandBase {
 				.map(gameProfile ->
 					String.format(
 						"%s%s%s%s",
-						nation.isLeader(gameProfile.getId()) ? TextFormatting.YELLOW : TextFormatting.WHITE,
+						theNation.isLeader(gameProfile.getId()) ? TextFormatting.YELLOW : TextFormatting.WHITE,
 						gameProfile.getName(),
-						nation.isLeader(gameProfile.getId()) ? " (LEADER)" : "",
+						theNation.isLeader(gameProfile.getId()) ? " (LEADER)" : "",
 						TextFormatting.GRAY
 					)
 				)
-				.collect(Collectors.joining(","));
+				.collect(Collectors.joining(", "));
 
 			player.sendMessage(new TextComponentString(TextFormatting.GRAY + "Members of " + theNation.getFmtName() + TextFormatting.GRAY + ": " + list));
 			
@@ -285,11 +284,6 @@ public class NationCommand extends ModCommandBase {
 	@Override
 	public String getUsage(ICommandSender sender) {
 		return USAGE;
-	}
-
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
 	}
 	
 }

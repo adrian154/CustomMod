@@ -25,12 +25,22 @@ public class NationManager extends Manager {
 		this.playerNations = new HashMap<UUID, Nation>();
 	}
 	
-	public void initPlayerNations() {
+	public void postInit() {
+
 		for(Nation nation: nations) {
+			
+			nation.setNationManager(this);
+			
 			for(UUID uuid: nation.getMembers()) {
 				playerNations.put(uuid, nation);
 			}
+			
 		}
+		
+	}
+	
+	public void setNation(UUID uuid, Nation nation) {
+		playerNations.put(uuid, nation);
 	}
 	
 	public Nation getNation(EntityPlayer player) {
@@ -55,7 +65,7 @@ public class NationManager extends Manager {
 	
 	public boolean sameNation(UUID A, UUID B) {
 		Nation nation = getNation(A);
-		return nation == null ? false : nation.getMembers().contains(B);
+		return nation != null && nation.equals(getNation(B));
 	}
 
 	public void addPlayer(Nation nation, UUID uuid) {

@@ -65,7 +65,12 @@ public class MapManager extends Manager {
 			color = 0xffffff;
 		
 		String markerID = String.format("%d-%d", x, z);
-		String tooltip = "";
+		
+		String tooltip;
+		if(alliance != null)
+			tooltip = String.format("Claimed by %s (%s)", mod.getProfile(uuid).getName(), alliance.getName());
+		else
+			tooltip = String.format("Claimted by %s", mod.getProfile(uuid).getName());
 		
 		double[] xlist = new double[] {x * 16, x * 16 + 16};
 		double[] zlist = new double[] {z * 16, z * 16 + 16};

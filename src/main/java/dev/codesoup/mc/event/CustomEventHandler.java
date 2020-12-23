@@ -12,14 +12,12 @@ import com.mojang.authlib.GameProfile;
 import dev.codesoup.mc.CustomMod;
 import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.PowerManager;
-import dev.codesoup.mc.mcws.messages.PlayerChatMessage;
-import dev.codesoup.mc.mcws.messages.PlayerDeathMessage;
-import dev.codesoup.mc.mcws.messages.PlayerJoinMessage;
-import dev.codesoup.mc.mcws.messages.PlayerQuitMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -36,7 +34,6 @@ import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 
 public class CustomEventHandler {
 
@@ -45,6 +42,7 @@ public class CustomEventHandler {
 	
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
+	private Map<EntityPlayer, Boolean> isAutoclaiming;
 	public Map<UUID, Integer> numPeopleOnClaim; 
 	
 	// Cooldown field
@@ -58,6 +56,7 @@ public class CustomEventHandler {
 		this.PVPEnabled = true;
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
+		this.isAutoclaiming = new HashMap<EntityPlayer, Boolean>();
 		this.numPeopleOnClaim = new HashMap<UUID, Integer>();
 	}
 	
@@ -85,8 +84,22 @@ public class CustomEventHandler {
 			numPeopleOnClaim.put(uuid, Math.max(numPeopleOnClaim.get(uuid) - 1, 0));
 		}
 	}
-
+	
+	public boolean isAutoclaiming(EntityPlayer player) {
+		return isAutoclaiming.get(player) == null;
+	}
+	
+	public void startAutoclaiming(EntityPlayer player) {
+		isAutoclaiming.put(player, true);
+	}
+	
+	public void stopAutoclaiming(EntityPlayer player) {
+		isAutoclaiming.remove(player);
+	}
+	
 	private void onEnterClaim(UUID claimer, EntityPlayer player) {
+		
+		if(player.isSpectator()) return;
 		
 		if(claimer.equals(player.getUniqueID())) {
 			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
@@ -118,6 +131,8 @@ public class CustomEventHandler {
 	
 	private void onExitClaim(UUID claimer, EntityPlayer player) {
 		
+		if(player.isSpectator()) return;
+		
 		// Tell them that the player left
 		if(!claimer.equals(player.getUniqueID())) {
 			
@@ -139,6 +154,10 @@ public class CustomEventHandler {
 	private void onEnterWilderness(EntityPlayer player) {
 		
 		player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
+		
+		if(isAutoclaiming(player)) {
+			mod.getClaimsManager().claim(player, player.getEntityWorld().getChunkFromBlockCoords(player.getPosition()), true);
+		}
 		
 	}
 	
@@ -169,8 +188,23 @@ public class CustomEventHandler {
 
 	@SubscribeEvent
 	public void breakEvent(BreakEvent event) {
+		
 		if(!event.getWorld().isRemote)
 			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer()));
+	
+		BlockPos pos = event.getPos();
+		if(event.getState().getBlock().equals(Blocks.DIAMOND_ORE)) {
+			
+			String str = String.format("%s mined diamond ore at (%d, %d, %d)", event.getPlayer().getName(), pos.getX(), pos.getY(), pos.getZ());
+			mod.logger.info(str);
+			
+			//EntityPlayerMP player = mod.getPlayer(UUID.fromString("dd59a2b9-083e-49dc-a6c2-4c7b7997dce8"));
+			//if(player != null) player.sendMessage(new TextComponentString(str));
+			
+			mod.broadcastToOps(str);
+			
+		}
+	
 	}
 	
 	@SubscribeEvent
@@ -226,7 +260,14 @@ public class CustomEventHandler {
 			return;
 		
 		this.mod.getNationManager().listInvitations((EntityPlayerMP)event.player, false);
-
+		
+		Nation nation = mod.getNationManager().getNation(event.player);
+		if(nation != null) {
+			Scoreboard scoreboard = mod.getScoreboard();
+			scoreboard.removePlayerFromTeams(event.player.getName());
+			scoreboard.addPlayerToTeam(event.player.getName(), nation.getTeamName());
+		}
+		
 	}
 	
 	@SubscribeEvent
@@ -315,5 +356,5 @@ public class CustomEventHandler {
 		}
 		
 	}
-	
+
 }

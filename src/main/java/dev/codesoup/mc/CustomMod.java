@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.mojang.authlib.GameProfile;
 
+import dev.codesoup.mc.commands.AutoclaimCommand;
 import dev.codesoup.mc.commands.BaseCommand;
 import dev.codesoup.mc.commands.ClaimCommand;
 import dev.codesoup.mc.commands.GivePowerCommand;
@@ -87,14 +88,7 @@ public class CustomMod
     	gsonBuilder.registerTypeAdapter(NationManager.class, new ManagerCreator<NationManager>(this, NationManager.class));
     	gsonBuilder.registerTypeAdapter(ClaimsManager.class, new ManagerCreator<ClaimsManager>(this, ClaimsManager.class));
     	gsonBuilder.registerTypeAdapter(PowerManager.class, new ManagerCreator<PowerManager>(this, PowerManager.class));
-    	
-    	gsonBuilder.registerTypeAdapter(Nation.class, new InstanceCreator<Nation>() {
-    		@Override
-    		public Nation createInstance(Type type) {
-    			return new Nation(nationManager, false);
-    		}
-    	});
-    	
+
         return gsonBuilder.create();
     	
     }
@@ -179,6 +173,7 @@ public class CustomMod
     	event.registerServerCommand(new ViewInventoryCommand(this));
     	event.registerServerCommand(new TopCommand(this));
     	event.registerServerCommand(new MCWSCommand(this));
+    	event.registerServerCommand(new AutoclaimCommand(this));
     }
     
     public CustomEventHandler getEventHandler() {
@@ -207,6 +202,14 @@ public class CustomMod
     
     public void broadcast(String message) { 
     	this.server.getPlayerList().sendMessage(new TextComponentString(message));
+    }
+    
+    public void broadcastToOps(String message) {
+    	for(EntityPlayerMP player: this.server.getPlayerList().getPlayers()) {
+    		if(player.canUseCommand(4, "")) {
+    			player.sendMessage(new TextComponentString(message));
+    		}
+    	}
     }
     
     public MinecraftServer getServer() {
@@ -272,7 +275,7 @@ public class CustomMod
     	this.configuration = new Configuration();
     	
     	// Postinit step
-    	this.nationManager.initPlayerNations();
+    	this.nationManager.postInit();
     	
     }
   

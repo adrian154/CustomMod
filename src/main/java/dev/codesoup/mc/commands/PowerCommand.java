@@ -5,7 +5,6 @@ import java.util.UUID;
 import com.mojang.authlib.GameProfile;
 
 import dev.codesoup.mc.CustomMod;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;

@@ -78,6 +78,15 @@ public class PowerManager extends Manager {
 		}
 	}
 	
+	public boolean removeClaimPower(EntityPlayer player, int amount) {
+		if(getFreePower(player) < amount) {
+			player.sendMessage(new TextComponentString(TextFormatting.RED + "You don't have enough power!"));
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	public void removePower(EntityPlayerMP player, int amount) {
 		
 		UUID uuid = player.getUniqueID();
