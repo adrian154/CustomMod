@@ -5,7 +5,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
 public class BaseCommand extends ModCommandBase {
@@ -20,17 +20,9 @@ public class BaseCommand extends ModCommandBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] params) throws CommandException {
 	
 		EntityPlayerMP player = assertIsPlayer(sender);
-		
-		Integer onClaim = mod.getEventHandler().numPeopleOnClaim.get(player.getUniqueID());
-		if(onClaim != null && onClaim > 0) {
-			BlockPos pos = player.getBedLocation();
-			if(pos != null)
-				mod.getServer().getCommandManager().executeCommand(mod.getServer(), String.format("/tp %s %d %d %d", player.getName(), pos.getX(), pos.getY(), pos.getZ()));
-			else
-				throw new CommandException("You haven't set your spawn!");
-		} else {
-			throw new CommandException(TextFormatting.RED + "You can only teleport back to your base if someone's on it.");
-		}
+		_assert(player.getBedLocation() != null, "You have not set your spawn yet.");
+		mod.getEventHandler().startBaseTPTimer(player);
+		player.sendMessage(new TextComponentString(TextFormatting.LIGHT_PURPLE + "Teleporting you to your base in 10 seconds. Don't move, or it will be canceled."));
 	
 	}
 

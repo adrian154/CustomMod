@@ -2,7 +2,6 @@ package dev.codesoup.mc.event;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -14,18 +13,27 @@ import dev.codesoup.mc.GenericToggleManager;
 import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.PowerManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemAxe;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.NameFormat;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -35,6 +43,9 @@ import net.minecraftforge.event.world.BlockEvent.FarmlandTrampleEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class CustomEventHandler {
 
@@ -43,9 +54,9 @@ public class CustomEventHandler {
 	
 	// Whose territory the player is currently standing on
 	private Map<EntityPlayer, UUID> occupiedTerritory;
+	private Map<EntityPlayer, Long> invokeBaseTime;
 	private transient GenericToggleManager isAutoclaiming;
-	public Map<UUID, Integer> numPeopleOnClaim; 
-	
+
 	// Cooldown field
 	private static Field targetField = EntityLivingBase.class.getDeclaredFields()[24]; 
 	
@@ -58,7 +69,7 @@ public class CustomEventHandler {
 		this.mod = mod;
 		this.occupiedTerritory = new WeakHashMap<EntityPlayer, UUID>();
 		this.isAutoclaiming = new GenericToggleManager();
-		this.numPeopleOnClaim = new HashMap<UUID, Integer>();
+		this.invokeBaseTime = new WeakHashMap<>();
 	}
 	
 	public boolean PVPEnabled() {
@@ -69,55 +80,34 @@ public class CustomEventHandler {
 		this.PVPEnabled = !this.PVPEnabled;
 		return this.PVPEnabled;
 	}
-	
-	public void incrementClaim(UUID uuid) {
-		if(numPeopleOnClaim.get(uuid) == null) {
-			numPeopleOnClaim.put(uuid, 1);
-		} else {
-			numPeopleOnClaim.put(uuid, numPeopleOnClaim.get(uuid) + 1);
-		}
-	}
-	
-	public void decrementClaim(UUID uuid) {
-		if(numPeopleOnClaim.get(uuid) == null) {
-			numPeopleOnClaim.put(uuid, 0);
-		} else {
-			numPeopleOnClaim.put(uuid, Math.max(numPeopleOnClaim.get(uuid) - 1, 0));
-		}
-	}
-	
+
 	public GenericToggleManager getAutoclaimManager() {
 		return this.isAutoclaiming;
+		
 	}
 	
 	private void onEnterClaim(UUID claimer, EntityPlayer player) {
+
+		boolean allied = mod.getNationManager().sameNation(player.getUniqueID(), claimer);
+		String format = allied ? TextFormatting.AQUA.toString() : TextFormatting.RED.toString() + TextFormatting.BOLD;
 		
-		if(player.isSpectator()) return;
-		
+		GameProfile claimerProfile = mod.getProfile(claimer);
+		if(claimerProfile == null) return;
+			
 		if(claimer.equals(player.getUniqueID())) {
 			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
-			return;
+		} else {
+			player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", format, claimerProfile.getName())));
 		}
 		
-		boolean allied = mod.getNationManager().sameNation(player.getUniqueID(), claimer);
-		String color = allied ? TextFormatting.AQUA.toString() : (TextFormatting.RED.toString() + TextFormatting.BOLD);
-		
-		// send message to player
-		GameProfile profile = mod.getProfile(claimer);
-		if(profile != null) {
+		// send other player message
+		if(!player.isSpectator() && !claimer.equals(player.getUniqueID())) {
 			
-			player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", color, profile.getName())));
-		
-			// send message to claimer
-			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getPlayer(claimer);
+			EntityPlayer claimerPlayer = mod.getPlayer(claimer);
 			if(claimerPlayer != null) {
-				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has stepped onto your territory!", color, player.getName())));
+				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has entered your territory.", format, player.getName())));
 			}
 			
-		}
-		
-		if(!allied) {
-			incrementClaim(claimer);
 		}
 		
 	}
@@ -133,11 +123,6 @@ public class CustomEventHandler {
 			
 			if(claimerPlayer != null && !claimerPlayer.equals(player)) {
 				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
-			}
-			
-			// Only decrement if enemy is leaving, since claims can only be incremented by enemies
-			if(!mod.getNationManager().sameNation(claimer, player.getUniqueID())) {
-				decrementClaim(claimer);
 			}
 			
 		}
@@ -166,6 +151,35 @@ public class CustomEventHandler {
 		if(!(target instanceof EntityPlayer) && mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), player)) {
 			event.setCanceled(true);
 		}
+	
+	}
+	
+	@SubscribeEvent
+	public void onLivingHurt(LivingHurtEvent event) {
+		
+		if(event.getAmount() > 0) {
+			
+			Entity source = event.getSource().getImmediateSource();
+			if(source != null && source instanceof EntityPlayerMP) {
+			
+				EntityPlayerMP player = (EntityPlayerMP)source;
+				if(player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemAxe) {
+					
+					ItemAxe axe = (ItemAxe)player.getHeldItem(EnumHand.MAIN_HAND).getItem();
+					int id = Item.getIdFromItem(axe);
+					
+					float damage = 1.0F;
+					if(id == 275) damage = 5.0F;
+					if(id == 258) damage = 6.0F;
+					if(id == 279) damage = 7.0F;
+					
+					event.setAmount(damage);
+					
+				}
+			
+			}
+			
+		}
 		
 	}
 
@@ -180,16 +194,12 @@ public class CustomEventHandler {
 		
 		if(!event.getWorld().isRemote)
 			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer()));
-	
+		
 		BlockPos pos = event.getPos();
 		if(event.getState().getBlock().equals(Blocks.DIAMOND_ORE)) {
 			
 			String str = String.format("%s mined diamond ore at (%d, %d, %d)", event.getPlayer().getName(), pos.getX(), pos.getY(), pos.getZ());
 			mod.logger.info(str);
-			
-			//EntityPlayerMP player = mod.getPlayer(UUID.fromString("dd59a2b9-083e-49dc-a6c2-4c7b7997dce8"));
-			//if(player != null) player.sendMessage(new TextComponentString(str));
-			
 			mod.broadcastToOps(str);
 			
 		}
@@ -224,8 +234,6 @@ public class CustomEventHandler {
 		EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 		UUID prevChunkClaimer = occupiedTerritory.get(player);
 		UUID curChunkClaimer = this.mod.getClaimsManager().getClaim(event.getNewChunkX(), event.getNewChunkZ());
-
-		// update current chunk
 		this.occupiedTerritory.put(player, curChunkClaimer);
 		
 		if(prevChunkClaimer != null && !prevChunkClaimer.equals(curChunkClaimer)) {
@@ -346,6 +354,73 @@ public class CustomEventHandler {
 			}
 		} catch(IllegalAccessException exception) {
 			System.out.println("Somehow, an exception occurred while trying to apply old combat. You are probably on the wrong version.");
+		}
+		
+	}
+	
+	@SubscribeEvent
+	public void onBabyEntitySpawn(BabyEntitySpawnEvent event) {
+		
+		Chunk chunk = event.getChild().getEntityWorld().getChunkFromBlockCoords(event.getParentA().getPosition());
+		
+		int mobs = 0;
+		for(ClassInheritanceMultiMap<Entity> list: chunk.getEntityLists()) {
+			mobs += list.size();
+		}
+		
+		System.out.println(mobs);
+		if(mobs > 20) {
+			event.setCanceled(true);
+			
+			if(Math.random() > 0.5) {
+				
+				EntityLiving toKill;
+				if(Math.random() > 0.5)
+					toKill = event.getParentA();
+				else
+					toKill = event.getParentB();
+				
+				toKill.attackEntityFrom(DamageSource.MAGIC, toKill.getHealth());
+				
+			}
+			
+		}
+		
+	}
+	
+	public void startBaseTPTimer(EntityPlayer player) {
+		invokeBaseTime.put(player, player.getEntityWorld().getTotalWorldTime() + 20 * 10);
+	}
+	
+	@SubscribeEvent
+	public void onPlayerTick(PlayerTickEvent event) {
+		
+		if(invokeBaseTime.containsKey(event.player) && (event.player.lastTickPosX != event.player.posX || event.player.lastTickPosY != event.player.posY || event.player.lastTickPosZ != event.player.posZ)) {
+			invokeBaseTime.remove(event.player);
+			event.player.sendMessage(new TextComponentString(TextFormatting.RED + "Your teleport was canceled since you moved."));
+		}
+		
+	}
+	
+	@SubscribeEvent
+	public void worldTickEvent(WorldTickEvent event) {
+		
+		if(event.phase != TickEvent.Phase.END) return;
+		
+		for(Map.Entry<EntityPlayer, Long> entry: invokeBaseTime.entrySet()) {
+			
+			if(event.world.getTotalWorldTime() == entry.getValue()) {
+				
+				invokeBaseTime.remove(entry.getKey());
+				
+				EntityPlayer player = entry.getKey();
+				BlockPos pos = player.getBedLocation();
+				if(pos != null) {
+					mod.getServer().getCommandManager().executeCommand(mod.getServer(), String.format("/tp %s %d %d %d", player.getName(), pos.getX(), pos.getY(), pos.getZ()));
+				}
+				
+			}
+			
 		}
 		
 	}

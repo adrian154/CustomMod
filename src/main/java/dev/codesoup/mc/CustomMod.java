@@ -105,7 +105,7 @@ public class CustomMod
     
     	this.logger = event.getModLog();
     	this.gson = buildGson();
-        
+    	
     }
     
     
@@ -138,7 +138,7 @@ public class CustomMod
     	attachAppender();
     	
     }
-    
+
     @EventHandler
     public void stopping(FMLServerStoppingEvent event) {
     	
