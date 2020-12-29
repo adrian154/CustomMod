@@ -18,7 +18,7 @@ public class MapManager extends RequiresMod {
 	public static final String CLAIMS_LAYER_NAME = "Claims";
 	
 	private boolean dynmapExists;
-	private DynmapCommonAPI dynmapAPI;
+	//private DynmapCommonAPI dynmapAPI;
 	private MarkerAPI markerAPI;
 	private MarkerSet markerSet;
 	
@@ -42,7 +42,7 @@ public class MapManager extends RequiresMod {
 		public void apiEnabled(DynmapCommonAPI api) {
 			if(api != null) {
 				
-				dynmapAPI = api;
+				//dynmapAPI = api;
 				markerAPI = api.getMarkerAPI();
 				
 				createMarkerLayer();

@@ -2,7 +2,9 @@ package dev.codesoup.mc.event;
 
 import dev.codesoup.mc.CustomMod;
 import dev.codesoup.mc.RequiresMod;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
@@ -43,6 +45,15 @@ public class ProtectionsHandler extends RequiresMod {
 			if(event.getEntity() instanceof EntityPlayerMP) {
 				EntityPlayerMP player = (EntityPlayerMP)event.getEntity();
 				event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), player));
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onAttackEntity(AttackEntityEvent event) {
+		if(!event.getEntity().getEntityWorld().isRemote && !(event.getEntity() instanceof EntityPlayer)) {
+			if(mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), event.getEntityPlayer())) {
+				event.setCanceled(true);
 			}
 		}
 	}

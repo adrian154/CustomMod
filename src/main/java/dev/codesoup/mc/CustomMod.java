@@ -82,9 +82,23 @@ public class CustomMod {
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent event) {
+		
 		this.logger = event.getModLog();
 		this.gson = buildGson();
+	
+		try {
+			this.loadAll();
+		} catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException
+				| NoSuchMethodException exception) {
+			this.logger.fatal("Failed to load something from configuration.");
+			exception.printStackTrace();
+		}
+		
+		// MapManager has no saved state :D
+		this.mapManager = new MapManager(this);
+		
 		this.commands = new ModCommands(this);
+	
 	}
 
 	@EventHandler
@@ -99,17 +113,8 @@ public class CustomMod {
 	@EventHandler
 	public void onServerStart(FMLServerStartingEvent event) {
 
-		try {
-			this.loadAll();
-		} catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException
-				| NoSuchMethodException exception) {
-			this.logger.fatal("Failed to load something from configuration.");
-			exception.printStackTrace();
-		}
-
 		this.server = event.getServer();
 		this.wsServer = new WSServer(this);
-		this.mapManager = new MapManager(this);
 
 		commands.onServerStart(event);
 		attachAppender();
