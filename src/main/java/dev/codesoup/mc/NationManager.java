@@ -95,32 +95,6 @@ public class NationManager extends RequiresMod {
 		nation.broadcast(TextFormatting.GRAY + "Your nation was renamed to " + nation.getFmtName() + TextFormatting.GRAY + ".");
 	}
 	
-	public String getName(EntityPlayer player) {
-		
-		Nation nation = this.getNation(player);
-		
-		String prefix = "";
-		if(nation != null) {
-			prefix = String.format("%s[%s]%s ", nation.getColor(), nation.getName(), TextFormatting.RESET);
-		}
-		
-		return String.format("%s%s", prefix, player.getName());
-	
-	}
-	
-	public String getName(GameProfile profile) {
-		
-		Nation nation = this.getNation(profile.getId());
-		
-		String prefix = "";
-		if(nation != null) {
-			prefix = String.format("%s[%s]%s ", nation.getColor(), nation.getName(), TextFormatting.RESET);
-		}
-		
-		return String.format("%s%s", prefix, profile.getName());
-		
-	}
-	
 	public void listInvitations(EntityPlayerMP player, boolean listIfNone) {
 		
 		List<Nation> invitedTo = new ArrayList<Nation>();

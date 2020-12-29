@@ -104,10 +104,17 @@ public class ClaimMessagesHandler extends RequiresMod {
 		
 		// send other player message
 		if(!player.isSpectator() && !claimer.equals(player.getUniqueID())) {
+	
+			String message = String.format("%s%s has entered your territory.", TextFormatting.RED, player.getName());
 			
-			EntityPlayer claimerPlayer = mod.getPlayer(claimer);
-			if(claimerPlayer != null && !allied) {
-				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has entered your territory.", TextFormatting.RED, player.getName())));
+			if(!allied) {
+				
+				EntityPlayer claimerPlayer = mod.getPlayer(claimer);
+				if(nation != null)
+					nation.broadcast(message);
+				else if(claimerPlayer != null)
+					claimerPlayer.sendMessage(new TextComponentString(message));
+				
 			}
 			
 		}
@@ -121,12 +128,19 @@ public class ClaimMessagesHandler extends RequiresMod {
 		// Tell them that the player left
 		if(!claimer.equals(player.getUniqueID())) {
 			
-			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getPlayer(claimer);
-			
-			if(claimerPlayer != null && !claimerPlayer.equals(player) && !mod.getNationManager().sameNation(player, claimerPlayer)) {
-				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
+			if(!mod.getNationManager().sameNation(claimer, player.getUniqueID())) {
+				
+				EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getPlayer(claimer);
+				String message = "§7§o" + player.getName() + " left your territory.";
+				Nation nation = mod.getNationManager().getNation(claimer);
+				
+				if(nation != null)
+					nation.broadcast(message);
+				else if(claimerPlayer != null) 
+					claimerPlayer.sendMessage(new TextComponentString(message));
+				
 			}
-			
+
 		}
 		
 		if(claimer != null) {

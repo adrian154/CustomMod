@@ -9,9 +9,6 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,10 +26,12 @@ import dev.codesoup.mc.mcws.Configuration;
 import dev.codesoup.mc.mcws.CustomAppender;
 import dev.codesoup.mc.mcws.MCWSEventHandler;
 import dev.codesoup.mc.mcws.WSServer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -61,8 +60,6 @@ public class CustomMod
     
     public Logger logger;
     public Gson gson;
-    
-    private ScheduledExecutorService executor;
 
     private Gson buildGson() {
     	
@@ -77,12 +74,10 @@ public class CustomMod
         return gsonBuilder.create();
     	
     }
-    
+
     private void attachAppender() {
-    	
     	org.apache.logging.log4j.core.Logger srvLogger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
     	srvLogger.addAppender(new CustomAppender(this));
-    	
     }
     
     @EventHandler
@@ -94,13 +89,11 @@ public class CustomMod
     
     @EventHandler
     public void onInit(FMLInitializationEvent event) {
-    	
     	MinecraftForge.EVENT_BUS.register(new ClaimMessagesHandler(this));
     	MinecraftForge.EVENT_BUS.register(new CustomEventHandler(this));
     	MinecraftForge.EVENT_BUS.register(new MCWSEventHandler(this));
     	MinecraftForge.EVENT_BUS.register(new ProtectionsHandler(this));
     	commands.onInit(event);
-    	
     }
     
     @EventHandler
@@ -118,7 +111,6 @@ public class CustomMod
     	this.mapManager = new MapManager(this);
     	
     	commands.onServerStart(event);
-    	startPassivePowerTask();
     	attachAppender();
     	
     }
@@ -135,12 +127,7 @@ public class CustomMod
     	
     }
     
-    private void startPassivePowerTask() {
-    	Runnable timerTask = new GivePowerTask();
-    	executor = Executors.newScheduledThreadPool(1);
-    	executor.scheduleAtFixedRate(timerTask, 0, 60 * 5, TimeUnit.SECONDS);
-    }
-    
+    /* GETTERS */
     public ClaimsManager getClaimsManager() {
     	return this.claimsManager;
     }
@@ -159,18 +146,6 @@ public class CustomMod
     
     public MapManager getMapManager() {
     	return this.mapManager;
-    }
-    
-    public void broadcast(String message) { 
-    	this.server.getPlayerList().sendMessage(new TextComponentString(message));
-    }
-    
-    public void broadcastToOps(String message) {
-    	for(EntityPlayerMP player: this.server.getPlayerList().getPlayers()) {
-    		if(player.canUseCommand(4, "")) {
-    			player.sendMessage(new TextComponentString(message));
-    		}
-    	}
     }
     
     public MinecraftServer getServer() {
@@ -200,10 +175,41 @@ public class CustomMod
     public GameProfile getProfile(UUID uuid) {
     	return server.getPlayerProfileCache().getProfileByUUID(uuid);
     }
-
+    
+    public String getName(EntityPlayer player) {
+		return getName(player.getGameProfile());
+	}
+    
     public String getName(UUID uuid) {
-    	GameProfile profile = server.getPlayerProfileCache().getProfileByUUID(uuid);
-    	return profile != null ? profile.getName() : "Unknown";
+    	return getName(getProfile(uuid));
+    }
+	
+	public String getName(GameProfile profile) {
+		
+		if(profile == null) return "Unknown";
+		
+		Nation nation = nationManager.getNation(profile.getId());
+		
+		String prefix = "";
+		if(nation != null) {
+			prefix = String.format("%s[%s]%s ", nation.getColor(), nation.getName(), TextFormatting.RESET);
+		}
+		
+		return String.format("%s%s", prefix, profile.getName());
+		
+	}
+    
+    /* UTILITIES */
+    public void broadcast(String message) { 
+    	this.server.getPlayerList().sendMessage(new TextComponentString(message));
+    }
+    
+    public void broadcastToOps(String message) {
+    	for(EntityPlayerMP player: this.server.getPlayerList().getPlayers()) {
+    		if(player.canUseCommand(4, "")) {
+    			player.sendMessage(new TextComponentString(message));
+    		}
+    	}
     }
     
     public static String readConfigFile(String pathStr) throws IOException {
@@ -268,20 +274,6 @@ public class CustomMod
     			return clazz.getDeclaredConstructor(CustomMod.class).newInstance(mod);
     		} catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException exception) {
     			return null;
-    		}
-    	}
-    	
-    }
-
-    private class GivePowerTask implements Runnable {
- 
-    	public void run() {
-    		try {
-    			for(EntityPlayerMP player: server.getPlayerList().getPlayers()) {
-    	    		powerManager.addPower(player, 1);
-    	    	}
-    		} catch(Exception exception) {
-    			exception.printStackTrace();
     		}
     	}
     	

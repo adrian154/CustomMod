@@ -63,7 +63,7 @@ public class TopCommand extends ModCommandBase {
 			for(UUID uuid: pwm.getKeys()) {
 				addToTop(
 					top,
-					mod.getNationManager().getName(mod.getProfile(uuid)), 
+					mod.getName(mod.getProfile(uuid)), 
 					pwm.getTotalPower(uuid),
 					5
 				);

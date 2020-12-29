@@ -10,7 +10,6 @@ import dev.codesoup.mc.PowerManager;
 import dev.codesoup.mc.RequiresMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,7 +17,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -98,7 +96,7 @@ public class CustomEventHandler extends RequiresMod {
 	@SubscribeEvent
 	public void nameFormatEvent(NameFormat event) {		
 		EntityPlayer player = event.getEntityPlayer();
-		String name = this.mod.getNationManager().getName(player);
+		String name = this.mod.getName(player);
 		event.setDisplayname(name);
 		player.setCustomNameTag(name);
 	}
@@ -197,19 +195,9 @@ public class CustomEventHandler extends RequiresMod {
 		
 		if(mobs > 15) {
 			event.setCanceled(true);
-			
-			if(Math.random() > 0.5) {
-				
-				EntityLiving toKill;
-				if(Math.random() > 0.5)
-					toKill = event.getParentA();
-				else
-					toKill = event.getParentB();
-				
-				toKill.attackEntityFrom(DamageSource.MAGIC, toKill.getHealth());
-				
-			}
-			
+			EntityPlayer player = event.getCausedByPlayer();
+			if(player != null)
+				player.sendMessage(new TextComponentString(TextFormatting.RED + "There are too many animals in this chunk. No baby was spawned to reduce lag."));
 		}
 		
 	}
