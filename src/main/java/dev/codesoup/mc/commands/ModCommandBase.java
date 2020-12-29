@@ -1,5 +1,9 @@
 package dev.codesoup.mc.commands;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.mojang.authlib.GameProfile;
 
 import dev.codesoup.mc.CustomMod;
@@ -13,6 +17,7 @@ public abstract class ModCommandBase extends CommandBase {
 
 	protected CustomMod mod;
 	protected String commandName;
+	protected List<String> aliasList;
 	protected int requiredPermissionLevel;
 	
 	private final String ERR_USER_NONEXISTANT = "That user does not exist.";
@@ -24,6 +29,13 @@ public abstract class ModCommandBase extends CommandBase {
 		this.mod = mod;
 		this.commandName = commandName;
 		this.requiredPermissionLevel = requiredPermissionLevel;
+		this.aliasList = Collections.<String>emptyList();
+	}
+	
+	public ModCommandBase(CustomMod mod, String commandName, String shortAlias, int requiredPermissionLevel) {
+		this(mod, commandName, requiredPermissionLevel);
+		this.aliasList = new ArrayList<>();
+		this.aliasList.add(shortAlias);
 	}
 	
 	protected void _assert(boolean condition, String message) throws CommandException {
@@ -55,6 +67,11 @@ public abstract class ModCommandBase extends CommandBase {
 	@Override
 	public String getName() {
 		return this.commandName;
+	}
+	
+	@Override
+	public List<String> getAliases() {
+		return aliasList;
 	}
 	
 	@Override

@@ -16,7 +16,7 @@ public class UnclaimCommand extends ModCommandBase {
 	private final static String USAGE = "/unclaim";
 	
 	public UnclaimCommand(CustomMod mod) {
-		super(mod, "unclaim", 0);
+		super(mod, "unclaim", "u", 0);
 	}
 	
 	@Override

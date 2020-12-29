@@ -10,7 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class PowerManager extends Manager {
+public class PowerManager extends RequiresMod {
 
 	private Map<UUID, Integer> totalPower;
 	

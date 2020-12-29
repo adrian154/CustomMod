@@ -8,10 +8,10 @@ import net.minecraft.util.text.TextComponentString;
 
 public class RerenderMarkersCommand extends ModCommandBase {
 
-	private final static String USAGE = "/rem";
+	private final static String USAGE = "/ren";
 	
 	public RerenderMarkersCommand(CustomMod mod) {
-		super(mod, "rem", 4);
+		super(mod, "rerender", "ren", 4);
 	}
 	
 	@Override

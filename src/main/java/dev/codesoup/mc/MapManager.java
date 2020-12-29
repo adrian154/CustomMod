@@ -12,7 +12,7 @@ import org.dynmap.markers.MarkerSet;
 
 import net.minecraftforge.fml.common.Loader;
 
-public class MapManager extends Manager {
+public class MapManager extends RequiresMod {
 
 	public static final String MARKER_SET_NAME = "custommod.claims.markerset";
 	public static final String CLAIMS_LAYER_NAME = "Claims";

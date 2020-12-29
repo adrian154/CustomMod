@@ -21,23 +21,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.mojang.authlib.GameProfile;
 
-import dev.codesoup.mc.commands.AutoclaimCommand;
-import dev.codesoup.mc.commands.BaseCommand;
-import dev.codesoup.mc.commands.ClaimCommand;
-import dev.codesoup.mc.commands.GivePowerCommand;
-import dev.codesoup.mc.commands.InvitationsCommand;
-import dev.codesoup.mc.commands.MCWSCommand;
-import dev.codesoup.mc.commands.NationChatCommand;
-import dev.codesoup.mc.commands.NationCommand;
-import dev.codesoup.mc.commands.PowerCommand;
-import dev.codesoup.mc.commands.ProtectCommand;
-import dev.codesoup.mc.commands.RerenderMarkersCommand;
-import dev.codesoup.mc.commands.SetSpawnCommand;
-import dev.codesoup.mc.commands.TogglePVPCommand;
-import dev.codesoup.mc.commands.TopCommand;
-import dev.codesoup.mc.commands.UnclaimCommand;
-import dev.codesoup.mc.commands.ViewInventoryCommand;
+import dev.codesoup.mc.commands.ModCommands;
+import dev.codesoup.mc.event.ClaimMessagesHandler;
 import dev.codesoup.mc.event.CustomEventHandler;
+import dev.codesoup.mc.event.ProtectionsHandler;
 import dev.codesoup.mc.mcws.Configuration;
 import dev.codesoup.mc.mcws.CustomAppender;
 import dev.codesoup.mc.mcws.MCWSEventHandler;
@@ -63,14 +50,12 @@ public class CustomMod
 
     private MinecraftServer server;
     
-    private CustomEventHandler customEventHandler;
-    private MCWSEventHandler mcwsEventHandler;
-    
     private ClaimsManager claimsManager;
     private NationManager nationManager;
     private PowerManager powerManager;
     private MapManager mapManager;
     
+    private ModCommands commands;
     private Configuration configuration;
     private WSServer wsServer;
     
@@ -101,26 +86,25 @@ public class CustomMod
     }
     
     @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-    
+    public void onPreInit(FMLPreInitializationEvent event) {
     	this.logger = event.getModLog();
     	this.gson = buildGson();
-    	
     }
     
     
     @EventHandler
-    public void init(FMLInitializationEvent event) {
-   
-    	this.customEventHandler = new CustomEventHandler(this);
-    	this.mcwsEventHandler = new MCWSEventHandler(this);
-    	MinecraftForge.EVENT_BUS.register(this.customEventHandler);
-    	MinecraftForge.EVENT_BUS.register(this.mcwsEventHandler);
+    public void onInit(FMLInitializationEvent event) {
+    	
+    	MinecraftForge.EVENT_BUS.register(new ClaimMessagesHandler(this));
+    	MinecraftForge.EVENT_BUS.register(new CustomEventHandler(this));
+    	MinecraftForge.EVENT_BUS.register(new MCWSEventHandler(this));
+    	MinecraftForge.EVENT_BUS.register(new ProtectionsHandler(this));
+    	commands.onInit(event);
     	
     }
     
     @EventHandler
-    public void init(FMLServerStartingEvent event) {
+    public void onServerStart(FMLServerStartingEvent event) {
     	
     	try {
     		this.loadAll();
@@ -133,7 +117,7 @@ public class CustomMod
     	this.wsServer = new WSServer(this);
     	this.mapManager = new MapManager(this);
     	
-    	registerCommands(event);
+    	commands.onServerStart(event);
     	startPassivePowerTask();
     	attachAppender();
     	
@@ -155,29 +139,6 @@ public class CustomMod
     	Runnable timerTask = new GivePowerTask();
     	executor = Executors.newScheduledThreadPool(1);
     	executor.scheduleAtFixedRate(timerTask, 0, 60 * 5, TimeUnit.SECONDS);
-    }
-    
-    private void registerCommands(FMLServerStartingEvent event) {
-    	event.registerServerCommand(new TogglePVPCommand(this));
-    	event.registerServerCommand(new ClaimCommand(this));
-    	event.registerServerCommand(new NationCommand(this));
-    	event.registerServerCommand(new InvitationsCommand(this));
-    	event.registerServerCommand(new PowerCommand(this));
-    	event.registerServerCommand(new UnclaimCommand(this));
-    	event.registerServerCommand(new SetSpawnCommand(this));
-    	event.registerServerCommand(new BaseCommand(this));
-    	event.registerServerCommand(new ProtectCommand(this));
-    	event.registerServerCommand(new GivePowerCommand(this));
-    	event.registerServerCommand(new NationChatCommand(this));
-    	event.registerServerCommand(new RerenderMarkersCommand(this));
-    	event.registerServerCommand(new ViewInventoryCommand(this));
-    	event.registerServerCommand(new TopCommand(this));
-    	event.registerServerCommand(new MCWSCommand(this));
-    	event.registerServerCommand(new AutoclaimCommand(this));
-    }
-    
-    public CustomEventHandler getEventHandler() {
-    	return this.customEventHandler;
     }
     
     public ClaimsManager getClaimsManager() {
@@ -240,6 +201,11 @@ public class CustomMod
     	return server.getPlayerProfileCache().getProfileByUUID(uuid);
     }
 
+    public String getName(UUID uuid) {
+    	GameProfile profile = server.getPlayerProfileCache().getProfileByUUID(uuid);
+    	return profile != null ? profile.getName() : "Unknown";
+    }
+    
     public static String readConfigFile(String pathStr) throws IOException {
     	File file = new File(pathStr);
     	if(file.exists()) {
@@ -256,7 +222,7 @@ public class CustomMod
     	out.close();
     }
     
-    private <T extends Manager> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+    private <T extends RequiresMod> T loadFromConfig(Class<T> clazz, String configName) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
     	String config = readConfigFile(configName);
     	if(config == null) {
     		logger.debug(String.format("No config file \"%s\", creating new instance...", configName));
@@ -287,7 +253,7 @@ public class CustomMod
     	saveConfig("power.dat", gson.toJson(this.powerManager));
     }
     
-    private class ManagerCreator<T extends Manager> implements InstanceCreator<T> {
+    private class ManagerCreator<T extends RequiresMod> implements InstanceCreator<T> {
     
     	private CustomMod mod;
     	private Class<T> clazz;

@@ -14,7 +14,7 @@ public class ClaimCommand extends ModCommandBase {
 	private final static String USAGE = "/claim";
 	
 	public ClaimCommand(CustomMod mod) {
-		super(mod, "claim", 0);
+		super(mod, "claim", "c", 0);
 		this.claims = mod.getClaimsManager();
 	}
 	

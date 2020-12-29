@@ -17,7 +17,7 @@ public class PowerCommand extends ModCommandBase {
 	private final static String USAGE = "/power";
 	
 	public PowerCommand(CustomMod mod) {
-		super(mod, "power", 0);
+		super(mod, "power", "p", 0);
 	}
 	
 	@Override

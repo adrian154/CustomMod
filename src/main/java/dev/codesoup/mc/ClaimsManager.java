@@ -14,7 +14,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class ClaimsManager extends Manager {
+public class ClaimsManager extends RequiresMod {
 	
 	private Map<XZPair, UUID> claims;
 	private Map<UUID, List<XZPair>> playerClaims;

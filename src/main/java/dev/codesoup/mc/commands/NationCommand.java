@@ -57,7 +57,7 @@ public class NationCommand extends ModCommandBase {
 	private final String ERR_REACHED_MAXIMUM = "You have reached the maximum number of players in your nation.";
 	
 	public NationCommand(CustomMod mod) {
-		super(mod, "nation", 0);
+		super(mod, "nation", "n", 0);
 		this.nationManager = mod.getNationManager();
 	}
 	

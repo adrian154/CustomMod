@@ -11,7 +11,7 @@ public class InvitationsCommand extends ModCommandBase {
 	private final static String USAGE = "/invites";
 	
 	public InvitationsCommand(CustomMod mod) {
-		super(mod, "invites", 0);
+		super(mod, "invites", "invs", 0);
 	}
 	
 	@Override
