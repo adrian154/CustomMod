@@ -54,6 +54,7 @@ public class NationCommand extends ModCommandBase {
 	private final String ERR_NO_SUCH_NATION = "No nation exists by that name.";
 	private final String ERR_INVALID_COLOR = "Invalid color.";
 	private final String ERR_UNKNOWN_COMMAND = "No such command.";
+	private final String ERR_REACHED_MAXIMUM = "You have reached the maximum number of players in your nation.";
 	
 	public NationCommand(CustomMod mod) {
 		super(mod, "nation", 0);
@@ -169,6 +170,7 @@ public class NationCommand extends ModCommandBase {
 			GameProfile toInvite = assertPlayer(params[1]);
 			_assert(!nationManager.sameNation(player.getUniqueID(), toInvite.getId()), ERR_ALREADY_IN_NATION);
 			_assert(!nation.hasInvitationFor(toInvite.getId()), ERR_ALREADY_INVITED);
+			_assert(nation.getMembers().size() < 5, ERR_REACHED_MAXIMUM);
 			
 			nation.invite(toInvite.getId());
 			EntityPlayerMP toInvitePlayer = mod.getPlayer(toInvite.getId());

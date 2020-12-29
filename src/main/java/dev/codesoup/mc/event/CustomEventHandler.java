@@ -2,6 +2,7 @@ package dev.codesoup.mc.event;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -13,13 +14,14 @@ import dev.codesoup.mc.GenericToggleManager;
 import dev.codesoup.mc.Nation;
 import dev.codesoup.mc.PowerManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
+import net.minecraft.network.play.server.SPacketUpdateBossInfo;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.DamageSource;
@@ -27,6 +29,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.BossInfo;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -86,33 +89,92 @@ public class CustomEventHandler {
 		
 	}
 	
-	private void onEnterClaim(UUID claimer, EntityPlayer player) {
+	private static class CustomBossInfo extends BossInfo {
+		
+		private static final Map<TextFormatting, BossInfo.Color> COLOR_MAPPINGS;
+		
+		static {
+			COLOR_MAPPINGS = new HashMap<>();
+			COLOR_MAPPINGS.put(TextFormatting.AQUA, BossInfo.Color.BLUE);
+			COLOR_MAPPINGS.put(TextFormatting.BLACK, BossInfo.Color.WHITE);
+			COLOR_MAPPINGS.put(TextFormatting.BLUE, BossInfo.Color.BLUE);
+			COLOR_MAPPINGS.put(TextFormatting.DARK_AQUA, BossInfo.Color.BLUE);
+			COLOR_MAPPINGS.put(TextFormatting.DARK_BLUE, BossInfo.Color.BLUE);
+			COLOR_MAPPINGS.put(TextFormatting.DARK_GRAY, BossInfo.Color.WHITE);
+			COLOR_MAPPINGS.put(TextFormatting.DARK_GREEN, BossInfo.Color.GREEN);
+			COLOR_MAPPINGS.put(TextFormatting.DARK_PURPLE, BossInfo.Color.PURPLE);
+			COLOR_MAPPINGS.put(TextFormatting.DARK_RED, BossInfo.Color.RED);
+			COLOR_MAPPINGS.put(TextFormatting.GOLD, BossInfo.Color.YELLOW);
+			COLOR_MAPPINGS.put(TextFormatting.GRAY, BossInfo.Color.WHITE);
+			COLOR_MAPPINGS.put(TextFormatting.GREEN, BossInfo.Color.GREEN);
+			COLOR_MAPPINGS.put(TextFormatting.LIGHT_PURPLE, BossInfo.Color.PURPLE);
+			COLOR_MAPPINGS.put(TextFormatting.RED, BossInfo.Color.RED);
+			COLOR_MAPPINGS.put(TextFormatting.WHITE, BossInfo.Color.WHITE);
+			COLOR_MAPPINGS.put(TextFormatting.YELLOW, BossInfo.Color.YELLOW);
+		}
+		
+		public CustomBossInfo(CustomMod mod, Nation nation) {
+			super(nation.getID(), new TextComponentString(nation.getName()), COLOR_MAPPINGS.get(nation.getColor()), BossInfo.Overlay.PROGRESS);
+		}
+		
+		public CustomBossInfo(CustomMod mod, UUID player) {
+			super(player, new TextComponentString(mod.getProfile(player).getName()), BossInfo.Color.WHITE, BossInfo.Overlay.PROGRESS);
+		}
+		
+	}
+	
+	private void doEnemyBossbar(EntityPlayerMP player, Nation nation, boolean state) {
+		sendBossbarPacket(player, new CustomBossInfo(mod, nation), state);
+	}
+	
+	private void doEnemyBossbar(EntityPlayerMP player, UUID claimer, boolean state) {
+		sendBossbarPacket(player, new CustomBossInfo(mod, claimer), state);
+	}
+	
+	private void sendBossbarPacket(EntityPlayerMP player, CustomBossInfo bossInfo, boolean state) {
+		player.connection.sendPacket(new SPacketUpdateBossInfo(state ? SPacketUpdateBossInfo.Operation.ADD : SPacketUpdateBossInfo.Operation.REMOVE, bossInfo));
+	}
+	
+	private void onEnterClaim(UUID claimer, EntityPlayerMP player) {
 
 		boolean allied = mod.getNationManager().sameNation(player.getUniqueID(), claimer);
-		String format = allied ? TextFormatting.AQUA.toString() : TextFormatting.RED.toString() + TextFormatting.BOLD;
-		
+
 		GameProfile claimerProfile = mod.getProfile(claimer);
 		if(claimerProfile == null) return;
-			
+		
+		Nation nation = mod.getNationManager().getNation(claimer);
+		
 		if(claimer.equals(player.getUniqueID())) {
-			player.sendMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."));
+		
+			// Entering your own territory is always a status.
+			player.sendStatusMessage(new TextComponentString(TextFormatting.GREEN + "You are now on your own territory."), true);
+		
 		} else {
-			player.sendMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", format, claimerProfile.getName())));
+			
+			// Send notification as status (minor) if allied and as a full message if not.
+			if(allied)
+				player.sendStatusMessage(new TextComponentString(String.format("%sYou are now on %s's territory.", TextFormatting.AQUA, claimerProfile.getName())), allied);
+			else
+				if(nation != null)
+					doEnemyBossbar(player, nation, true);
+				else
+					doEnemyBossbar(player, claimer, true);
+				
 		}
 		
 		// send other player message
 		if(!player.isSpectator() && !claimer.equals(player.getUniqueID())) {
 			
 			EntityPlayer claimerPlayer = mod.getPlayer(claimer);
-			if(claimerPlayer != null) {
-				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has entered your territory.", format, player.getName())));
+			if(claimerPlayer != null && !allied) {
+				claimerPlayer.sendMessage(new TextComponentString(String.format("%s%s has entered your territory.", TextFormatting.RED, player.getName())));
 			}
 			
 		}
 		
 	}
 	
-	private void onExitClaim(UUID claimer, EntityPlayer player) {
+	private void onExitClaim(UUID claimer, EntityPlayerMP player) {
 		
 		if(player.isSpectator()) return;
 		
@@ -121,17 +183,28 @@ public class CustomEventHandler {
 			
 			EntityPlayerMP claimerPlayer = (EntityPlayerMP)this.mod.getPlayer(claimer);
 			
-			if(claimerPlayer != null && !claimerPlayer.equals(player)) {
+			if(claimerPlayer != null && !claimerPlayer.equals(player) && !mod.getNationManager().sameNation(player, claimerPlayer)) {
 				claimerPlayer.sendMessage(new TextComponentString("§7§o" + player.getName() + " left your territory."));
 			}
 			
 		}
 		
+		if(claimer != null) {
+			
+			Nation nation = mod.getNationManager().getNation(claimer);
+			if(nation != null)
+				doEnemyBossbar(player, nation, false);
+			else
+				doEnemyBossbar(player, claimer, false);
+			
+		}
+		
 	}
 	
-	private void onEnterWilderness(EntityPlayer player) {
+	private void onEnterWilderness(EntityPlayerMP player) {
 		
-		player.sendMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."));
+		// Entering the wilderness is also a status.
+		player.sendStatusMessage(new TextComponentString(TextFormatting.GOLD + "You are now in the wilderness."), true);
 		
 	}
 	
@@ -195,15 +268,6 @@ public class CustomEventHandler {
 		if(!event.getWorld().isRemote)
 			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getPlayer()));
 		
-		BlockPos pos = event.getPos();
-		if(event.getState().getBlock().equals(Blocks.DIAMOND_ORE)) {
-			
-			String str = String.format("%s mined diamond ore at (%d, %d, %d)", event.getPlayer().getName(), pos.getX(), pos.getY(), pos.getZ());
-			mod.logger.info(str);
-			mod.broadcastToOps(str);
-			
-		}
-	
 	}
 	
 	@SubscribeEvent
@@ -365,11 +429,14 @@ public class CustomEventHandler {
 		
 		int mobs = 0;
 		for(ClassInheritanceMultiMap<Entity> list: chunk.getEntityLists()) {
-			mobs += list.size();
+			for(Entity entity: list) {
+				if(entity instanceof EntityAgeable)
+					mobs += list.size();
+			}
 		}
 		
 		System.out.println(mobs);
-		if(mobs > 20) {
+		if(mobs > 15) {
 			event.setCanceled(true);
 			
 			if(Math.random() > 0.5) {
@@ -399,7 +466,7 @@ public class CustomEventHandler {
 			invokeBaseTime.remove(event.player);
 			event.player.sendMessage(new TextComponentString(TextFormatting.RED + "Your teleport was canceled since you moved."));
 		}
-		
+
 	}
 	
 	@SubscribeEvent

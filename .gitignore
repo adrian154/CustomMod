@@ -20,9 +20,10 @@ build
 # other
 eclipse
 run
+*.bat
 
 # Files from Forge MDK
 forge*changelog.txt
 
 # keys
-id_rsa
+*.pem

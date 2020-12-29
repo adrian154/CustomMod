@@ -1,1 +1,1 @@
-scp -i id_rsa build/libs/custommod-1.0.jar ubuntu@codesoup.dev:/mcserver/mods
+scp -i ramnode-mc-key.pem build/libs/custommod-1.0.jar root@mc.codesoup.dev:/mcserver/mods
