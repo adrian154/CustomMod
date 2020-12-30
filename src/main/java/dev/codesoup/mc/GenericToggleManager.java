@@ -9,17 +9,23 @@ import net.minecraft.entity.player.EntityPlayer;
 public class GenericToggleManager {
 
 	private Map<UUID, Boolean> state;
+	private boolean defaultValue;
 	
-	public GenericToggleManager() {
+	public GenericToggleManager(boolean defaultValue) {
 		state = new WeakHashMap<UUID, Boolean>();
+		this.defaultValue = defaultValue;
 	}
 	
-	private boolean ifNullFalse(Boolean value) {
-		return value == null ? false : value;
+	public GenericToggleManager() {
+		this(false);
+	}
+	
+	private boolean ifNullDefault(Boolean value) {
+		return value == null ? defaultValue : value;
 	}
 	
 	public boolean get(EntityPlayer player) {
-		return ifNullFalse(state.get(player.getUniqueID()));
+		return ifNullDefault(state.get(player.getUniqueID()));
 	}
 	
 	public boolean toggle(EntityPlayer player) {

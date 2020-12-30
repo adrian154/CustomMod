@@ -19,7 +19,7 @@ public class ProtectionsHandler extends RequiresMod {
 	
 	@SubscribeEvent
 	public void interactEvent(PlayerInteractEvent event) {
-		if(!event.getWorld().isRemote)
+		if(!event.getWorld().isRemote && !(event instanceof PlayerInteractEvent.RightClickItem))
 			event.setCanceled(mod.getClaimsManager().shouldProtect(event.getWorld(), event.getPos(), event.getEntityPlayer()));
 	}
 
@@ -51,8 +51,8 @@ public class ProtectionsHandler extends RequiresMod {
 	
 	@SubscribeEvent
 	public void onAttackEntity(AttackEntityEvent event) {
-		if(!event.getEntity().getEntityWorld().isRemote && !(event.getEntity() instanceof EntityPlayer)) {
-			if(mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getEntity().getPosition(), event.getEntityPlayer())) {
+		if(!event.getEntity().getEntityWorld().isRemote && !(event.getTarget() instanceof EntityPlayer)) {
+			if(mod.getClaimsManager().shouldProtect(event.getEntity().getEntityWorld(), event.getTarget().getPosition(), event.getEntityPlayer())) {
 				event.setCanceled(true);
 			}
 		}

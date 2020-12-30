@@ -78,7 +78,7 @@ public class MapManager extends RequiresMod {
 		AreaMarker marker = markerSet.createAreaMarker(markerID, tooltip, true, "world", xlist, zlist, false);
 		if(marker != null) {
 			marker.setLineStyle(1, 0, color);
-			marker.setFillStyle(0.7, color);
+			marker.setFillStyle(0.8, color);
 		} else {
 			mod.logger.error("Failed to create marker");
 		}

@@ -96,7 +96,6 @@ public class CustomMod {
 		
 		// MapManager has no saved state :D
 		this.mapManager = new MapManager(this);
-		
 		this.commands = new ModCommands(this);
 	
 	}
@@ -134,6 +133,10 @@ public class CustomMod {
 	}
 
 	/* GETTERS */
+	public ModCommands getCommands() {
+		return this.commands;
+	}
+	
 	public ClaimsManager getClaimsManager() {
 		return this.claimsManager;
 	}
@@ -256,6 +259,7 @@ public class CustomMod {
 
 		// Postinit step
 		this.nationManager.postInit();
+		this.claimsManager.postInit();
 
 	}
 

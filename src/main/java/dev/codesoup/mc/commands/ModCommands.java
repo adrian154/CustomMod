@@ -27,6 +27,7 @@ public class ModCommands extends RequiresMod {
 	public final TogglePVPCommand TOGGLE_PVP_COMMAND;
 	public final TopCommand TOP_COMMAND;
 	public final UnclaimCommand UNCLAIM_COMMAND;
+	public final GodCommand GOD_COMMAND;
 	private final List<ModCommandBase> commands;
 	
 	public ModCommands(CustomMod mod) {
@@ -49,6 +50,7 @@ public class ModCommands extends RequiresMod {
 		this.TOGGLE_PVP_COMMAND = new TogglePVPCommand(mod);
 		this.TOP_COMMAND = new TopCommand(mod);
 		this.UNCLAIM_COMMAND = new UnclaimCommand(mod);
+		this.GOD_COMMAND = new GodCommand(mod);
 		
 		commands = Arrays.asList(
 			this.AUTOCLAIM_COMMAND,
@@ -66,7 +68,8 @@ public class ModCommands extends RequiresMod {
 			this.SET_SPAWN_COMMAND,
 			this.TOGGLE_PVP_COMMAND,
 			this.TOP_COMMAND,
-			this.UNCLAIM_COMMAND
+			this.UNCLAIM_COMMAND,
+			this.GOD_COMMAND
 		);
 		
 	}

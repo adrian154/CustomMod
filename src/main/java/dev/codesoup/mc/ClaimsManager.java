@@ -16,7 +16,7 @@ import net.minecraft.world.chunk.Chunk;
 
 public class ClaimsManager extends RequiresMod {
 	
-	private Map<XZPair, UUID> claims;
+	private transient Map<XZPair, UUID> claims;
 	private Map<UUID, List<XZPair>> playerClaims;
 	
 	public ClaimsManager(CustomMod mod) {
@@ -25,6 +25,15 @@ public class ClaimsManager extends RequiresMod {
 		playerClaims = new HashMap<UUID, List<XZPair>>();
 	}
 
+	public void postInit() {
+		for(UUID uuid: playerClaims.keySet()) {
+			List<XZPair> list = playerClaims.get(uuid);
+			for(XZPair pair: list) {
+				claims.put(pair, uuid);
+			}
+		}
+	}
+	
 	public UUID getClaim(int x, int z) {
 		return claims.get(new XZPair(x, z));
 	}
@@ -58,7 +67,7 @@ public class ClaimsManager extends RequiresMod {
 		UUID claim = getClaim(chunk.x, chunk.z);
 		
 		// obviously if no one has claimed it it's up for grabs
-		if(claim == null) {
+		if(claim == null || mod.getCommands().GOD_COMMAND.isGodmode(player)) {
 			return false;
 		}
 		
